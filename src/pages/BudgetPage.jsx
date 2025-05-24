@@ -169,7 +169,7 @@ const CHART_COLORS = {
 };
 
 // Components
-const BudgetOverviewCard = ({ title, value, icon, color, subtitle, trend }) => {
+const BudgetOverviewCard = ({ title, value, icon, color, subtitle }) => {
   const theme = useTheme();
   return (
     <MetricCard colorType={color} elevation={0}>
@@ -179,20 +179,14 @@ const BudgetOverviewCard = ({ title, value, icon, color, subtitle, trend }) => {
             {title}
           </Typography>
           <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette[color].dark, mb: 0.5 }}>
-            ₹{value.toLocaleString()}
+            {typeof value === 'number' && title !== 'Active Budgets' && title !== 'Over Budget' 
+              ? `₹${value.toLocaleString()}` 
+              : value}
           </Typography>
           {subtitle && (
             <Typography variant="caption" color="text.secondary">
               {subtitle}
             </Typography>
-          )}
-          {trend !== undefined && (
-            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 1 }}>
-              {trend >= 0 ? <TrendingUpIcon fontSize="small" color="success" /> : <TrendingDownIcon fontSize="small" color="error" />}
-              <Typography variant="caption" color={trend >= 0 ? 'success.main' : 'error.main'}>
-                {Math.abs(trend)}% from last month
-              </Typography>
-            </Stack>
           )}
         </Box>
         <Avatar sx={{ 
@@ -282,8 +276,9 @@ const BudgetPage = () => {
     }
   };
 
-  // Calculate overview metrics
+  // Calculate overview metrics from real data
   const totalBudgeted = budgets.reduce((sum, b) => sum + b.totalBudgetedAmount, 0);
+  const totalSpent = budgets.reduce((sum, b) => sum + (b.totalActualSpent || 0), 0);
   const activeBudgets = budgets.filter(b => b.status === 'active').length;
   const overBudgetCount = budgets.filter(b => b.status === 'overbudget').length;
 
@@ -378,7 +373,7 @@ const BudgetPage = () => {
           </Fade>
         )}
 
-        {/* Overview Metrics */}
+        {/* Overview Metrics - ALL FROM REAL DATA */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
             <Grow in timeout={500}>
@@ -389,7 +384,6 @@ const BudgetPage = () => {
                   icon={<AccountBalanceWalletIcon />}
                   color="primary"
                   subtitle={`Across ${budgets.length} budgets`}
-                  trend={12}
                 />
               </Box>
             </Grow>
@@ -424,11 +418,11 @@ const BudgetPage = () => {
             <Grow in timeout={1100}>
               <Box>
                 <BudgetOverviewCard
-                  title="Average Utilization"
-                  value={78}
-                  icon={<DonutLargeIcon />}
+                  title="Total Spent"
+                  value={totalSpent}
+                  icon={<AttachMoneyIcon />}
                   color="info"
-                  subtitle="Budget usage"
+                  subtitle="Actual spending"
                 />
               </Box>
             </Grow>

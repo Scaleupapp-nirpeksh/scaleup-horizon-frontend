@@ -195,54 +195,6 @@ const KpiMetric = ({ title, value, icon, change, color, loading, prefix = '', su
   );
 };
 
-const InsightCard = ({ title, description, icon, severity = 'info' }) => {
-  const theme = useTheme();
-  const colors = {
-    info: theme.palette.info.main,
-    success: theme.palette.success.main,
-    warning: theme.palette.warning.main,
-    error: theme.palette.error.main
-  };
-  
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 2,
-        borderRadius: 2,
-        border: `1px solid ${alpha(colors[severity], 0.2)}`,
-        backgroundColor: alpha(colors[severity], 0.05),
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          transform: 'translateX(4px)',
-          borderColor: alpha(colors[severity], 0.4),
-        }
-      }}
-    >
-      <Stack direction="row" spacing={2} alignItems="flex-start">
-        <Avatar
-          sx={{
-            bgcolor: alpha(colors[severity], 0.1),
-            color: colors[severity],
-            width: 40,
-            height: 40
-          }}
-        >
-          {icon}
-        </Avatar>
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-            {title}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {description}
-          </Typography>
-        </Box>
-      </Stack>
-    </Paper>
-  );
-};
-
 const KpisPage = () => {
   const theme = useTheme();
   const [snapshots, setSnapshots] = useState([]);
@@ -342,6 +294,11 @@ const KpisPage = () => {
     mau: item.mau,
     ratio: item.mau > 0 ? (item.dau / item.mau * 100).toFixed(1) : 0
   }));
+
+  // Calculate actual metrics from data
+  const avgDau = chartData.length > 0 ? Math.round(chartData.reduce((sum, d) => sum + d.dau, 0) / chartData.length) : 0;
+  const avgMau = chartData.length > 0 ? Math.round(chartData.reduce((sum, d) => sum + d.mau, 0) / chartData.length) : 0;
+  const avgEngagementRate = chartData.length > 0 ? Math.round(chartData.reduce((sum, d) => sum + parseFloat(d.ratio), 0) / chartData.length) : 0;
 
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', pb: 6 }}>
@@ -588,17 +545,20 @@ const KpisPage = () => {
                             Average DAU
                           </Typography>
                           <Typography variant="h4" color="primary.main" sx={{ fontWeight: 700 }}>
-                            {chartData.length > 0 
-                              ? Math.round(chartData.reduce((sum, d) => sum + d.dau, 0) / chartData.length).toLocaleString()
-                              : '0'
-                            }
+                            {avgDau.toLocaleString()}
                           </Typography>
-                          <Stack direction="row" alignItems="center" spacing={0.5}>
-                            <TrendingUpIcon fontSize="small" color="success" />
-                            <Typography variant="caption" color="success.main">
-                              +12% from last period
-                            </Typography>
-                          </Stack>
+                          {growthMetrics?.dauGrowth !== undefined && (
+                            <Stack direction="row" alignItems="center" spacing={0.5}>
+                              {growthMetrics.dauGrowth >= 0 ? (
+                                <TrendingUpIcon fontSize="small" color="success" />
+                              ) : (
+                                <TrendingDownIcon fontSize="small" color="error" />
+                              )}
+                              <Typography variant="caption" color={growthMetrics.dauGrowth >= 0 ? "success.main" : "error.main"}>
+                                {Math.abs(growthMetrics.dauGrowth)}% from last period
+                              </Typography>
+                            </Stack>
+                          )}
                         </Stack>
                       </Paper>
                     </Grid>
@@ -618,17 +578,20 @@ const KpisPage = () => {
                             Average MAU
                           </Typography>
                           <Typography variant="h4" color="success.main" sx={{ fontWeight: 700 }}>
-                            {chartData.length > 0 
-                              ? Math.round(chartData.reduce((sum, d) => sum + d.mau, 0) / chartData.length).toLocaleString()
-                              : '0'
-                            }
+                            {avgMau.toLocaleString()}
                           </Typography>
-                          <Stack direction="row" alignItems="center" spacing={0.5}>
-                            <TrendingUpIcon fontSize="small" color="success" />
-                            <Typography variant="caption" color="success.main">
-                              +8% from last period
-                            </Typography>
-                          </Stack>
+                          {growthMetrics?.mauGrowth !== undefined && (
+                            <Stack direction="row" alignItems="center" spacing={0.5}>
+                              {growthMetrics.mauGrowth >= 0 ? (
+                                <TrendingUpIcon fontSize="small" color="success" />
+                              ) : (
+                                <TrendingDownIcon fontSize="small" color="error" />
+                              )}
+                              <Typography variant="caption" color={growthMetrics.mauGrowth >= 0 ? "success.main" : "error.main"}>
+                                {Math.abs(growthMetrics.mauGrowth)}% from last period
+                              </Typography>
+                            </Stack>
+                          )}
                         </Stack>
                       </Paper>
                     </Grid>
@@ -648,38 +611,24 @@ const KpisPage = () => {
                             Engagement Rate
                           </Typography>
                           <Typography variant="h4" color="warning.main" sx={{ fontWeight: 700 }}>
-                            {chartData.length > 0 
-                              ? `${Math.round(chartData.reduce((sum, d) => sum + parseFloat(d.ratio), 0) / chartData.length)}%`
-                              : '0%'
-                            }
+                            {avgEngagementRate}%
                           </Typography>
-                          <Stack direction="row" alignItems="center" spacing={0.5}>
-                            <TrendingDownIcon fontSize="small" color="error" />
-                            <Typography variant="caption" color="error.main">
-                              -2% from last period
-                            </Typography>
-                          </Stack>
+                          {growthMetrics?.dauMauGrowth !== undefined && (
+                            <Stack direction="row" alignItems="center" spacing={0.5}>
+                              {growthMetrics.dauMauGrowth >= 0 ? (
+                                <TrendingUpIcon fontSize="small" color="success" />
+                              ) : (
+                                <TrendingDownIcon fontSize="small" color="error" />
+                              )}
+                              <Typography variant="caption" color={growthMetrics.dauMauGrowth >= 0 ? "success.main" : "error.main"}>
+                                {Math.abs(growthMetrics.dauMauGrowth)}% from last period
+                              </Typography>
+                            </Stack>
+                          )}
                         </Stack>
                       </Paper>
                     </Grid>
                   </Grid>
-
-                  {/* Quick Insights */}
-                  <Box sx={{ mt: 3, p: 3, borderRadius: 2, bgcolor: alpha(theme.palette.info.main, 0.05), border: `1px solid ${alpha(theme.palette.info.main, 0.1)}` }}>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.1), color: 'info.main' }}>
-                        <AutoGraphIcon />
-                      </Avatar>
-                      <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          Performance Summary
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Your user engagement is strong with a healthy DAU/MAU ratio. Focus on retention strategies to maintain this momentum.
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </Box>
                 </Box>
               </Fade>
             )}
@@ -822,58 +771,30 @@ const KpisPage = () => {
             {activeTab === 2 && (
               <Fade in>
                 <Box>
-                  <Stack spacing={3}>
-                    <InsightCard
-                      title="Strong User Retention"
-                      description="Your DAU/MAU ratio is above 40%, indicating healthy daily engagement from your user base."
-                      icon={<TrendingUpIcon />}
-                      severity="success"
-                    />
-                    <InsightCard
-                      title="Growth Opportunity"
-                      description="User acquisition has slowed down in the past week. Consider launching targeted campaigns."
-                      icon={<AutoGraphIcon />}
-                      severity="warning"
-                    />
-                    <InsightCard
-                      title="Engagement Pattern"
-                      description="Peak usage occurs between 6-9 PM. Schedule important updates during this window."
-                      icon={<ShowChartIcon />}
-                      severity="info"
-                    />
-                    <InsightCard
-                      title="Monthly Milestone"
-                      description="You're on track to reach 10,000 MAU by the end of this month!"
-                      icon={<PersonAddIcon />}
-                      severity="success"
-                    />
-                  </Stack>
-
-                  <Box sx={{ mt: 4, p: 3, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                      AI-Powered Recommendations
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Based on your current metrics and trends, here are personalized recommendations to improve your KPIs:
-                    </Typography>
-                    <Stack spacing={2} sx={{ mt: 2 }}>
-                      {['Implement push notifications to increase DAU by 15%',
-                        'Launch a referral program to boost new user acquisition',
-                        'Create weekly challenges to improve retention metrics',
-                        'Optimize onboarding flow to reduce drop-off rate'
-                      ].map((rec, index) => (
-                        <Stack key={index} direction="row" spacing={1} alignItems="center">
-                          <Chip
-                            size="small"
-                            label={`${index + 1}`}
-                            color="primary"
-                            sx={{ width: 24, height: 24 }}
-                          />
-                          <Typography variant="body2">{rec}</Typography>
-                        </Stack>
-                      ))}
-                    </Stack>
-                  </Box>
+                  {/* Empty state for insights when no data is available */}
+                  {snapshots.length === 0 ? (
+                    <Box sx={{ textAlign: 'center', py: 8 }}>
+                      <InsightsIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+                      <Typography variant="h6" color="text.secondary" gutterBottom>
+                        No insights available yet
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Add more snapshots to see trends and insights
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Box sx={{ mt: 4, p: 3, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+                      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                        Metrics Overview
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Based on your {snapshots.length} snapshot{snapshots.length > 1 ? 's' : ''}, 
+                        you have {latestSnapshot?.totalRegisteredUsers || 0} total users 
+                        with {latestSnapshot?.dau || 0} daily active users 
+                        and {latestSnapshot?.mau || 0} monthly active users.
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
               </Fade>
             )}

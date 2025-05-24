@@ -130,7 +130,7 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 }));
 
 // Components
-const MetricDisplay = ({ title, value, icon, color, trend, loading }) => {
+const MetricDisplay = ({ title, value, icon, color, loading }) => {
   const theme = useTheme();
   return (
     <MetricCard colorType={color} elevation={0}>
@@ -145,14 +145,6 @@ const MetricDisplay = ({ title, value, icon, color, trend, loading }) => {
             <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette[color].dark }}>
               ₹{value.toLocaleString()}
             </Typography>
-            {trend !== undefined && (
-              <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 1 }}>
-                {trend > 0 ? <TrendingUpIcon fontSize="small" color="success" /> : <TrendingDownIcon fontSize="small" color="error" />}
-                <Typography variant="caption" color={trend > 0 ? 'success.main' : 'error.main'}>
-                  {Math.abs(trend)}% from last month
-                </Typography>
-              </Stack>
-            )}
           </Box>
           <Avatar sx={{ 
             bgcolor: alpha(theme.palette[color].main, 0.2), 
@@ -358,7 +350,7 @@ const FinancialsPage = () => {
     }
   };
 
-  // Calculate metrics
+  // Calculate metrics from real data
   const totalBalance = bankAccounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
   const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
   const totalRevenue = revenues.reduce((sum, rev) => sum + rev.amount, 0);
@@ -415,7 +407,7 @@ const FinancialsPage = () => {
                 boxShadow: 2,
                 '&:hover': { boxShadow: 4 }
               }}>
-                <Badge badgeContent={2} color="primary">
+                <Badge badgeContent={dateRange.start || dateRange.end ? 1 : 0} color="primary">
                   <FilterListIcon />
                 </Badge>
               </IconButton>
@@ -432,7 +424,7 @@ const FinancialsPage = () => {
             </Fade>
           )}
 
-          {/* Key Metrics */}
+          {/* Key Metrics - ALL FROM REAL DATA */}
           <Grid container spacing={3} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6} md={3}>
               <Grow in timeout={500}>
@@ -442,7 +434,6 @@ const FinancialsPage = () => {
                     value={totalBalance}
                     icon={<AccountBalanceWalletIcon />}
                     color="primary"
-                    trend={12}
                     loading={loading.bankAccounts}
                   />
                 </Box>
@@ -456,7 +447,6 @@ const FinancialsPage = () => {
                     value={totalRevenue}
                     icon={<TrendingUpIcon />}
                     color="success"
-                    trend={8}
                     loading={loading.revenue}
                   />
                 </Box>
@@ -470,7 +460,6 @@ const FinancialsPage = () => {
                     value={totalExpenses}
                     icon={<TrendingDownIcon />}
                     color="error"
-                    trend={-5}
                     loading={loading.expenses}
                   />
                 </Box>
