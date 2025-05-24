@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ManualKpiSnapshotForm from '../components/kpis/ManualKpiSnapshotForm';
+import CustomKpiSection from '../components/kpis/CustomKpiSection';
 import { 
   getManualKpiSnapshots, 
   deleteManualKpiSnapshot,
@@ -329,7 +330,7 @@ const KpisPage = () => {
                 Key Performance Indicators
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Monitor your business metrics and growth trends
+                Monitor your business metrics, growth trends, and custom KPIs
               </Typography>
             </Box>
             <Stack direction="row" spacing={2}>
@@ -446,7 +447,7 @@ const KpisPage = () => {
             <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
               <StyledTab label="Analytics Dashboard" icon={<AnalyticsIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
               <StyledTab label="Snapshot History" icon={<CalendarTodayIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
-              <StyledTab label="Insights & Trends" icon={<InsightsIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
+              
             </Tabs>
 
             {/* Analytics Dashboard Tab */}
@@ -767,8 +768,17 @@ const KpisPage = () => {
               </Fade>
             )}
 
-            {/* Insights Tab */}
+            {/* Custom KPIs Tab */}
             {activeTab === 2 && (
+              <Fade in>
+                <Box>
+                  <CustomKpiSection embedded={true} />
+                </Box>
+              </Fade>
+            )}
+
+            {/* Insights Tab */}
+            {activeTab === 3 && (
               <Fade in>
                 <Box>
                   {/* Empty state for insights when no data is available */}

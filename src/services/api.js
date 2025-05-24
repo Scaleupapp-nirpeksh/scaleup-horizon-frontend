@@ -96,38 +96,56 @@ export const deleteBudget = (id) => api.delete(`/advanced/budgets/${id}`);
 export const getBudgetVsActualsReport = (params) => api.get('/advanced/reports/budget-vs-actuals', { params });
 
 // --- Fundraising Module ---
-// Rounds
 export const createRound = (roundData) => api.post('/fundraising/rounds', roundData);
 export const getRounds = () => api.get('/fundraising/rounds');
 export const getRoundById = (id) => api.get(`/fundraising/rounds/${id}`);
 export const updateRound = (id, roundData) => api.put(`/fundraising/rounds/${id}`, roundData);
 export const deleteRound = (id) => api.delete(`/fundraising/rounds/${id}`);
-
-// Investors
 export const addInvestor = (investorData) => api.post('/fundraising/investors', investorData);
-export const getInvestors = (params) => api.get('/fundraising/investors', { params }); // e.g., ?roundId=xyz
+export const getInvestors = (params) => api.get('/fundraising/investors', { params });
 export const getInvestorById = (id) => api.get(`/fundraising/investors/${id}`);
 export const updateInvestor = (id, investorData) => api.put(`/fundraising/investors/${id}`, investorData);
 export const deleteInvestor = (id) => api.delete(`/fundraising/investors/${id}`);
-
-// Tranches (nested under investors)
 export const addTranche = (investorId, trancheData) => api.post(`/fundraising/investors/${investorId}/tranches`, trancheData);
 export const updateTranche = (investorId, trancheId, trancheData) => api.put(`/fundraising/investors/${investorId}/tranches/${trancheId}`, trancheData);
 export const deleteTranche = (investorId, trancheId) => api.delete(`/fundraising/investors/${investorId}/tranches/${trancheId}`);
-
-// Cap Table
 export const addCapTableEntry = (entryData) => api.post('/fundraising/captable', entryData);
-export const getCapTableSummary = () => api.get('/fundraising/captable'); // Or get all entries
+export const getCapTableSummary = () => api.get('/fundraising/captable');
 export const getCapTableEntryById = (id) => api.get(`/fundraising/captable/${id}`);
 export const updateCapTableEntry = (id, entryData) => api.put(`/fundraising/captable/${id}`, entryData);
 export const deleteCapTableEntry = (id) => api.delete(`/fundraising/captable/${id}`);
-
-// ESOP Grants (Advanced Features Routes, but related to fundraising/cap table)
 export const createEsopGrant = (grantData) => api.post('/advanced/esop-grants', grantData);
 export const getEsopGrants = (params) => api.get('/advanced/esop-grants', { params });
 export const getEsopGrantById = (id) => api.get(`/advanced/esop-grants/${id}`);
 export const updateEsopGrant = (id, grantData) => api.put(`/advanced/esop-grants/${id}`, grantData);
 export const deleteEsopGrant = (id) => api.delete(`/advanced/esop-grants/${id}`);
+
+// --- Custom KPIs (Enhanced Routes) ---
+export const createCustomKpi = (kpiData) => api.post('/enhanced/kpis/custom', kpiData);
+export const getCustomKpis = (params) => api.get('/enhanced/kpis/custom', { params });
+export const getCustomKpiById = (id) => api.get(`/enhanced/kpis/custom/${id}`); // Assuming backend has this
+export const updateCustomKpi = (id, kpiData) => api.put(`/enhanced/kpis/custom/${id}`, kpiData); // Assuming backend has this
+export const deleteCustomKpi = (id) => api.delete(`/enhanced/kpis/custom/${id}`); // Assuming backend has this
+export const calculateCustomKpiValue = (id, date) => api.post(`/enhanced/kpis/custom/${id}/calculate`, { date });
+export const getKpiDashboardData = () => api.get('/enhanced/kpis/dashboard');
+
+
+// --- Predictive Analytics (Analytics Routes) ---
+export const createRunwayScenario = (data) => api.post('/analytics/runway-scenarios', data);
+export const getRunwayScenarios = () => api.get('/analytics/runway-scenarios');
+export const compareRunwayScenarios = () => api.get('/analytics/runway-scenarios/compare');
+// Add delete and update for runway scenarios if backend supports it
+
+export const createFundraisingPrediction = (data) => api.post('/analytics/fundraising-predictions', data);
+// Add get, update, delete for fundraising predictions
+
+export const createCashFlowForecast = (data) => api.post('/analytics/cash-flow-forecasts', data);
+// Add get, update, delete for cash flow forecasts
+
+export const createRevenueCohort = (data) => api.post('/analytics/revenue-cohorts', data);
+export const generateCohortProjections = (cohortId, data) => api.post(`/analytics/revenue-cohorts/${cohortId}/projections`, data);
+export const getCohortsComparison = () => api.get('/analytics/revenue-cohorts/compare');
+// Add get, update, delete for revenue cohorts
 
 
 export default api;
