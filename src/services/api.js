@@ -31,20 +31,19 @@ api.interceptors.response.use(
       console.warn('API request unauthorized (401). Forcing logout.');
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
-      // Consider a more graceful way to redirect, perhaps via AuthContext
       if (window.location.pathname !== '/login') {
-        // window.location.href = '/login';
+        // window.location.href = '/login'; // Consider a more graceful context-based logout
       }
     }
     return Promise.reject(error);
   }
 );
 
-// Authentication
+// --- Authentication ---
 export const loginUser = (credentials) => api.post('/auth/login', credentials);
 export const registerUser = (userData) => api.post('/auth/register', userData);
 
-// Financials
+// --- Financials ---
 export const addExpense = (expenseData) => api.post('/financials/expenses', expenseData);
 export const getExpenses = (params) => api.get('/financials/expenses', { params });
 export const getExpenseById = (id) => api.get(`/financials/expenses/${id}`);
@@ -62,20 +61,39 @@ export const getBankAccounts = () => api.get('/financials/bank-accounts');
 export const updateBankAccount = (id, accountData) => api.put(`/financials/bank-accounts/${id}`, accountData);
 export const deleteBankAccount = (id) => api.delete(`/financials/bank-accounts/${id}`);
 
-// Transaction Categorization (Enhanced Routes)
+// --- Transaction Categorization (Enhanced Routes) ---
 export const categorizeTransaction = (data) => api.post('/enhanced/transactions/categorize', data);
-export const correctTransactionCategory = (id, data) => api.post(`/enhanced/transactions/${id}/correct-category`, data);
+export const correctTransactionCategory = (expenseId, data) => api.post(`/enhanced/transactions/${expenseId}/correct-category`, data);
 
-// KPI Snapshots (Original KPI Routes)
+// --- KPI Snapshots (Original KPI Routes) ---
 export const createManualKpiSnapshot = (snapshotData) => api.post('/kpis/snapshots', snapshotData);
-export const getManualKpiSnapshots = (params) => api.get('/kpis/snapshots', { params }); // e.g., ?page=1&limit=10
+export const getManualKpiSnapshots = (params) => api.get('/kpis/snapshots', { params });
 export const getManualKpiSnapshotByDate = (date) => api.get(`/kpis/snapshots/${date}`);
 export const updateManualKpiSnapshot = (id, snapshotData) => api.put(`/kpis/snapshots/${id}`, snapshotData);
 export const deleteManualKpiSnapshot = (id) => api.delete(`/kpis/snapshots/${id}`);
 
-// Derived KPIs from Snapshots (Original KPI Routes)
+// --- Derived KPIs from Snapshots (Original KPI Routes) ---
 export const getUserGrowthMetrics = () => api.get('/kpis/user-growth');
-export const getDauMauHistory = (params) => api.get('/kpis/dau-mau-history', { params }); // e.g., ?days=30
+export const getDauMauHistory = (params) => api.get('/kpis/dau-mau-history', { params });
+
+// --- Recurring Transactions (Enhanced Routes) ---
+export const addRecurringTransaction = (data) => api.post('/enhanced/recurring-transactions', data);
+export const getRecurringTransactions = (params) => api.get('/enhanced/recurring-transactions', { params });
+export const getUpcomingRecurringTransactions = (params) => api.get('/enhanced/recurring-transactions/upcoming', { params });
+export const getRecurringTransactionById = (id) => api.get(`/enhanced/recurring-transactions/${id}`);
+export const updateRecurringTransaction = (id, data) => api.put(`/enhanced/recurring-transactions/${id}`, data);
+export const deleteRecurringTransaction = (id) => api.delete(`/enhanced/recurring-transactions/${id}`);
+export const pauseRecurringTransaction = (id) => api.post(`/enhanced/recurring-transactions/${id}/pause`);
+export const resumeRecurringTransaction = (id) => api.post(`/enhanced/recurring-transactions/${id}/resume`);
+export const getRecurringSummary = () => api.get('/enhanced/recurring-transactions/summary');
+
+// --- Budget Management (Advanced Features Routes) ---
+export const createBudget = (budgetData) => api.post('/advanced/budgets', budgetData);
+export const getBudgets = (params) => api.get('/advanced/budgets', { params });
+export const getBudgetById = (id) => api.get(`/advanced/budgets/${id}`);
+export const updateBudget = (id, budgetData) => api.put(`/advanced/budgets/${id}`, budgetData);
+export const deleteBudget = (id) => api.delete(`/advanced/budgets/${id}`);
+export const getBudgetVsActualsReport = (params) => api.get('/advanced/reports/budget-vs-actuals', { params });
 
 
 export default api;

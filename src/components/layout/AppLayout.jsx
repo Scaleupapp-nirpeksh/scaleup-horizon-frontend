@@ -1,39 +1,16 @@
 // src/components/layout/AppLayout.jsx
-// Basic application layout with Header and Sidebar using MUI.
+// Application layout with Header and Sidebar, ensuring main content is scrollable.
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Box from '@mui/material/Box';
-import { styled } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 
 const drawerWidth = 250;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    marginTop: '64px', // Height of AppBar
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    }),
-    [theme.breakpoints.up('md')]: { // For larger screens, always show sidebar or adjust margin
-        marginLeft: 0, // If sidebar is permanent on larger screens
-    },
-  }),
-);
-
-
 const AppLayout = () => {
+  const theme = useTheme(); // Access theme for breakpoints and transitions
   const [sidebarOpen, setSidebarOpen] = useState(true); // Default to open for desktop
 
   const handleDrawerToggle = () => {
@@ -41,25 +18,33 @@ const AppLayout = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
       <Header onDrawerToggle={handleDrawerToggle} drawerWidth={drawerWidth} />
       <Sidebar open={sidebarOpen} onClose={handleDrawerToggle} drawerWidth={drawerWidth} />
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          mt: '64px', // AppBar height
-          width: { sm: `calc(100% - ${sidebarOpen ? drawerWidth : 0}px)` },
-          ml: { sm: `${sidebarOpen ? drawerWidth : 0}px` },
-          transition: (theme) => theme.transitions.create(['margin', 'width'], {
+          // Apply padding directly here, it's part of the scrollable content area
+          padding: theme.spacing(3), // Consistent padding
+          marginTop: '64px', // AppBar height
+          height: 'calc(100vh - 64px)', // Crucial: Full viewport height minus header
+          overflowY: 'auto', // Crucial: Enables vertical scrolling for this Box only
+          width: { // Dynamically adjust width based on sidebar state
+            xs: '100%', // Full width on extra small screens (mobile, sidebar overlays)
+            md: `calc(100% - ${sidebarOpen ? drawerWidth : 0}px)` // Adjust for persistent sidebar on medium+
+          },
+          marginLeft: { // Dynamically adjust margin based on sidebar state for persistent drawer
+            xs: 0, // No margin on mobile
+            md: `${sidebarOpen ? drawerWidth : 0}px`
+          },
+          transition: theme.transitions.create(['margin-left', 'width'], { // Smooth transition for width/margin
             easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
+            duration: theme.transitions.duration.enteringScreen,
           }),
-          backgroundColor: (theme) => theme.palette.background.default,
         }}
       >
-        <Outlet /> {/* Page content will be rendered here */}
+        <Outlet /> {/* Page content will be rendered here and will scroll if it overflows */}
       </Box>
     </Box>
   );
