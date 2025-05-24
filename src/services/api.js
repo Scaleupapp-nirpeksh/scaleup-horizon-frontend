@@ -95,5 +95,39 @@ export const updateBudget = (id, budgetData) => api.put(`/advanced/budgets/${id}
 export const deleteBudget = (id) => api.delete(`/advanced/budgets/${id}`);
 export const getBudgetVsActualsReport = (params) => api.get('/advanced/reports/budget-vs-actuals', { params });
 
+// --- Fundraising Module ---
+// Rounds
+export const createRound = (roundData) => api.post('/fundraising/rounds', roundData);
+export const getRounds = () => api.get('/fundraising/rounds');
+export const getRoundById = (id) => api.get(`/fundraising/rounds/${id}`);
+export const updateRound = (id, roundData) => api.put(`/fundraising/rounds/${id}`, roundData);
+export const deleteRound = (id) => api.delete(`/fundraising/rounds/${id}`);
+
+// Investors
+export const addInvestor = (investorData) => api.post('/fundraising/investors', investorData);
+export const getInvestors = (params) => api.get('/fundraising/investors', { params }); // e.g., ?roundId=xyz
+export const getInvestorById = (id) => api.get(`/fundraising/investors/${id}`);
+export const updateInvestor = (id, investorData) => api.put(`/fundraising/investors/${id}`, investorData);
+export const deleteInvestor = (id) => api.delete(`/fundraising/investors/${id}`);
+
+// Tranches (nested under investors)
+export const addTranche = (investorId, trancheData) => api.post(`/fundraising/investors/${investorId}/tranches`, trancheData);
+export const updateTranche = (investorId, trancheId, trancheData) => api.put(`/fundraising/investors/${investorId}/tranches/${trancheId}`, trancheData);
+export const deleteTranche = (investorId, trancheId) => api.delete(`/fundraising/investors/${investorId}/tranches/${trancheId}`);
+
+// Cap Table
+export const addCapTableEntry = (entryData) => api.post('/fundraising/captable', entryData);
+export const getCapTableSummary = () => api.get('/fundraising/captable'); // Or get all entries
+export const getCapTableEntryById = (id) => api.get(`/fundraising/captable/${id}`);
+export const updateCapTableEntry = (id, entryData) => api.put(`/fundraising/captable/${id}`, entryData);
+export const deleteCapTableEntry = (id) => api.delete(`/fundraising/captable/${id}`);
+
+// ESOP Grants (Advanced Features Routes, but related to fundraising/cap table)
+export const createEsopGrant = (grantData) => api.post('/advanced/esop-grants', grantData);
+export const getEsopGrants = (params) => api.get('/advanced/esop-grants', { params });
+export const getEsopGrantById = (id) => api.get(`/advanced/esop-grants/${id}`);
+export const updateEsopGrant = (id, grantData) => api.put(`/advanced/esop-grants/${id}`, grantData);
+export const deleteEsopGrant = (id) => api.delete(`/advanced/esop-grants/${id}`);
+
 
 export default api;
