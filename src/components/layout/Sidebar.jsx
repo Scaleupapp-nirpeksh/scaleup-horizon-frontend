@@ -37,8 +37,8 @@ const authenticatedNavItems = [
   { name: 'KPIs', path: '/kpis', icon: <BarChartIcon /> },
   //{ name: 'Analytics', path: '/analytics', icon: <AssessmentIcon /> },
   { name: 'Budgets', path: '/budgets', icon: <AccountBalanceWalletIcon /> },
-  { name: 'Documents', path: '/documents', icon: <FolderIcon /> },
-  { name: 'Reports', path: '/reports', icon: <DescriptionIcon /> },
+  //{ name: 'Documents', path: '/documents', icon: <FolderIcon /> },
+  //{ name: 'Reports', path: '/reports', icon: <DescriptionIcon /> },
 ];
 
 const unAuthenticatedNavItems = [
@@ -107,8 +107,8 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
                   color: 'text.secondary'
                 }}
               >
-              <ListItemIcon sx={{color: 'inherit', minWidth: '40px'}}><SettingsIcon /></ListItemIcon>
-              <ListItemText primary="Settings" />
+             
+              
               </ListItemButton>
           </ListItem>
         </List>
