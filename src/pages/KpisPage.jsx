@@ -9,6 +9,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BarChartIcon from '@mui/icons-material/BarChart';
 
+
+
+
 const KpisPage = () => {
   const [snapshots, setSnapshots] = useState([]);
   const [snapshotToEdit, setSnapshotToEdit] = useState(null);
