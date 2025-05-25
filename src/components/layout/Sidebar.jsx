@@ -37,7 +37,7 @@ const authenticatedNavItems = [
   { name: 'KPIs', path: '/kpis', icon: <BarChartIcon /> },
   //{ name: 'Analytics', path: '/analytics', icon: <AssessmentIcon /> },
   { name: 'Budgets', path: '/budgets', icon: <AccountBalanceWalletIcon /> },
-  //{ name: 'Documents', path: '/documents', icon: <FolderIcon /> },
+  { name: 'Documents', path: '/documents', icon: <FolderIcon /> },
   //{ name: 'Reports', path: '/reports', icon: <DescriptionIcon /> },
 ];
 

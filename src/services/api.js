@@ -147,5 +147,16 @@ export const generateCohortProjections = (cohortId, data) => api.post(`/analytic
 export const getCohortsComparison = () => api.get('/analytics/revenue-cohorts/compare');
 // Add get, update, delete for revenue cohorts
 
+// --- Document Management (Advanced Features Routes) ---
+export const uploadDocumentFile = (formData) => api.post('/advanced/documents/upload', formData, {
+  headers: {
+    'Content-Type': 'multipart/form-data', // Important for file uploads
+  },
+});
+export const getDocuments = (params) => api.get('/advanced/documents', { params });
+export const getDocumentById = (id) => api.get(`/advanced/documents/${id}`);
+export const downloadDocumentLink = (id) => api.get(`/advanced/documents/${id}/download`); // Gets a signed URL
+export const deleteDocument = (id) => api.delete(`/advanced/documents/${id}`);
+
 
 export default api;

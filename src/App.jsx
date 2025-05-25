@@ -11,7 +11,7 @@ import DashboardPage from './pages/DashboardPage';
 import FinancialsPage from './pages/FinancialsPage';
 import FundraisingPage from './pages/FundraisingPage';
 import KpisPage from './pages/KpisPage';
-import AnalyticsPage from './pages/AnalyticsPage';
+//import AnalyticsPage from './pages/AnalyticsPage';
 import ReportsPage from './pages/ReportsPage';
 import BudgetPage from './pages/BudgetPage';
 import DocumentsPage from './pages/DocumentsPage';
@@ -40,7 +40,7 @@ function App() {
                 <Route path="financials" element={<FinancialsPage />} />
                 <Route path="fundraising" element={<FundraisingPage />} />
                 <Route path="kpis" element={<KpisPage />} />
-                <Route path="analytics" element={<AnalyticsPage />} />
+                
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="budgets" element={<BudgetPage />} />
                 <Route path="documents" element={<DocumentsPage />} />
