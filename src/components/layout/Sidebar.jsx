@@ -28,6 +28,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import FolderIcon from '@mui/icons-material/Folder';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 
 
 const authenticatedNavItems = [
@@ -37,6 +38,7 @@ const authenticatedNavItems = [
   { name: 'KPIs', path: '/kpis', icon: <BarChartIcon /> },
   //{ name: 'Analytics', path: '/analytics', icon: <AssessmentIcon /> },
   { name: 'Budgets', path: '/budgets', icon: <AccountBalanceWalletIcon /> },
+  { name: 'Headcount', path: '/headcount', icon: <PeopleOutlineIcon /> },
   { name: 'Documents', path: '/documents', icon: <FolderIcon /> },
   { name: 'Investor Meetings', path: '/investor-meetings', icon: <EventNoteIcon /> },
   //{ name: 'Reports', path: '/reports', icon: <DescriptionIcon /> },

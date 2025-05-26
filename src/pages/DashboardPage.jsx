@@ -60,6 +60,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import WavesIcon from '@mui/icons-material/Waves';
 import BoltIcon from '@mui/icons-material/Bolt';
 import DiamondIcon from '@mui/icons-material/Diamond';
+import HeadcountSummary from '../components/dashboard/HeadcountSummary';
 
 // Animations
 const pulse = keyframes`
@@ -932,6 +933,11 @@ const DashboardPage = () => {
                   </Grid>
                 </Grid>
               </Box>
+
+               {/* Headcount Overview */}
+      <Box>
+        <HeadcountSummary />
+      </Box>
 
               {/* Tabs for Different Sections */}
               <Box>
