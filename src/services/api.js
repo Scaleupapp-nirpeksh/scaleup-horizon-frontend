@@ -158,5 +158,107 @@ export const getDocumentById = (id) => api.get(`/advanced/documents/${id}`);
 export const downloadDocumentLink = (id) => api.get(`/advanced/documents/${id}/download`); // Gets a signed URL
 export const deleteDocument = (id) => api.delete(`/advanced/documents/${id}`);
 
+// --- Investor Meetings ---
+export const getInvestorMeetings = (params) => api.get('/investor-meetings', { params });
+export const getInvestorMeetingById = (id) => api.get(`/investor-meetings/${id}`);
+
+// Helper function to transform frontend meeting data to backend expected structure
+// This function is crucial for matching frontend form data to backend schema.
+const transformMeetingDataForBackend = (formData) => {
+  const investorsPayload = formData.investors ? formData.investors.map(inv => ({
+    name: inv.name, // This should be the Investor Firm Name
+    company: inv.company || inv.name, // Backend has 'company', can default to name
+    email: inv.contactEmail, // Frontend's contactEmail maps to backend's email
+    role: inv.role || 'Contact', // Provide a default or ensure form collects it
+    // Fields from frontend form that might not be in backend's default investor sub-schema
+    // but could be added or are for this specific meeting instance.
+    contactName: inv.contactName,
+    investorType: inv.investorType,
+    investmentStage: inv.investmentStage,
+    attended: typeof inv.attended === 'boolean' ? inv.attended : true,
+    // investorId: inv.investorId // If you are linking to an existing Investor record
+  })) : [];
+
+  const internalParticipantsPayload = formData.internalParticipants ? formData.internalParticipants.map(par => ({
+    name: par.name,
+    role: par.role,
+    // userId: par.userId // If you are linking to an existing User record
+  })) : [];
+
+  // Ensure meetingType aligns with backend enum values
+  const validMeetingTypes = ['Regular Update', 'Board Meeting', 'Fundraising', 'Due Diligence', 'Strategic Discussion', 'Other'];
+  const meetingType = validMeetingTypes.includes(formData.meetingType) ? formData.meetingType : 'Other';
+
+
+  return {
+    title: formData.title,
+    meetingDate: formData.meetingDate, // Ensure this is in a format backend accepts (ISO string usually)
+    duration: parseInt(formData.duration, 10) || 60,
+    meetingType: meetingType,
+    location: formData.location,
+    meetingLink: formData.meetingLink,
+    agenda: formData.agenda,
+    investors: investorsPayload,
+    internalParticipants: internalParticipantsPayload,
+    // Include other fields from formData that map directly to the backend model
+    // e.g., status, preparation details if the form handles them.
+    // For create, status is usually set by backend. For update, it might be sent.
+  };
+};
+
+export const createInvestorMeeting = (meetingData) => {
+  const payload = transformMeetingDataForBackend(meetingData);
+  return api.post('/investor-meetings', payload);
+};
+
+export const updateInvestorMeeting = (id, meetingData) => {
+  const payload = transformMeetingDataForBackend(meetingData);
+  return api.put(`/investor-meetings/${id}`, payload);
+};
+
+export const deleteInvestorMeeting = (id) => api.delete(`/investor-meetings/${id}`);
+
+// Talking points for meetings
+// GET for talking points is not needed as they come with the full meeting object from getInvestorMeetingById.
+export const createInvestorMeetingTalkingPoint = (meetingId, talkingPointData) => {
+  // talkingPointData should match backend's talkingPointSchema:
+  // { title, category, content, priority, relatedMetrics, notes, wasDiscussed }
+  return api.post(`/investor-meetings/${meetingId}/talking-points`, talkingPointData);
+};
+// UPDATE and DELETE for individual talking points are not directly supported by distinct backend routes.
+// To implement, you would typically fetch the meeting, modify the talkingPoints array in frontend,
+// and then PUT the whole meeting object using updateInvestorMeeting.
+
+// Follow-ups (Action Items) for meetings
+// GET for follow-ups is not needed as actionItems come with the full meeting object.
+export const createInvestorMeetingFollowUp = (meetingId, followUpData) => {
+  // followUpData should match backend's actionItemSchema:
+  // { action, assignee (userId), dueDate, status ('Not Started' default), notes }
+  return api.post(`/investor-meetings/${meetingId}/action-items`, followUpData);
+};
+
+export const updateInvestorMeetingFollowUp = (meetingId, followUpId, followUpData) => {
+  // followUpData can include { status, notes, completedDate } as per backend's updateActionItem
+  return api.patch(`/investor-meetings/${meetingId}/action-items/${followUpId}`, followUpData);
+};
+// DELETE for individual follow-ups/action items is not directly supported by a distinct backend route.
+// Similar workaround as talking points: modify array and PUT whole meeting.
+
+// Meeting analytics
+// Backend route is '/investor-meetings/statistics'
+export const getInvestorMeetingMetrics = () => api.get('/investor-meetings/statistics');
+export const getAvailableInvestors = (params) => api.get('/fundraising/investors', { params });
+export const getAvailableTeamMembers= (params) => api.get('/headcount', { params });
+
+export const createHeadcount = (headcountData) => api.post('/headcount', headcountData);
+export const getHeadcounts = (params) => api.get('/headcount', { params });
+export const getHeadcountSummary = () => api.get('/headcount/summary');
+export const getOrgChart = () => api.get('/headcount/org-chart');
+export const getHeadcountById = (id) => api.get(`/headcount/${id}`);
+export const updateHeadcount = (id, headcountData) => api.put(`/headcount/${id}`, headcountData);
+export const deleteHeadcount = (id) => api.delete(`/headcount/${id}`);
+export const updateHiringStatus = (id, statusData) => api.patch(`/headcount/${id}/hiring-status`, statusData);
+export const convertToEmployee = (id, employeeData) => api.post(`/headcount/${id}/convert-to-employee`, employeeData);
+export const linkExpenses = (id, expenseData) => api.post(`/headcount/${id}/link-expenses`, expenseData);
 
 export default api;

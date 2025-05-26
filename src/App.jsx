@@ -19,6 +19,7 @@ import SettingsPage from './pages/SettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './utils/ProtectedRoute';
 import LoadingSpinner from './components/common/LoadingSpinner';
+import InvestorMeetingsPage from './pages/InvestorMeetingsPage';
 
 // Main App Component
 function App() {
@@ -40,7 +41,7 @@ function App() {
                 <Route path="financials" element={<FinancialsPage />} />
                 <Route path="fundraising" element={<FundraisingPage />} />
                 <Route path="kpis" element={<KpisPage />} />
-                
+                <Route path="investor-meetings" element={<InvestorMeetingsPage />} /> 
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="budgets" element={<BudgetPage />} />
                 <Route path="documents" element={<DocumentsPage />} />

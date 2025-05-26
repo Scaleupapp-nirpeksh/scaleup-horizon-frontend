@@ -16,7 +16,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery'; // Import useMediaQuery
 import { useTheme } from '@mui/material/styles'; // Import useTheme to access breakpoints
-
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import BarChartIcon from '@mui/icons-material/BarChart';
@@ -38,6 +38,7 @@ const authenticatedNavItems = [
   //{ name: 'Analytics', path: '/analytics', icon: <AssessmentIcon /> },
   { name: 'Budgets', path: '/budgets', icon: <AccountBalanceWalletIcon /> },
   { name: 'Documents', path: '/documents', icon: <FolderIcon /> },
+  { name: 'Investor Meetings', path: '/investor-meetings', icon: <EventNoteIcon /> },
   //{ name: 'Reports', path: '/reports', icon: <DescriptionIcon /> },
 ];
 
