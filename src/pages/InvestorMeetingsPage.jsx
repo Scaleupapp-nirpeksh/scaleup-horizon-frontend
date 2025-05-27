@@ -2457,7 +2457,7 @@ const InvestorMeetingsPage = () => {
             </Grid>
           </Container>
 
-          {/* Create/Edit Meeting Dialog */}
+          {/* Create/Edit Meeting Dialog - Enhanced Structure */}
           <Dialog 
             open={openDialog} 
             onClose={() => { setOpenDialog(false); setFormErrors({}); }} 
@@ -2465,341 +2465,621 @@ const InvestorMeetingsPage = () => {
               sx: { 
                 borderRadius: 3,
                 background: theme.palette.mode === 'dark'
-                  ? alpha('#1e293b', 0.95)
-                  : alpha('#ffffff', 0.98),
-                backdropFilter: 'blur(20px)'
+                  ? `linear-gradient(135deg, ${alpha('#1e293b', 0.98)} 0%, ${alpha('#334155', 0.95)} 100%)`
+                  : `linear-gradient(135deg, ${alpha('#ffffff', 0.99)} 0%, ${alpha('#f8fafc', 0.97)} 100%)`,
+                backdropFilter: 'blur(20px)',
+                boxShadow: `0 24px 48px ${alpha(theme.palette.common.black, 0.2)}`
               } 
             }} 
             maxWidth="md" 
             fullWidth
           >
-            <DialogTitle sx={{ pb: 1, fontWeight: 700, fontSize: '1.4rem' }}>
-              {selectedMeetingIdForMenu ? 'Edit Meeting' : 'Create New Meeting'}
+            <DialogTitle sx={{ 
+              pb: 2, 
+              pt: 3,
+              px: 3,
+              background: theme.palette.mode === 'dark'
+                ? `linear-gradient(135deg, ${alpha('#334155', 0.5)} 0%, transparent 100%)`
+                : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, transparent 100%)`,
+              borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`
+            }}>
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar sx={{ 
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                  width: 48,
+                  height: 48
+                }}>
+                  <EventNoteIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                    {selectedMeetingIdForMenu ? 'Edit Meeting' : 'Create New Meeting'}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Fill in the details to {selectedMeetingIdForMenu ? 'update' : 'schedule'} your investor meeting
+                  </Typography>
+                </Box>
+              </Stack>
             </DialogTitle>
-            <DialogContent sx={{ pb: 2, '& .MuiGrid-item': { pt: '12px !important' } }}>
-              <Grid container spacing={2} sx={{ mt: 0 }}>
-                <Grid item xs={12} md={8}>
-                  <TextField 
-                    label="Meeting Title" 
-                    fullWidth 
-                    value={formData.title} 
-                    onChange={(e) => handleFormChange('title', e.target.value)} 
-                    error={!!formErrors.title} 
-                    helperText={formErrors.title} 
-                    size="small" 
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <FormControl fullWidth error={!!formErrors.meetingType} size="small">
-                    <InputLabel>Meeting Type</InputLabel>
-                    <Select 
-                      value={formData.meetingType} 
-                      label="Meeting Type" 
-                      onChange={(e) => handleFormChange('meetingType', e.target.value)}
-                    >
-                      {meetingTypeOptions.map(type => (
-                        <MenuItem key={type} value={type}>{type}</MenuItem>
-                      ))}
-                    </Select>
-                    <FormHelperText>{formErrors.meetingType}</FormHelperText>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <DatePicker 
-                    label="Meeting Date & Time" 
-                    value={formData.meetingDate ? new Date(formData.meetingDate) : null} 
-                    onChange={(newDate) => handleFormChange('meetingDate', newDate)} 
-                    slotProps={{ 
-                      textField: { 
-                        fullWidth: true, 
-                        error: !!formErrors.meetingDate, 
-                        helperText: formErrors.meetingDate, 
-                        size: 'small' 
-                      }
-                    }} 
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField 
-                    label="Duration (minutes)" 
-                    fullWidth 
-                    type="number" 
-                    value={formData.duration} 
-                    onChange={(e) => handleFormChange('duration', parseInt(e.target.value))} 
-                    InputProps={{ endAdornment: <InputAdornment position="end">min</InputAdornment> }} 
-                    size="small" 
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField 
-                    label="Location (e.g., Office, Zoom)" 
-                    fullWidth 
-                    value={formData.location} 
-                    onChange={(e) => handleFormChange('location', e.target.value)} 
-                    size="small" 
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField 
-                    label="Meeting Link (if virtual)" 
-                    fullWidth 
-                    value={formData.meetingLink} 
-                    onChange={(e) => handleFormChange('meetingLink', e.target.value)} 
-                    size="small" 
-                  />
-                </Grid>
-                
-                <Grid item xs={12}>
-                  <Divider sx={{ my: 1 }}>
-                    <Chip icon={<PeopleAltIcon />} label="Investors" size="small" />
-                  </Divider>
-                </Grid>
-                
-                {formData.investors?.map((investor, index) => (
-                  <Grid item xs={12} container spacing={2} key={`investor-form-group-${index}`} alignItems="flex-start" sx={{ mb: 1 }}>
-                    <Grid item xs={12}>
-                      <Typography variant="overline" color="text.secondary" display="block" sx={{ mb: -0.5, mt: index > 0 ? 1 : 0 }}>
-                        Investor {index + 1}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={5}>
-                      <Autocomplete 
+            
+            <DialogContent sx={{ p: 0 }}>
+              <Box sx={{ px: 3, py: 2 }}>
+                {/* Section 1: Basic Details */}
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    p: 3, 
+                    mb: 3,
+                    borderRadius: 2.5,
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                    background: theme.palette.mode === 'dark'
+                      ? alpha('#1e293b', 0.4)
+                      : alpha('#ffffff', 0.8),
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '4px',
+                      height: '100%',
+                      background: theme.palette.primary.main,
+                    }
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2.5 }}>
+                    <CalendarMonthIcon sx={{ color: theme.palette.primary.main }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      Meeting Details
+                    </Typography>
+                    <Chip label="Required" size="small" color="primary" sx={{ ml: 1 }} />
+                  </Stack>
+                  
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={8}>
+                      <TextField 
+                        label="Meeting Title" 
                         fullWidth 
-                        options={availableInvestors} 
-                        getOptionLabel={(option) => (typeof option === 'string' ? option : option.name || '')}
-                        isOptionEqualToValue={(option, value) => option._id === value?._id}
-                        value={availableInvestors.find(opt => opt._id === investor.investorId) || investor.name || null}
-                        onChange={(event, newValue) => handleInvestorAutocompleteChange(index, newValue)}
-                        onInputChange={(event, newInputValue, reason) => { 
-                          if (reason === 'input' && !availableInvestors.find(opt => opt.name === newInputValue)) { 
-                            handleInvestorAutocompleteChange(index, newInputValue); 
-                          }
+                        value={formData.title} 
+                        onChange={(e) => handleFormChange('title', e.target.value)} 
+                        error={!!formErrors.title} 
+                        helperText={formErrors.title} 
+                        size="medium"
+                        required
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <EventNoteIcon fontSize="small" color="action" />
+                            </InputAdornment>
+                          ),
                         }}
-                        loading={isFetchingDropdownData} 
-                        loadingText="Loading investors..." 
-                        freeSolo 
-                        size="small"
-                        renderInput={(params) => (
-                          <TextField 
-                            {...params} 
-                            label="Firm Name" 
-                            error={!!formErrors[`investors.${index}.name`]} 
-                            helperText={formErrors[`investors.${index}.name`]} 
-                            InputProps={{ 
-                              ...params.InputProps, 
-                              endAdornment: (
-                                <>
-                                  {isFetchingDropdownData ? <CircularProgress color="inherit" size={20} /> : null}
-                                  {params.InputProps.endAdornment}
-                                </>
-                              )
-                            }} 
-                          />
-                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <FormControl fullWidth error={!!formErrors.meetingType} required>
+                        <InputLabel>Meeting Type</InputLabel>
+                        <Select 
+                          value={formData.meetingType} 
+                          label="Meeting Type" 
+                          onChange={(e) => handleFormChange('meetingType', e.target.value)}
+                          startAdornment={
+                            <InputAdornment position="start">
+                              <CategoryIcon fontSize="small" color="action" />
+                            </InputAdornment>
+                          }
+                        >
+                          {meetingTypeOptions.map(type => (
+                            <MenuItem key={type} value={type}>{type}</MenuItem>
+                          ))}
+                        </Select>
+                        <FormHelperText>{formErrors.meetingType}</FormHelperText>
+                      </FormControl>
+                    </Grid>
+                    
+                    <Grid item xs={12} sm={6} md={4}>
+                      <DatePicker 
+                        label="Meeting Date & Time" 
+                        value={formData.meetingDate ? new Date(formData.meetingDate) : null} 
+                        onChange={(newDate) => handleFormChange('meetingDate', newDate)} 
+                        slotProps={{ 
+                          textField: { 
+                            fullWidth: true, 
+                            error: !!formErrors.meetingDate, 
+                            helperText: formErrors.meetingDate,
+                            required: true,
+                            InputProps: {
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <CalendarMonthIcon fontSize="small" color="action" />
+                                </InputAdornment>
+                              ),
+                            }
+                          }
+                        }} 
                       />
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                       <TextField 
-                        label="Contact Name" 
+                        label="Duration" 
                         fullWidth 
-                        value={investor.contactName} 
-                        onChange={(e) => handleFormChange('contactName', e.target.value, index, 'investors')} 
-                        size="small"
+                        type="number" 
+                        value={formData.duration} 
+                        onChange={(e) => handleFormChange('duration', parseInt(e.target.value))} 
+                        InputProps={{ 
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <AccessTimeIcon fontSize="small" color="action" />
+                            </InputAdornment>
+                          ),
+                          endAdornment: <InputAdornment position="end">minutes</InputAdornment> 
+                        }} 
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid item xs={12} sm={6} md={4}>
                       <TextField 
-                        label="Contact Email" 
+                        label="Location" 
                         fullWidth 
-                        value={investor.contactEmail} 
-                        onChange={(e) => handleFormChange('contactEmail', e.target.value, index, 'investors')} 
-                        error={!!formErrors[`investors.${index}.contactEmail`]} 
-                        helperText={formErrors[`investors.${index}.contactEmail`]} 
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <TextField 
-                        label="Role" 
-                        fullWidth 
-                        value={investor.role} 
-                        onChange={(e) => handleFormChange('role', e.target.value, index, 'investors')} 
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <TextField 
-                        label="Type (VC, Angel)" 
-                        fullWidth 
-                        value={investor.investorType} 
-                        onChange={(e) => handleFormChange('investorType', e.target.value, index, 'investors')} 
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <TextField 
-                        label="Stage (Seed, A)" 
-                        fullWidth 
-                        value={investor.investmentStage} 
-                        onChange={(e) => handleFormChange('investmentStage', e.target.value, index, 'investors')} 
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={2} sx={{ display: 'flex', alignItems: 'center', pt: '8px !important' }}>
-                      <FormControlLabel 
-                        control={
-                          <Checkbox 
-                            checked={investor.attended} 
-                            onChange={(e) => handleFormChange('attended', e.target.checked, index, 'investors')} 
-                            size="small"
-                          />
-                        } 
-                        label="Attended" 
-                        sx={{ mt: { xs: 0, sm: '2px' } }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: { xs: 'flex-end', md: 'center' }, pt: '8px !important' }}>
-                      {formData.investors.length > 1 && (
-                        <IconButton onClick={() => removeInvestorFromForm(index)} color="error" size="small">
-                          <DeleteIcon />
-                        </IconButton>
-                      )}
-                    </Grid>
-                  </Grid>
-                ))}
-                
-                <Grid item xs={12}>
-                  <Button 
-                    onClick={addInvestorToForm} 
-                    startIcon={<AddIcon />} 
-                    size="small" 
-                    variant="outlined" 
-                    sx={{ mt: -1 }}
-                  >
-                    Add Investor
-                  </Button>
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Divider sx={{ my: 1 }}>
-                    <Chip icon={<SupervisorAccountIcon />} label="Internal Team Participants" size="small" />
-                  </Divider>
-                </Grid>
-                
-                {formData.internalParticipants?.map((participant, index) => (
-                  <Grid item xs={12} container spacing={2} key={`internal-participant-form-group-${index}`} alignItems="flex-start">
-                    <Grid item xs={12}>
-                      <Typography variant="overline" color="text.secondary" display="block" sx={{ mb: -0.5, mt: index > 0 ? 1 : 0 }}>
-                        Team Member {index + 1}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={7} md={7}>
-                      <Autocomplete 
-                        fullWidth 
-                        options={availableTeamMembers} 
-                        getOptionLabel={(option) => typeof option === 'string' ? option : option.name || ''}
-                        isOptionEqualToValue={(option, value) => option._id === value?._id}
-                        value={availableTeamMembers.find(opt => opt._id === participant.userId) || participant.name || null}
-                        onChange={(event, newValue) => handleInternalParticipantAutocompleteChange(index, newValue)}
-                        onInputChange={(event, newInputValue, reason) => { 
-                          if (reason === 'input' && !availableTeamMembers.find(opt => opt.name === newInputValue)) { 
-                            handleInternalParticipantAutocompleteChange(index, newInputValue); 
-                          }
+                        value={formData.location} 
+                        onChange={(e) => handleFormChange('location', e.target.value)} 
+                        placeholder="Office, Zoom, etc."
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <LocationOnIcon fontSize="small" color="action" />
+                            </InputAdornment>
+                          ),
                         }}
-                        loading={isFetchingDropdownData} 
-                        loadingText="Loading team..." 
-                        freeSolo 
-                        size="small"
-                        renderInput={(params) => (
-                          <TextField 
-                            {...params} 
-                            label="Team Member Name" 
-                            error={!!formErrors[`internalParticipants.${index}.name`]} 
-                            helperText={formErrors[`internalParticipants.${index}.name`]} 
-                            InputProps={{ 
-                              ...params.InputProps, 
-                              endAdornment: (
-                                <>
-                                  {isFetchingDropdownData ? <CircularProgress color="inherit" size={20} /> : null}
-                                  {params.InputProps.endAdornment}
-                                </>
-                              )
-                            }}
-                          />
-                        )}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={formData.internalParticipants.length > 1 ? 4 : 5} md={formData.internalParticipants.length > 1 ? 4 : 5}>
+                    <Grid item xs={12}>
                       <TextField 
-                        label="Role in Meeting" 
+                        label="Meeting Link" 
                         fullWidth 
-                        value={participant.role} 
-                        onChange={(e) => handleFormChange('role', e.target.value, index, 'internalParticipants')} 
-                        size="small"
+                        value={formData.meetingLink} 
+                        onChange={(e) => handleFormChange('meetingLink', e.target.value)} 
+                        placeholder="https://zoom.us/..."
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <VideocamIcon fontSize="small" color="action" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        helperText="Add video conference link if meeting is virtual"
                       />
                     </Grid>
-                    {formData.internalParticipants.length > 1 && (
-                      <Grid item xs={12} sm={1} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <IconButton onClick={() => removeInternalParticipantFromForm(index)} color="error" size="small">
-                          <DeleteIcon />
-                        </IconButton>
-                      </Grid>
-                    )}
                   </Grid>
-                ))}
-                
-                <Grid item xs={12}>
-                  <Button 
-                    onClick={addInternalParticipantToForm} 
-                    startIcon={<AddIcon />} 
-                    size="small" 
-                    variant="outlined" 
-                    sx={{ mt: -1 }}
-                  >
-                    Add Team Member
-                  </Button>
-                </Grid>
+                </Paper>
 
-                <Grid item xs={12}>
-                  <Divider sx={{ my: 1 }}>
-                    <Chip label="Agenda" size="small" />
-                  </Divider>
-                </Grid>
-                
-                <Grid item xs={12}>
+                {/* Section 2: Investors */}
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    p: 3, 
+                    mb: 3,
+                    borderRadius: 2.5,
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                    background: theme.palette.mode === 'dark'
+                      ? alpha('#1e293b', 0.4)
+                      : alpha('#ffffff', 0.8),
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '4px',
+                      height: '100%',
+                      background: theme.palette.secondary.main,
+                    }
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2.5 }}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <PeopleAltIcon sx={{ color: theme.palette.secondary.main }} />
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        Investor Attendees
+                      </Typography>
+                      <Chip label={`${formData.investors?.length || 0} investor${formData.investors?.length !== 1 ? 's' : ''}`} size="small" />
+                    </Stack>
+                    <Button 
+                      onClick={addInvestorToForm} 
+                      startIcon={<AddIcon />} 
+                      size="small" 
+                      variant="contained"
+                      sx={{
+                        borderRadius: 2,
+                        background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+                        '&:hover': {
+                          background: `linear-gradient(135deg, ${theme.palette.secondary.dark} 0%, ${theme.palette.secondary.main} 100%)`,
+                        }
+                      }}
+                    >
+                      Add Investor
+                    </Button>
+                  </Stack>
+                  
+                  <Stack spacing={2}>
+                    {formData.investors?.map((investor, index) => (
+                      <Fade in key={`investor-form-group-${index}`} timeout={300 + index * 100}>
+                        <Paper
+                          variant="outlined"
+                          sx={{
+                            p: 2.5,
+                            borderRadius: 2,
+                            border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                            background: theme.palette.mode === 'dark'
+                              ? alpha('#334155', 0.3)
+                              : alpha('#f8fafc', 0.5),
+                            position: 'relative',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              border: `1px solid ${alpha(theme.palette.secondary.main, 0.3)}`,
+                              transform: 'translateY(-2px)',
+                              boxShadow: `0 4px 12px ${alpha(theme.palette.secondary.main, 0.1)}`
+                            }
+                          }}
+                        >
+                          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                            <Chip 
+                              label={`Investor ${index + 1}`} 
+                              size="small" 
+                              color="secondary"
+                              sx={{ fontWeight: 600 }}
+                            />
+                            {formData.investors.length > 1 && (
+                              <IconButton 
+                                onClick={() => removeInvestorFromForm(index)} 
+                                color="error" 
+                                size="small"
+                                sx={{
+                                  '&:hover': {
+                                    bgcolor: alpha(theme.palette.error.main, 0.1)
+                                  }
+                                }}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Stack>
+                          
+                          <Grid container spacing={2}>
+                            <Grid item xs={12} md={6}>
+                              <Autocomplete 
+                                fullWidth 
+                                options={availableInvestors} 
+                                getOptionLabel={(option) => (typeof option === 'string' ? option : option.name || '')}
+                                isOptionEqualToValue={(option, value) => option._id === value?._id}
+                                value={availableInvestors.find(opt => opt._id === investor.investorId) || investor.name || null}
+                                onChange={(event, newValue) => handleInvestorAutocompleteChange(index, newValue)}
+                                onInputChange={(event, newInputValue, reason) => { 
+                                  if (reason === 'input' && !availableInvestors.find(opt => opt.name === newInputValue)) { 
+                                    handleInvestorAutocompleteChange(index, newInputValue); 
+                                  }
+                                }}
+                                loading={isFetchingDropdownData} 
+                                loadingText="Loading investors..." 
+                                freeSolo
+                                renderInput={(params) => (
+                                  <TextField 
+                                    {...params} 
+                                    label="Firm Name" 
+                                    required
+                                    error={!!formErrors[`investors.${index}.name`]} 
+                                    helperText={formErrors[`investors.${index}.name`]} 
+                                    InputProps={{ 
+                                      ...params.InputProps, 
+                                      endAdornment: (
+                                        <>
+                                          {isFetchingDropdownData ? <CircularProgress color="inherit" size={20} /> : null}
+                                          {params.InputProps.endAdornment}
+                                        </>
+                                      )
+                                    }} 
+                                  />
+                                )}
+                              />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                              <TextField 
+                                label="Contact Person" 
+                                fullWidth 
+                                value={investor.contactName} 
+                                onChange={(e) => handleFormChange('contactName', e.target.value, index, 'investors')} 
+                              />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                              <TextField 
+                                label="Email" 
+                                fullWidth 
+                                type="email"
+                                value={investor.contactEmail} 
+                                onChange={(e) => handleFormChange('contactEmail', e.target.value, index, 'investors')} 
+                                error={!!formErrors[`investors.${index}.contactEmail`]} 
+                                helperText={formErrors[`investors.${index}.contactEmail`]} 
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                              <TextField 
+                                label="Role/Title" 
+                                fullWidth 
+                                value={investor.role} 
+                                onChange={(e) => handleFormChange('role', e.target.value, index, 'investors')} 
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                              <FormControl fullWidth>
+                                <InputLabel>Investor Type</InputLabel>
+                                <Select 
+                                  value={investor.investorType} 
+                                  label="Investor Type"
+                                  onChange={(e) => handleFormChange('investorType', e.target.value, index, 'investors')}
+                                >
+                                  <MenuItem value="VC">VC</MenuItem>
+                                  <MenuItem value="Angel">Angel</MenuItem>
+                                  <MenuItem value="Corporate">Corporate</MenuItem>
+                                  <MenuItem value="Other">Other</MenuItem>
+                                </Select>
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                              <FormControl fullWidth>
+                                <InputLabel>Investment Stage</InputLabel>
+                                <Select 
+                                  value={investor.investmentStage} 
+                                  label="Investment Stage"
+                                  onChange={(e) => handleFormChange('investmentStage', e.target.value, index, 'investors')}
+                                >
+                                  <MenuItem value="Pre-Seed">Pre-Seed</MenuItem>
+                                  <MenuItem value="Seed">Seed</MenuItem>
+                                  <MenuItem value="Series A">Series A</MenuItem>
+                                  <MenuItem value="Series B">Series B</MenuItem>
+                                  <MenuItem value="Series C+">Series C+</MenuItem>
+                                </Select>
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                              <FormControlLabel 
+                                control={
+                                  <Checkbox 
+                                    checked={investor.attended} 
+                                    onChange={(e) => handleFormChange('attended', e.target.checked, index, 'investors')} 
+                                    sx={{
+                                      '&.Mui-checked': {
+                                        color: theme.palette.success.main
+                                      }
+                                    }}
+                                  />
+                                } 
+                                label="Attended" 
+                              />
+                            </Grid>
+                          </Grid>
+                        </Paper>
+                      </Fade>
+                    ))}
+                  </Stack>
+                </Paper>
+
+                {/* Section 3: Internal Team */}
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    p: 3, 
+                    mb: 3,
+                    borderRadius: 2.5,
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                    background: theme.palette.mode === 'dark'
+                      ? alpha('#1e293b', 0.4)
+                      : alpha('#ffffff', 0.8),
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '4px',
+                      height: '100%',
+                      background: theme.palette.info.main,
+                    }
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2.5 }}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <SupervisorAccountIcon sx={{ color: theme.palette.info.main }} />
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        Internal Team
+                      </Typography>
+                      <Chip label={`${formData.internalParticipants?.length || 0} member${formData.internalParticipants?.length !== 1 ? 's' : ''}`} size="small" />
+                    </Stack>
+                    <Button 
+                      onClick={addInternalParticipantToForm} 
+                      startIcon={<PersonAddIcon />} 
+                      size="small" 
+                      variant="contained"
+                      sx={{
+                        borderRadius: 2,
+                        background: `linear-gradient(135deg, ${theme.palette.info.main} 0%, ${theme.palette.info.dark} 100%)`,
+                        '&:hover': {
+                          background: `linear-gradient(135deg, ${theme.palette.info.dark} 0%, ${theme.palette.info.main} 100%)`,
+                        }
+                      }}
+                    >
+                      Add Team Member
+                    </Button>
+                  </Stack>
+                  
+                  <Stack spacing={2}>
+                    {formData.internalParticipants?.map((participant, index) => (
+                      <Fade in key={`internal-participant-form-group-${index}`} timeout={300 + index * 100}>
+                        <Paper
+                          variant="outlined"
+                          sx={{
+                            p: 2,
+                            borderRadius: 2,
+                            border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                            background: theme.palette.mode === 'dark'
+                              ? alpha('#334155', 0.3)
+                              : alpha('#f8fafc', 0.5),
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              border: `1px solid ${alpha(theme.palette.info.main, 0.3)}`,
+                              transform: 'translateY(-2px)',
+                              boxShadow: `0 4px 12px ${alpha(theme.palette.info.main, 0.1)}`
+                            }
+                          }}
+                        >
+                          <Grid container spacing={2} alignItems="center">
+                            <Grid item xs={12} sm={7}>
+                              <Autocomplete 
+                                fullWidth 
+                                options={availableTeamMembers} 
+                                getOptionLabel={(option) => typeof option === 'string' ? option : option.name || ''}
+                                isOptionEqualToValue={(option, value) => option._id === value?._id}
+                                value={availableTeamMembers.find(opt => opt._id === participant.userId) || participant.name || null}
+                                onChange={(event, newValue) => handleInternalParticipantAutocompleteChange(index, newValue)}
+                                onInputChange={(event, newInputValue, reason) => { 
+                                  if (reason === 'input' && !availableTeamMembers.find(opt => opt.name === newInputValue)) { 
+                                    handleInternalParticipantAutocompleteChange(index, newInputValue); 
+                                  }
+                                }}
+                                loading={isFetchingDropdownData} 
+                                loadingText="Loading team..." 
+                                freeSolo
+                                renderInput={(params) => (
+                                  <TextField 
+                                    {...params} 
+                                    label="Team Member Name" 
+                                    required
+                                    error={!!formErrors[`internalParticipants.${index}.name`]} 
+                                    helperText={formErrors[`internalParticipants.${index}.name`]} 
+                                    InputProps={{ 
+                                      ...params.InputProps, 
+                                      endAdornment: (
+                                        <>
+                                          {isFetchingDropdownData ? <CircularProgress color="inherit" size={20} /> : null}
+                                          {params.InputProps.endAdornment}
+                                        </>
+                                      )
+                                    }}
+                                  />
+                                )}
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={formData.internalParticipants.length > 1 ? 4 : 5}>
+                              <TextField 
+                                label="Role in Meeting" 
+                                fullWidth 
+                                value={participant.role} 
+                                onChange={(e) => handleFormChange('role', e.target.value, index, 'internalParticipants')} 
+                                placeholder="e.g., CEO, CFO, Product Lead"
+                              />
+                            </Grid>
+                            {formData.internalParticipants.length > 1 && (
+                              <Grid item xs={12} sm={1}>
+                                <IconButton 
+                                  onClick={() => removeInternalParticipantFromForm(index)} 
+                                  color="error" 
+                                  size="small"
+                                  sx={{
+                                    '&:hover': {
+                                      bgcolor: alpha(theme.palette.error.main, 0.1)
+                                    }
+                                  }}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Grid>
+                            )}
+                          </Grid>
+                        </Paper>
+                      </Fade>
+                    ))}
+                  </Stack>
+                </Paper>
+
+                {/* Section 4: Agenda */}
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    p: 3,
+                    borderRadius: 2.5,
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                    background: theme.palette.mode === 'dark'
+                      ? alpha('#1e293b', 0.4)
+                      : alpha('#ffffff', 0.8),
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '4px',
+                      height: '100%',
+                      background: theme.palette.warning.main,
+                    }
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                    <NotesIcon sx={{ color: theme.palette.warning.main }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      Meeting Agenda
+                    </Typography>
+                  </Stack>
+                  
                   <TextField 
-                    label="Meeting Agenda" 
+                    label="Agenda Items" 
                     fullWidth 
                     multiline 
                     rows={4} 
                     value={formData.agenda} 
                     onChange={(e) => handleFormChange('agenda', e.target.value)} 
-                    placeholder="Enter key topics and discussion points..." 
-                    size="small"
+                    placeholder="• Company updates and progress&#10;• Financial review&#10;• Product roadmap discussion&#10;• Q&A session" 
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        fontFamily: 'monospace'
+                      }
+                    }}
                   />
-                </Grid>
-              </Grid>
+                </Paper>
+              </Box>
             </DialogContent>
-            <DialogActions sx={{ px: 3, pb: 2.5, pt: 1 }}>
-              <Button onClick={() => { setOpenDialog(false); setFormErrors({}); }}>
+            
+            <DialogActions sx={{ 
+              px: 3, 
+              pb: 3, 
+              pt: 2,
+              borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              background: theme.palette.mode === 'dark'
+                ? alpha('#1e293b', 0.5)
+                : alpha('#f8fafc', 0.8)
+            }}>
+              <Button 
+                onClick={() => { setOpenDialog(false); setFormErrors({}); }}
+                sx={{ borderRadius: 2 }}
+              >
                 Cancel
               </Button>
               <Button 
                 variant="contained" 
                 onClick={handleSubmit} 
                 disabled={isSubmitting || isFetchingDropdownData}
+                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircleIcon />}
                 sx={{
+                  borderRadius: 2,
+                  minWidth: 140,
                   background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                   '&:hover': {
                     background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
                   }
                 }}
               >
-                {(isSubmitting || isFetchingDropdownData) ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  selectedMeetingIdForMenu ? 'Update Meeting' : 'Create Meeting'
-                )}
+                {selectedMeetingIdForMenu ? 'Update Meeting' : 'Create Meeting'}
               </Button>
             </DialogActions>
           </Dialog>
