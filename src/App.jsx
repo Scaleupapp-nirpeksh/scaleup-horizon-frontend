@@ -22,6 +22,8 @@ import InvestorMeetingsPage from './pages/InvestorMeetingsPage';
 import HeadcountPage from './pages/HeadcountPage';
 import LiveInvestorDashboardPage from './pages/LiveInvestorDashboardPage'; // NEW: Import the new page
 import ProductMilestonesPage from './pages/ProductMilestonesPage';
+import InvestorPresentationPage from './pages/InvestorPresentationPage';
+
 // Main App Component
 function App() {
   return (
@@ -29,6 +31,12 @@ function App() {
       <Router>
         <AuthLoadingGate>
           <Routes>
+            {/* Investor Presentation Route - Outside of AppLayout for full screen */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/investor-presentation/:meetingId" element={<InvestorPresentationPage />} />
+            </Route>
+            
+            {/* Routes with AppLayout (sidebar) */}
             <Route element={<AppLayout />}>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />

@@ -63,6 +63,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'; // NEW: Icon for launching presentation
 
 // API
 import {
@@ -974,7 +975,7 @@ const InvestorMeetingsPage = () => {
       if (response.data && response.data.success) {
         setSelectedMeeting(response.data.data);
         setSuccess('Meeting prepared successfully for investor view!');
-        setActiveDetailTab(4);
+        setActiveDetailTab(4); // Switch to the "Prepared View" tab
       } else {
         setError(response.data?.msg || 'Failed to prepare meeting.');
       }
@@ -994,6 +995,10 @@ const InvestorMeetingsPage = () => {
       ...prev,
       [event.target.name]: event.target.checked,
     }));
+  };
+
+  const handleLaunchPresentation = (meetingId) => {
+    window.open(`/investor-presentation/${meetingId}`, '_blank', 'noopener,noreferrer');
   };
 
   const filteredMeetings = meetings.filter(meeting => {
@@ -1022,6 +1027,12 @@ const InvestorMeetingsPage = () => {
     { key: 'talkingPoints', label: 'Auto-Talking Points', icon: <FormatListBulletedIcon /> },
     { key: 'suggestedDocuments', label: 'Suggested Documents', icon: <ArticleIcon /> },
   ];
+
+  // Determine if a meeting is prepared
+  const isMeetingPrepared = (meeting) => {
+    return meeting?.preparation?.status === 'Ready' || 
+           (meeting?.preparation?.dataCollectionComplete && meeting?.preparation?.presentationReady);
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -1350,7 +1361,7 @@ const InvestorMeetingsPage = () => {
                               <CardContent sx={{ p: 2.5 }}>
                                 <Stack spacing={1.5}>
                                   <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                                    <Box sx={{ maxWidth: 'calc(100% - 40px)' }}>
+                                    <Box sx={{ maxWidth: 'calc(100% - 80px)' }}> {/* Adjusted width */}
                                       <Typography 
                                         variant="h6" 
                                         className="meeting-title"
@@ -1377,22 +1388,44 @@ const InvestorMeetingsPage = () => {
                                         {meeting.investors?.map(inv => inv.name).join(', ') || 'No Investors'}
                                       </Typography>
                                     </Box>
-                                    <IconButton 
-                                      size="small" 
-                                      onClick={(e) => { 
-                                        e.stopPropagation(); 
-                                        setMenuAnchor(e.currentTarget); 
-                                        setSelectedMeetingIdForMenu(meeting._id); 
-                                      }}
-                                      sx={{
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                          bgcolor: alpha(theme.palette.primary.main, 0.1)
-                                        }
-                                      }}
-                                    >
-                                      <MoreVertIcon fontSize="small" />
-                                    </IconButton>
+                                    <Stack direction="column" spacing={0.5} alignItems="flex-end">
+                                      <IconButton 
+                                        size="small" 
+                                        onClick={(e) => { 
+                                          e.stopPropagation(); 
+                                          setMenuAnchor(e.currentTarget); 
+                                          setSelectedMeetingIdForMenu(meeting._id); 
+                                        }}
+                                        sx={{
+                                          transition: 'all 0.3s ease',
+                                          '&:hover': {
+                                            bgcolor: alpha(theme.palette.primary.main, 0.1)
+                                          }
+                                        }}
+                                      >
+                                        <MoreVertIcon fontSize="small" />
+                                      </IconButton>
+                                      {isMeetingPrepared(meeting) && (
+                                        <Tooltip title="Launch Presentation">
+                                          <IconButton
+                                            size="small"
+                                            color="secondary"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleLaunchPresentation(meeting._id);
+                                            }}
+                                            sx={{
+                                              animation: `${pulse} 2s infinite ease-in-out`,
+                                              '&:hover': {
+                                                bgcolor: alpha(theme.palette.secondary.main, 0.15)
+                                              }
+                                            }}
+                                          >
+                                            <RocketLaunchIcon fontSize="small" />
+                                          </IconButton>
+                                        </Tooltip>
+                                      )}
+                                    </Stack>
                                   </Stack>
                                   
                                   <Stack direction="row" spacing={2}>
@@ -1508,6 +1541,23 @@ const InvestorMeetingsPage = () => {
                           </Stack>
                         </Box>
                         <Stack direction="row" spacing={1} alignSelf={{ xs: 'flex-start', sm: 'center' }}>
+                           {isMeetingPrepared(selectedMeeting) && (
+                            <Button
+                              variant="contained"
+                              color="success"
+                              startIcon={<RocketLaunchIcon />}
+                              size="small"
+                              onClick={() => handleLaunchPresentation(selectedMeeting._id)}
+                              sx={{
+                                background: `linear-gradient(135deg, ${theme.palette.success.main} 0%, ${theme.palette.success.dark} 100%)`,
+                                '&:hover': {
+                                   background: `linear-gradient(135deg, ${theme.palette.success.dark} 0%, ${theme.palette.success.main} 100%)`,
+                                }
+                              }}
+                            >
+                              Present
+                            </Button>
+                          )}
                           <Button 
                             variant="contained" 
                             startIcon={<ModelTrainingIcon />} 
@@ -3198,6 +3248,22 @@ const InvestorMeetingsPage = () => {
             >
               <EditIcon fontSize="small" sx={{ mr: 1.5 }} /> Edit
             </MenuItem>
+            {isMeetingPrepared(meetings.find(m => m._id === selectedMeetingIdForMenu)) && (
+                 <MenuItem 
+                    onClick={() => {
+                        handleLaunchPresentation(selectedMeetingIdForMenu);
+                        setMenuAnchor(null);
+                    }}
+                    sx={{
+                        color: theme.palette.secondary.main,
+                        '&:hover': {
+                            bgcolor: alpha(theme.palette.secondary.main, 0.1)
+                        }
+                    }}
+                >
+                    <RocketLaunchIcon fontSize="small" sx={{ mr: 1.5 }} /> Launch Presentation
+                </MenuItem>
+            )}
             <MenuItem 
               onClick={() => handleDeleteMeeting(selectedMeetingIdForMenu)} 
               sx={{ 
