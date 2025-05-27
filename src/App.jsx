@@ -21,7 +21,7 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 import InvestorMeetingsPage from './pages/InvestorMeetingsPage';
 import HeadcountPage from './pages/HeadcountPage';
 import LiveInvestorDashboardPage from './pages/LiveInvestorDashboardPage'; // NEW: Import the new page
-
+import ProductMilestonesPage from './pages/ProductMilestonesPage';
 // Main App Component
 function App() {
   return (
@@ -45,6 +45,7 @@ function App() {
                 <Route path="budgets" element={<BudgetPage />} />
                 <Route path="documents" element={<DocumentsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
+                <Route path="product-milestones" element={<ProductMilestonesPage />} />
                 {/* NEW: Route for the Live Investor Dashboard */}
                 <Route path="investor-dashboard" element={<LiveInvestorDashboardPage />} /> 
               </Route>

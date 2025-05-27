@@ -30,12 +30,14 @@ import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility'; 
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 
 const authenticatedNavItems = [
   { name: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { name: 'Financials', path: '/financials', icon: <AttachMoneyIcon /> },
   { name: 'Fundraising', path: '/fundraising', icon: <BusinessCenterIcon /> },
   { name: 'KPIs', path: '/kpis', icon: <BarChartIcon /> },
+  { name: 'Product Roadmap', path: '/product-milestones', icon: <RocketLaunchIcon /> }, 
   //{ name: 'Analytics', path: '/analytics', icon: <AssessmentIcon /> },
   { name: 'Budgets', path: '/budgets', icon: <AccountBalanceWalletIcon /> },
   { name: 'Headcount', path: '/headcount', icon: <PeopleOutlineIcon /> },

@@ -297,6 +297,10 @@ export const addProductMilestoneTask = (milestoneId, taskData) => api.post(`/pro
 export const updateProductMilestoneTask = (milestoneId, taskId, taskData) => api.put(`/product-milestones/${milestoneId}/tasks/${taskId}`, taskData);
 export const deleteProductMilestoneTask = (milestoneId, taskId) => api.delete(`/product-milestones/${milestoneId}/tasks/${taskId}`);
 
+// Aliases for frontend compatibility (shorter names)
+export const addMilestoneTask = addProductMilestoneTask;
+export const updateMilestoneTask = updateProductMilestoneTask;
+export const deleteMilestoneTask = deleteProductMilestoneTask;
 // --- Investor Reports (Live Dashboard & Narratives) ---
 export const getLiveDashboardData = () => api.get('/investor-reports/live-dashboard-data');
 export const createInvestorReportNarrative = (data) => api.post('/investor-reports', data);
