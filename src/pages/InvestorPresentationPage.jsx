@@ -1,5 +1,5 @@
 // src/pages/InvestorPresentationPage.jsx
-// Enhanced magical version with full-screen experience and stunning visuals
+// Enhanced version with backend data only, better alignment, and larger graphs
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -173,8 +173,12 @@ const PresentationContainer = styled(Box)(({ theme }) => ({
   right: 0,
   bottom: 0,
   overflow: 'hidden',
-  background: '#0a0a0a', // Force dark background
+  background: '#0a0a0a',
   color: '#ffffff',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -184,7 +188,7 @@ const PresentationContainer = styled(Box)(({ theme }) => ({
     bottom: 0,
     background: `radial-gradient(circle at 20% 80%, ${alpha('#4facfe', 0.05)} 0%, transparent 50%),
                  radial-gradient(circle at 80% 20%, ${alpha('#00f2fe', 0.05)} 0%, transparent 50%)`,
-    animation: `${morphing} 40s ease-in-out infinite`, // Slower, subtler animation
+    animation: `${morphing} 40s ease-in-out infinite`,
     pointerEvents: 'none',
   }
 }));
@@ -196,7 +200,7 @@ const SlideContainer = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   position: 'relative',
-  padding: theme.spacing(4),
+  padding: theme.spacing(6),
   overflow: 'hidden',
   textAlign: 'center',
 }));
@@ -443,7 +447,6 @@ const InvestorPresentationPage = () => {
   const { meetingId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const containerRef = useRef(null);
   
   // State
@@ -821,7 +824,6 @@ const InvestorPresentationPage = () => {
           <SlideContainer>
             <CurrentSlideComponent 
               data={presentationData}
-              isMobile={isMobile}
             />
           </SlideContainer>
         </motion.div>
@@ -872,7 +874,7 @@ const InvestorPresentationPage = () => {
 };
 
 // Slide Components
-const HeroSlide = ({ data, isMobile }) => {
+const HeroSlide = ({ data }) => {
   const theme = useTheme();
   
   return (
@@ -897,8 +899,8 @@ const HeroSlide = ({ data, isMobile }) => {
             <Box sx={{ position: 'relative' }}>
               <Avatar
                 sx={{
-                  width: 180,
-                  height: 180,
+                  width: 220,
+                  height: 220,
                   background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                   boxShadow: '0 20px 40px rgba(79, 172, 254, 0.4)',
                   mb: 4,
@@ -906,7 +908,7 @@ const HeroSlide = ({ data, isMobile }) => {
                   border: '3px solid rgba(255, 255, 255, 0.2)',
                 }}
               >
-                <BusinessIcon sx={{ fontSize: 90, color: 'white' }} />
+                <BusinessIcon sx={{ fontSize: 110, color: 'white' }} />
               </Avatar>
               {[...Array(6)].map((_, i) => (
                 <Box
@@ -919,7 +921,7 @@ const HeroSlide = ({ data, isMobile }) => {
                     borderRadius: '50%',
                     top: '50%',
                     left: '50%',
-                    transform: `rotate(${i * 60}deg) translateY(-120px)`,
+                    transform: `rotate(${i * 60}deg) translateY(-140px)`,
                     animation: `${sparkle} 3s ease-in-out ${i * 0.5}s infinite`,
                   }}
                 />
@@ -931,7 +933,7 @@ const HeroSlide = ({ data, isMobile }) => {
             variant="h1" 
             sx={{ 
               fontWeight: 900,
-              fontSize: { xs: '3rem', md: '5rem', lg: '6rem' },
+              fontSize: '7rem',
               background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 25%, #f093fb 50%, #fa709a 75%, #4facfe 100%)',
               backgroundSize: '300% 300%',
               WebkitBackgroundClip: 'text',
@@ -946,7 +948,7 @@ const HeroSlide = ({ data, isMobile }) => {
           </Typography>
           
           <Typography 
-            variant="h4" 
+            variant="h3" 
             sx={{ 
               fontWeight: 300,
               color: 'rgba(255, 255, 255, 0.9)',
@@ -978,9 +980,9 @@ const HeroSlide = ({ data, isMobile }) => {
                   }
                   label={investor.name}
                   sx={{
-                    fontSize: '1.1rem',
-                    py: 3,
-                    px: 2,
+                    fontSize: '1.2rem',
+                    py: 3.5,
+                    px: 2.5,
                     background: 'rgba(255, 255, 255, 0.1)',
                     backdropFilter: 'blur(10px)',
                     border: '2px solid rgba(255, 255, 255, 0.2)',
@@ -1002,7 +1004,7 @@ const HeroSlide = ({ data, isMobile }) => {
           >
             <KeyboardArrowDownIcon 
               sx={{ 
-                fontSize: 48, 
+                fontSize: 56, 
                 color: 'rgba(255, 255, 255, 0.5)',
                 filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.3))'
               }} 
@@ -1014,7 +1016,7 @@ const HeroSlide = ({ data, isMobile }) => {
   );
 };
 
-const OverviewSlide = ({ data, isMobile }) => {
+const OverviewSlide = ({ data }) => {
   const theme = useTheme();
   const financials = data?.financialSnapshot;
   const userMetrics = data?.userMetricsSnapshot;
@@ -1025,7 +1027,7 @@ const OverviewSlide = ({ data, isMobile }) => {
       value: financials?.runway || 0,
       suffix: ' months',
       color: financials?.runway > 12 ? 'success' : financials?.runway > 6 ? 'warning' : 'error',
-      icon: <RocketLaunchIcon sx={{ fontSize: 50 }} />,
+      icon: <RocketLaunchIcon sx={{ fontSize: 60 }} />,
       gradient: 'linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%)'
     },
     {
@@ -1033,14 +1035,14 @@ const OverviewSlide = ({ data, isMobile }) => {
       value: financials?.monthlyBurn || 0,
       prefix: '₹',
       color: 'warning',
-      icon: <LocalFireDepartmentIcon sx={{ fontSize: 50 }} />,
+      icon: <LocalFireDepartmentIcon sx={{ fontSize: 60 }} />,
       gradient: 'linear-gradient(135deg, #f2994a 0%, #f2c94c 100%)'
     },
     {
       label: 'Total Users',
       value: userMetrics?.totalRegisteredUsers || 0,
       color: 'primary',
-      icon: <PeopleAltIcon sx={{ fontSize: 50 }} />,
+      icon: <PeopleAltIcon sx={{ fontSize: 60 }} />,
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     },
     {
@@ -1048,7 +1050,7 @@ const OverviewSlide = ({ data, isMobile }) => {
       value: financials?.mrr || 0,
       prefix: '₹',
       color: 'success',
-      icon: <MonetizationOnIcon sx={{ fontSize: 50 }} />,
+      icon: <MonetizationOnIcon sx={{ fontSize: 60 }} />,
       gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
     }
   ];
@@ -1068,13 +1070,14 @@ const OverviewSlide = ({ data, isMobile }) => {
             mb: 8,
             color: 'white',
             textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-            animation: `${fadeInUp} 1s ease-out`
+            animation: `${fadeInUp} 1s ease-out`,
+            fontSize: '4rem'
           }}
         >
           The Story So Far
         </Typography>
         
-        <Grid container spacing={4}>
+        <Grid container spacing={4} justifyContent="center">
           {highlights.map((item, index) => (
             <Grid item xs={12} sm={6} md={3} key={item.label}>
               <motion.div
@@ -1084,12 +1087,12 @@ const OverviewSlide = ({ data, isMobile }) => {
               >
                 <Card3D>
                   <MagicalCard glowColor={theme.palette[item.color].main}>
-                    <CardContent sx={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+                    <CardContent sx={{ textAlign: 'center', position: 'relative', zIndex: 1, p: 4 }}>
                       <Box
                         sx={{
-                          width: 100,
-                          height: 100,
-                          margin: '0 auto 20px',
+                          width: 120,
+                          height: 120,
+                          margin: '0 auto 24px',
                           borderRadius: '50%',
                           background: item.gradient,
                           display: 'flex',
@@ -1107,7 +1110,7 @@ const OverviewSlide = ({ data, isMobile }) => {
                       </Box>
                       
                       <Typography 
-                        variant="h3" 
+                        variant="h2" 
                         sx={{ 
                           fontWeight: 800, 
                           mb: 1,
@@ -1115,6 +1118,7 @@ const OverviewSlide = ({ data, isMobile }) => {
                           WebkitBackgroundClip: 'text',
                           WebkitTextFillColor: 'transparent',
                           backgroundClip: 'text',
+                          fontSize: '3.5rem'
                         }}
                       >
                         {item.prefix}
@@ -1129,7 +1133,7 @@ const OverviewSlide = ({ data, isMobile }) => {
                       </Typography>
                       
                       <Typography 
-                        variant="h6" 
+                        variant="h5" 
                         sx={{ 
                           fontWeight: 500,
                           color: 'rgba(255, 255, 255, 0.8)'
@@ -1152,19 +1156,19 @@ const OverviewSlide = ({ data, isMobile }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.8 }}
           >
-            <Box sx={{ mt: 8 }}>
+            <Box sx={{ mt: 10 }}>
               <Typography 
-                variant="h4" 
+                variant="h3" 
                 sx={{ 
                   textAlign: 'center', 
                   mb: 6, 
-                  fontWeight: 600,
+                  fontWeight: 700,
                   color: 'white'
                 }}
               >
                 Key Highlights
               </Typography>
-              <Grid container spacing={3} justifyContent="center">
+              <Grid container spacing={4} justifyContent="center">
                 {data.talkingPoints.slice(0, 3).map((point, index) => (
                   <Grid item xs={12} md={4} key={index}>
                     <motion.div
@@ -1174,30 +1178,32 @@ const OverviewSlide = ({ data, isMobile }) => {
                       whileHover={{ scale: 1.05 }}
                     >
                       <MagicalCard glowColor="#4facfe">
-                        <CardContent>
-                          <Stack direction="row" spacing={2} alignItems="flex-start">
+                        <CardContent sx={{ p: 4 }}>
+                          <Stack direction="row" spacing={3} alignItems="flex-start">
                             <Avatar sx={{ 
                               background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                              boxShadow: '0 8px 20px rgba(79, 172, 254, 0.4)'
+                              boxShadow: '0 8px 20px rgba(79, 172, 254, 0.4)',
+                              width: 56,
+                              height: 56
                             }}>
-                              <CheckCircleIcon />
+                              <CheckCircleIcon sx={{ fontSize: 30 }} />
                             </Avatar>
                             <Box>
                               <Typography 
-                                variant="h6" 
+                                variant="h5" 
                                 sx={{ 
-                                  fontWeight: 600,
+                                  fontWeight: 700,
                                   color: 'white',
-                                  mb: 1
+                                  mb: 1.5
                                 }}
                               >
                                 {point.title}
                               </Typography>
                               <Typography 
-                                variant="body2" 
+                                variant="body1" 
                                 sx={{ 
                                   color: 'rgba(255, 255, 255, 0.7)',
-                                  lineHeight: 1.6
+                                  lineHeight: 1.8
                                 }}
                               >
                                 {point.content}
@@ -1218,29 +1224,17 @@ const OverviewSlide = ({ data, isMobile }) => {
   );
 };
 
-const FinancialsSlide = ({ data, isMobile }) => {
+const FinancialsSlide = ({ data }) => {
   const theme = useTheme();
   const financials = data?.financialSnapshot;
   
   if (!financials) return null;
   
-  // Prepare multiple chart data
+  // Only use real data from backend
   const cashFlowData = [
     { name: 'Revenue', value: financials.mrr || 0, color: '#38ef7d' },
     { name: 'Expenses', value: financials.monthlyBurn || 0, color: '#eb5757' },
     { name: 'Net', value: (financials.mrr || 0) - (financials.monthlyBurn || 0), color: '#4facfe' }
-  ];
-
-  const gaugeData = [
-    { name: 'Runway', value: financials.runway || 0, fill: financials.runway > 12 ? '#38ef7d' : financials.runway > 6 ? '#f2994a' : '#eb5757' }
-  ];
-
-  // Trend data (mock for visualization)
-  const trendData = [
-    { month: 'Jan', revenue: (financials.mrr || 0) * 0.7, expenses: (financials.monthlyBurn || 0) * 0.9 },
-    { month: 'Feb', revenue: (financials.mrr || 0) * 0.8, expenses: (financials.monthlyBurn || 0) * 0.95 },
-    { month: 'Mar', revenue: (financials.mrr || 0) * 0.9, expenses: (financials.monthlyBurn || 0) * 0.98 },
-    { month: 'Apr', revenue: financials.mrr || 0, expenses: financials.monthlyBurn || 0 }
   ];
   
   return (
@@ -1255,23 +1249,24 @@ const FinancialsSlide = ({ data, isMobile }) => {
           sx={{ 
             fontWeight: 800,
             textAlign: 'center',
-            mb: 6,
+            mb: 8,
             color: 'white',
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            fontSize: '4rem'
           }}
         >
           Financial Health
         </Typography>
         
-        <Grid container spacing={4}>
+        <Grid container spacing={4} justifyContent="center">
           {/* Cash Flow Visualization */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={8}>
             <MagicalCard glowColor="#38ef7d">
-              <CardContent>
-                <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: 'white' }}>
+              <CardContent sx={{ p: 5 }}>
+                <Typography variant="h4" sx={{ mb: 4, fontWeight: 700, color: 'white', textAlign: 'center' }}>
                   Monthly Cash Flow
                 </Typography>
-                <ResponsiveContainer width="100%" height={350}>
+                <ResponsiveContainer width="100%" height={500}>
                   <ComposedChart data={cashFlowData}>
                     <defs>
                       <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -1284,14 +1279,15 @@ const FinancialsSlide = ({ data, isMobile }) => {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
-                    <YAxis stroke="rgba(255,255,255,0.5)" />
+                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" tick={{ fontSize: 16 }} />
+                    <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fontSize: 16 }} />
                     <RechartsTooltip content={<CustomTooltip />} />
                     <Bar 
                       dataKey="value" 
                       fill="url(#colorRevenue)"
-                      radius={[10, 10, 0, 0]}
+                      radius={[15, 15, 0, 0]}
                       animationDuration={1500}
+                      barSize={120}
                     >
                       {cashFlowData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -1303,63 +1299,18 @@ const FinancialsSlide = ({ data, isMobile }) => {
             </MagicalCard>
           </Grid>
           
-          {/* Trend Chart */}
-          <Grid item xs={12} md={6}>
-            <MagicalCard glowColor="#4facfe">
-              <CardContent>
-                <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: 'white' }}>
-                  Financial Trend
-                </Typography>
-                <ResponsiveContainer width="100%" height={350}>
-                  <AreaChart data={trendData}>
-                    <defs>
-                      <linearGradient id="colorRevenueTrend" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#38ef7d" stopOpacity={0.6}/>
-                        <stop offset="95%" stopColor="#38ef7d" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorExpensesTrend" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#eb5757" stopOpacity={0.6}/>
-                        <stop offset="95%" stopColor="#eb5757" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis dataKey="month" stroke="rgba(255,255,255,0.5)" />
-                    <YAxis stroke="rgba(255,255,255,0.5)" />
-                    <RechartsTooltip content={<CustomTooltip />} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="#38ef7d" 
-                      fill="url(#colorRevenueTrend)"
-                      strokeWidth={3}
-                      animationDuration={2000}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="expenses" 
-                      stroke="#eb5757" 
-                      fill="url(#colorExpensesTrend)"
-                      strokeWidth={3}
-                      animationDuration={2000}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </MagicalCard>
-          </Grid>
-          
           {/* Key Metrics */}
           <Grid item xs={12}>
-            <Grid container spacing={3}>
+            <Grid container spacing={4} justifyContent="center">
               <Grid item xs={12} md={4}>
                 <GlowingMetricCard color="primary">
-                  <Stack spacing={2} alignItems="center">
+                  <Stack spacing={3} alignItems="center">
                     <Box sx={{ position: 'relative', display: 'inline-flex' }}>
                       <CircularProgress
                         variant="determinate"
                         value={(financials.runway / 24) * 100}
-                        size={150}
-                        thickness={4}
+                        size={200}
+                        thickness={5}
                         sx={{
                           color: financials.runway > 12 ? '#38ef7d' : financials.runway > 6 ? '#f2994a' : '#eb5757',
                           '& .MuiCircularProgress-circle': {
@@ -1380,15 +1331,15 @@ const FinancialsSlide = ({ data, isMobile }) => {
                           flexDirection: 'column'
                         }}
                       >
-                        <Typography variant="h2" sx={{ fontWeight: 800, color: financials.runway > 12 ? '#38ef7d' : financials.runway > 6 ? '#f2994a' : '#eb5757' }}>
+                        <Typography variant="h1" sx={{ fontWeight: 800, color: financials.runway > 12 ? '#38ef7d' : financials.runway > 6 ? '#f2994a' : '#eb5757' }}>
                           {financials.runway}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                        <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                           months
                         </Typography>
                       </Box>
                     </Box>
-                    <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                    <Typography variant="h4" sx={{ color: 'white', fontWeight: 700 }}>
                       Runway
                     </Typography>
                   </Stack>
@@ -1397,19 +1348,19 @@ const FinancialsSlide = ({ data, isMobile }) => {
               
               <Grid item xs={12} md={4}>
                 <GlowingMetricCard color="info">
-                  <Stack spacing={2} alignItems="center">
+                  <Stack spacing={3} alignItems="center">
                     <Avatar sx={{
-                      width: 100,
-                      height: 100,
+                      width: 140,
+                      height: 140,
                       background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                       animation: `${pulse} 2s ease-in-out infinite`
                     }}>
-                      <AccountBalanceIcon sx={{ fontSize: 50 }} />
+                      <AccountBalanceIcon sx={{ fontSize: 70 }} />
                     </Avatar>
-                    <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>
+                    <Typography variant="h3" sx={{ fontWeight: 800, color: 'white' }}>
                       ₹<CountUp end={financials.cashBalance || 0} duration={2} separator="," />
                     </Typography>
-                    <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    <Typography variant="h5" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                       Cash Balance
                     </Typography>
                   </Stack>
@@ -1418,19 +1369,19 @@ const FinancialsSlide = ({ data, isMobile }) => {
               
               <Grid item xs={12} md={4}>
                 <GlowingMetricCard color="secondary">
-                  <Stack spacing={2} alignItems="center">
+                  <Stack spacing={3} alignItems="center">
                     <Avatar sx={{
-                      width: 100,
-                      height: 100,
+                      width: 140,
+                      height: 140,
                       background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                       animation: `${pulse} 2s ease-in-out infinite`
                     }}>
-                      <DiamondIcon sx={{ fontSize: 50 }} />
+                      <DiamondIcon sx={{ fontSize: 70 }} />
                     </Avatar>
-                    <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>
+                    <Typography variant="h3" sx={{ fontWeight: 800, color: 'white' }}>
                       ₹<CountUp end={financials.totalFundsRaised || 0} duration={2} separator="," />
                     </Typography>
-                    <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    <Typography variant="h5" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                       Total Raised
                     </Typography>
                   </Stack>
@@ -1444,30 +1395,12 @@ const FinancialsSlide = ({ data, isMobile }) => {
   );
 };
 
-const MetricsSlide = ({ data, isMobile }) => {
+const MetricsSlide = ({ data }) => {
   const theme = useTheme();
   const userMetrics = data?.userMetricsSnapshot;
   const kpis = data?.highlightedKpis;
   
   if (!userMetrics && (!kpis || kpis.length === 0)) return null;
-  
-  // Enhanced engagement data for radar chart
-  const engagementData = [
-    { metric: 'DAU/MAU', value: (parseFloat(userMetrics?.dauMauRatio) * 100) || 0, fullMark: 100 },
-    { metric: 'Retention', value: 85, fullMark: 100 },
-    { metric: 'Engagement', value: 72, fullMark: 100 },
-    { metric: 'Growth', value: 90, fullMark: 100 },
-    { metric: 'Satisfaction', value: 88, fullMark: 100 },
-    { metric: 'Virality', value: 65, fullMark: 100 }
-  ];
-
-  // User growth trend
-  const growthTrend = [
-    { month: 'Jan', users: (userMetrics?.totalRegisteredUsers || 0) * 0.6 },
-    { month: 'Feb', users: (userMetrics?.totalRegisteredUsers || 0) * 0.7 },
-    { month: 'Mar', users: (userMetrics?.totalRegisteredUsers || 0) * 0.85 },
-    { month: 'Apr', users: userMetrics?.totalRegisteredUsers || 0 }
-  ];
   
   return (
     <Container maxWidth="xl">
@@ -1481,183 +1414,133 @@ const MetricsSlide = ({ data, isMobile }) => {
           sx={{ 
             fontWeight: 800,
             textAlign: 'center',
-            mb: 6,
+            mb: 8,
             color: 'white',
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            fontSize: '4rem'
           }}
         >
           Growth Trajectory
         </Typography>
         
-        <Grid container spacing={4}>
-          {/* User Engagement Radar */}
+        <Grid container spacing={4} justifyContent="center">
+          {/* User Metrics */}
           {userMetrics && (
-            <Grid item xs={12} md={6}>
-              <MagicalCard glowColor="#4facfe">
-                <CardContent>
-                  <Typography variant="h5" sx={{ mb: 4, fontWeight: 600, color: 'white' }}>
-                    User Engagement Score
-                  </Typography>
-                  <ResponsiveContainer width="100%" height={400}>
-                    <RadarChart data={engagementData}>
-                      <defs>
-                        <linearGradient id="radarGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#4facfe" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#00f2fe" stopOpacity={0.3}/>
-                        </linearGradient>
-                      </defs>
-                      <PolarGrid stroke="rgba(255,255,255,0.2)" />
-                      <PolarAngleAxis dataKey="metric" stroke="rgba(255,255,255,0.6)" />
-                      <PolarRadiusAxis 
-                        angle={90} 
-                        domain={[0, 100]} 
-                        stroke="rgba(255,255,255,0.3)"
-                        tickFormatter={(value) => `${value}%`}
-                      />
-                      <Radar
-                        name="Current"
-                        dataKey="value"
-                        stroke="#4facfe"
-                        fill="url(#radarGradient)"
-                        strokeWidth={3}
-                        animationDuration={1500}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                  
-                  <Grid container spacing={2} sx={{ mt: 2 }}>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center' }}>
-                        <motion.div
-                          animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <Typography variant="h3" sx={{ fontWeight: 700, color: '#4facfe' }}>
+            <Grid item xs={12}>
+              <Box sx={{ textAlign: 'center', mb: 6 }}>
+                <Grid container spacing={4} justifyContent="center">
+                  <Grid item xs={12} md={4}>
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <MagicalCard glowColor="#4facfe">
+                        <CardContent sx={{ p: 5 }}>
+                          <Typography variant="h2" sx={{ fontWeight: 800, color: '#4facfe', mb: 2 }}>
                             <CountUp end={userMetrics.dau || 0} duration={2} separator="," />
                           </Typography>
-                        </motion.div>
-                        <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                          Daily Active Users
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center' }}>
-                        <motion.div
-                          animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                        >
-                          <Typography variant="h3" sx={{ fontWeight: 700, color: '#00f2fe' }}>
+                          <Typography variant="h4" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                            Daily Active Users
+                          </Typography>
+                        </CardContent>
+                      </MagicalCard>
+                    </motion.div>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                    >
+                      <MagicalCard glowColor="#00f2fe">
+                        <CardContent sx={{ p: 5 }}>
+                          <Typography variant="h2" sx={{ fontWeight: 800, color: '#00f2fe', mb: 2 }}>
                             <CountUp end={userMetrics.mau || 0} duration={2} separator="," />
                           </Typography>
-                        </motion.div>
-                        <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                          Monthly Active Users
-                        </Typography>
-                      </Box>
-                    </Grid>
+                          <Typography variant="h4" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                            Monthly Active Users
+                          </Typography>
+                        </CardContent>
+                      </MagicalCard>
+                    </motion.div>
                   </Grid>
-                </CardContent>
-              </MagicalCard>
+                  <Grid item xs={12} md={4}>
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                    >
+                      <MagicalCard glowColor="#f093fb">
+                        <CardContent sx={{ p: 5 }}>
+                          <Typography variant="h2" sx={{ fontWeight: 800, color: '#f093fb', mb: 2 }}>
+                            {(parseFloat(userMetrics.dauMauRatio) * 100).toFixed(1)}%
+                          </Typography>
+                          <Typography variant="h4" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                            DAU/MAU Ratio
+                          </Typography>
+                        </CardContent>
+                      </MagicalCard>
+                    </motion.div>
+                  </Grid>
+                </Grid>
+              </Box>
             </Grid>
           )}
           
-          {/* Growth Trend */}
-          <Grid item xs={12} md={6}>
-            <MagicalCard glowColor="#f093fb">
-              <CardContent>
-                <Typography variant="h5" sx={{ mb: 4, fontWeight: 600, color: 'white' }}>
-                  User Growth Trend
-                </Typography>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={growthTrend}>
-                    <defs>
-                      <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f093fb" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#f093fb" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis dataKey="month" stroke="rgba(255,255,255,0.5)" />
-                    <YAxis stroke="rgba(255,255,255,0.5)" />
-                    <RechartsTooltip content={<CustomTooltip />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="users" 
-                      stroke="#f093fb" 
-                      strokeWidth={4}
-                      dot={{ fill: '#fa709a', r: 8 }}
-                      animationDuration={2000}
-                      fill="url(#lineGradient)"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="users"
-                      stroke="none"
-                      fill="url(#lineGradient)"
-                      animationDuration={2000}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </MagicalCard>
-            
-            {/* KPIs */}
-            {kpis && kpis.length > 0 && (
-              <Box sx={{ mt: 3 }}>
-                <Grid container spacing={2}>
-                  {kpis.slice(0, 4).map((kpi, index) => (
-                    <Grid item xs={6} key={kpi.kpiId}>
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1 }}
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        <MagicalCard glowColor="#fa709a">
-                          <CardContent sx={{ p: 2 }}>
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                              <Box>
-                                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-                                  {kpi.kpiName}
-                                </Typography>
-                                <Typography variant="h5" sx={{ fontWeight: 700, color: '#fa709a' }}>
-                                  {kpi.formattedValue || kpi.value || 'N/A'}
-                                </Typography>
-                              </Box>
-                              {kpi.trend !== null && kpi.trend !== undefined && (
-                                <Avatar sx={{
-                                  width: 40,
-                                  height: 40,
-                                  background: kpi.trend > 0 
-                                    ? 'linear-gradient(135deg, #11998e, #38ef7d)'
-                                    : kpi.trend < 0 
-                                    ? 'linear-gradient(135deg, #eb5757, #f2994a)'
-                                    : 'linear-gradient(135deg, #667eea, #764ba2)',
-                                  animation: `${pulse} 2s ease-in-out infinite`
-                                }}>
-                                  {kpi.trend > 0 ? <TrendingUpIcon /> : 
-                                   kpi.trend < 0 ? <TrendingDownIcon /> : 
-                                   <TrendingFlatIcon />}
-                                </Avatar>
-                              )}
-                            </Stack>
-                          </CardContent>
-                        </MagicalCard>
-                      </motion.div>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-            )}
-          </Grid>
+          {/* KPIs */}
+          {kpis && kpis.length > 0 && (
+            <Grid item xs={12}>
+              <Typography variant="h3" sx={{ textAlign: 'center', mb: 4, fontWeight: 700, color: 'white' }}>
+                Key Performance Indicators
+              </Typography>
+              <Grid container spacing={3} justifyContent="center">
+                {kpis.map((kpi, index) => (
+                  <Grid item xs={12} sm={6} md={3} key={kpi.kpiId}>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <MagicalCard glowColor="#fa709a">
+                        <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                          <Stack spacing={2} alignItems="center">
+                            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem' }}>
+                              {kpi.kpiName}
+                            </Typography>
+                            <Typography variant="h3" sx={{ fontWeight: 800, color: '#fa709a' }}>
+                              {kpi.formattedValue || kpi.value || 'N/A'}
+                            </Typography>
+                            {kpi.trend !== null && kpi.trend !== undefined && (
+                              <Avatar sx={{
+                                width: 60,
+                                height: 60,
+                                background: kpi.trend > 0 
+                                  ? 'linear-gradient(135deg, #11998e, #38ef7d)'
+                                  : kpi.trend < 0 
+                                  ? 'linear-gradient(135deg, #eb5757, #f2994a)'
+                                  : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                animation: `${pulse} 2s ease-in-out infinite`
+                              }}>
+                                {kpi.trend > 0 ? <TrendingUpIcon sx={{ fontSize: 35 }} /> : 
+                                 kpi.trend < 0 ? <TrendingDownIcon sx={{ fontSize: 35 }} /> : 
+                                 <TrendingFlatIcon sx={{ fontSize: 35 }} />}
+                              </Avatar>
+                            )}
+                          </Stack>
+                        </CardContent>
+                      </MagicalCard>
+                    </motion.div>
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
+          )}
         </Grid>
       </motion.div>
     </Container>
   );
 };
 
-const CustomerInsightsSlide = ({ data, isMobile }) => {
+const CustomerInsightsSlide = ({ data }) => {
   const theme = useTheme();
   const userMetrics = data?.userMetricsSnapshot;
   
@@ -1668,48 +1551,6 @@ const CustomerInsightsSlide = ({ data, isMobile }) => {
     point.title?.toLowerCase().includes('user')
   ) || [];
   
-  const customerMetrics = [
-    {
-      icon: <PersonAddIcon sx={{ fontSize: 40 }} />,
-      label: 'New Users',
-      value: userMetrics?.newUsersThisMonth || 0,
-      color: 'primary',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    },
-    {
-      icon: <ShoppingCartIcon sx={{ fontSize: 40 }} />,
-      label: 'Conversion Rate',
-      value: '12.5',
-      suffix: '%',
-      color: 'success',
-      gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
-    },
-    {
-      icon: <LoyaltyIcon sx={{ fontSize: 40 }} />,
-      label: 'Retention Rate',
-      value: '85',
-      suffix: '%',
-      color: 'info',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
-    },
-    {
-      icon: <SupportAgentIcon sx={{ fontSize: 40 }} />,
-      label: 'NPS Score',
-      value: '72',
-      color: 'warning',
-      gradient: 'linear-gradient(135deg, #f2994a 0%, #f2c94c 100%)'
-    }
-  ];
-
-  // Customer journey funnel
-  const funnelData = [
-    { name: 'Visitors', value: 10000, fill: '#667eea' },
-    { name: 'Sign-ups', value: 3500, fill: '#764ba2' },
-    { name: 'Active Users', value: 2100, fill: '#f093fb' },
-    { name: 'Paying Customers', value: 850, fill: '#fa709a' },
-    { name: 'Champions', value: 120, fill: '#f5576c' }
-  ];
-  
   return (
     <Container maxWidth="xl">
       <motion.div
@@ -1722,141 +1563,110 @@ const CustomerInsightsSlide = ({ data, isMobile }) => {
           sx={{ 
             fontWeight: 800,
             textAlign: 'center',
-            mb: 6,
+            mb: 8,
             color: 'white',
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            fontSize: '4rem'
           }}
         >
           Customer Journey
         </Typography>
         
-        <Grid container spacing={4}>
-          {/* Customer Metrics */}
-          <Grid item xs={12}>
-            <Grid container spacing={3}>
-              {customerMetrics.map((metric, index) => (
-                <Grid item xs={12} sm={6} md={3} key={index}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <Card3D>
-                      <GlowingMetricCard color={metric.color}>
-                        <Stack spacing={2} alignItems="center">
-                          <Box
-                            sx={{
-                              width: 80,
-                              height: 80,
-                              borderRadius: '50%',
-                              background: metric.gradient,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              animation: `${float} 3s ease-in-out ${index * 0.5}s infinite`,
-                              boxShadow: `0 10px 20px ${alpha(theme.palette[metric.color].main, 0.3)}`
-                            }}
-                          >
-                            {React.cloneElement(metric.icon, { sx: { color: 'white' } })}
-                          </Box>
-                          <Typography variant="h3" sx={{ fontWeight: 700, color: 'white' }}>
-                            <CountUp end={parseFloat(metric.value)} duration={2} />
-                            {metric.suffix}
+        {customerInsights.length > 0 ? (
+          <Grid container spacing={4} justifyContent="center">
+            {customerInsights.map((insight, index) => (
+              <Grid item xs={12} md={6} key={index}>
+                <motion.div
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.2 }}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <MagicalCard glowColor="#fa709a">
+                    <CardContent sx={{ p: 5 }}>
+                      <Stack direction="row" spacing={3} alignItems="flex-start">
+                        <Avatar sx={{
+                          background: 'linear-gradient(135deg, #f093fb 0%, #fa709a 100%)',
+                          animation: `${pulse} 2s ease-in-out infinite`,
+                          width: 70,
+                          height: 70
+                        }}>
+                          <LightbulbIcon sx={{ fontSize: 40 }} />
+                        </Avatar>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="h4" sx={{ mb: 2, fontWeight: 700, color: 'white' }}>
+                            {insight.title}
                           </Typography>
-                          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                            {metric.label}
+                          <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.8 }}>
+                            {insight.content}
                           </Typography>
-                        </Stack>
-                      </GlowingMetricCard>
-                    </Card3D>
-                  </motion.div>
-                </Grid>
-              ))}
-            </Grid>
+                        </Box>
+                      </Stack>
+                    </CardContent>
+                  </MagicalCard>
+                </motion.div>
+              </Grid>
+            ))}
           </Grid>
-          
-          {/* Customer Funnel */}
-          <Grid item xs={12} md={6}>
-            <MagicalCard glowColor="#667eea">
-              <CardContent>
-                <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: 'white' }}>
-                  Conversion Funnel
-                </Typography>
-                <ResponsiveContainer width="100%" height={350}>
-                  <FunnelChart>
-                    <RechartsTooltip content={<CustomTooltip />} />
-                    <Funnel
-                      dataKey="value"
-                      data={funnelData}
-                      isAnimationActive
-                      animationDuration={1500}
-                    >
-                      <LabelList position="center" fill="#fff" style={{ fontSize: '14px', fontWeight: 600 }} />
-                    </Funnel>
-                  </FunnelChart>
-                </ResponsiveContainer>
+        ) : userMetrics ? (
+          <Box sx={{ textAlign: 'center' }}>
+            <MagicalCard glowColor="#fa709a">
+              <CardContent sx={{ p: 8 }}>
+                <Stack spacing={4} alignItems="center">
+                  <PsychologyIcon sx={{ fontSize: 100, color: '#fa709a' }} />
+                  <Typography variant="h3" sx={{ color: 'white', fontWeight: 700 }}>
+                    User Base Overview
+                  </Typography>
+                  <Grid container spacing={4} justifyContent="center" sx={{ mt: 2 }}>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="h2" sx={{ fontWeight: 800, color: '#f093fb' }}>
+                        <CountUp end={userMetrics.totalRegisteredUsers || 0} duration={2} separator="," />
+                      </Typography>
+                      <Typography variant="h5" sx={{ color: 'rgba(255,255,255,0.7)', mt: 1 }}>
+                        Total Users
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="h2" sx={{ fontWeight: 800, color: '#fa709a' }}>
+                        <CountUp end={userMetrics.newUsersThisMonth || 0} duration={2} separator="," />
+                      </Typography>
+                      <Typography variant="h5" sx={{ color: 'rgba(255,255,255,0.7)', mt: 1 }}>
+                        New This Month
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="h2" sx={{ fontWeight: 800, color: '#f5576c' }}>
+                        <CountUp end={userMetrics.churnedUsers || 0} duration={2} separator="," />
+                      </Typography>
+                      <Typography variant="h5" sx={{ color: 'rgba(255,255,255,0.7)', mt: 1 }}>
+                        Churned Users
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Stack>
               </CardContent>
             </MagicalCard>
-          </Grid>
-          
-          {/* Customer Insights */}
-          <Grid item xs={12} md={6}>
-            {customerInsights.length > 0 ? (
-              <Stack spacing={3}>
-                <Typography variant="h5" sx={{ fontWeight: 600, color: 'white' }}>
-                  What We're Learning
-                </Typography>
-                {customerInsights.map((insight, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <MagicalCard glowColor="#fa709a">
-                      <CardContent>
-                        <Stack direction="row" spacing={2}>
-                          <Avatar sx={{
-                            background: 'linear-gradient(135deg, #f093fb 0%, #fa709a 100%)',
-                            animation: `${pulse} 2s ease-in-out infinite`
-                          }}>
-                            <LightbulbIcon />
-                          </Avatar>
-                          <Box>
-                            <Typography variant="h6" sx={{ mb: 1, fontWeight: 600, color: 'white' }}>
-                              {insight.title}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
-                              {insight.content}
-                            </Typography>
-                          </Box>
-                        </Stack>
-                      </CardContent>
-                    </MagicalCard>
-                  </motion.div>
-                ))}
-              </Stack>
-            ) : (
-              <MagicalCard glowColor="#fa709a">
-                <CardContent sx={{ height: 350, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Stack spacing={3} alignItems="center">
-                    <PsychologyIcon sx={{ fontSize: 80, color: '#fa709a' }} />
-                    <Typography variant="h5" sx={{ color: 'white' }}>
-                      Customer insights coming soon
-                    </Typography>
-                  </Stack>
-                </CardContent>
-              </MagicalCard>
-            )}
-          </Grid>
-        </Grid>
+          </Box>
+        ) : (
+          <Box sx={{ textAlign: 'center' }}>
+            <MagicalCard glowColor="#fa709a">
+              <CardContent sx={{ p: 8 }}>
+                <Stack spacing={3} alignItems="center">
+                  <PsychologyIcon sx={{ fontSize: 100, color: '#fa709a' }} />
+                  <Typography variant="h3" sx={{ color: 'white' }}>
+                    Customer insights data not available
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </MagicalCard>
+          </Box>
+        )}
       </motion.div>
     </Container>
   );
 };
 
-const TeamSlide = ({ data, isMobile }) => {
+const TeamSlide = ({ data }) => {
   const theme = useTheme();
   const teamData = data?.teamUpdates;
   
@@ -1880,16 +1690,17 @@ const TeamSlide = ({ data, isMobile }) => {
           sx={{ 
             fontWeight: 800,
             textAlign: 'center',
-            mb: 6,
+            mb: 8,
             color: 'white',
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            fontSize: '4rem'
           }}
         >
           Our Growing Team
         </Typography>
         
-        <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={6}>
+        <Grid container spacing={6} alignItems="center" justifyContent="center">
+          <Grid item xs={12} md={5}>
             <Stack spacing={4} alignItems="center">
               <motion.div
                 animate={{ 
@@ -1903,14 +1714,14 @@ const TeamSlide = ({ data, isMobile }) => {
                 }}
               >
                 <Avatar sx={{
-                  width: 200,
-                  height: 200,
+                  width: 250,
+                  height: 250,
                   background: 'linear-gradient(135deg, #667eea, #764ba2)',
                   boxShadow: '0 20px 40px rgba(118, 75, 162, 0.4)',
                   mb: 2,
                   animation: `${glow} 3s ease-in-out infinite`
                 }}>
-                  <GroupsIcon sx={{ fontSize: 100, color: 'white' }} />
+                  <GroupsIcon sx={{ fontSize: 130, color: 'white' }} />
                 </Avatar>
               </motion.div>
               
@@ -1919,11 +1730,11 @@ const TeamSlide = ({ data, isMobile }) => {
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 100 }}
               >
-                <Typography variant="h1" sx={{ fontWeight: 800, color: 'white' }}>
+                <Typography variant="h1" sx={{ fontWeight: 800, color: 'white', fontSize: '5rem' }}>
                   <CountUp end={teamData.currentHeadcount || 0} duration={2} />
                 </Typography>
               </motion.div>
-              <Typography variant="h5" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+              <Typography variant="h4" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                 Total Team Members
               </Typography>
               
@@ -1932,11 +1743,11 @@ const TeamSlide = ({ data, isMobile }) => {
                   <Card3D>
                     <GlowingMetricCard color="success">
                       <Stack spacing={1} alignItems="center">
-                        <ElectricBoltIcon sx={{ fontSize: 40, color: '#38ef7d' }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>
+                        <ElectricBoltIcon sx={{ fontSize: 50, color: '#38ef7d' }} />
+                        <Typography variant="h3" sx={{ fontWeight: 800, color: 'white' }}>
                           +<CountUp end={teamData.newHires?.length || 0} duration={2} />
                         </Typography>
-                        <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                        <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                           New Hires
                         </Typography>
                       </Stack>
@@ -1947,11 +1758,11 @@ const TeamSlide = ({ data, isMobile }) => {
                   <Card3D>
                     <GlowingMetricCard color="warning">
                       <Stack spacing={1} alignItems="center">
-                        <FlareIcon sx={{ fontSize: 40, color: '#f2994a' }} />
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>
+                        <FlareIcon sx={{ fontSize: 50, color: '#f2994a' }} />
+                        <Typography variant="h3" sx={{ fontWeight: 800, color: 'white' }}>
                           <CountUp end={teamData.openPositions || 0} duration={2} />
                         </Typography>
-                        <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                        <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                           Open Positions
                         </Typography>
                       </Stack>
@@ -1962,14 +1773,14 @@ const TeamSlide = ({ data, isMobile }) => {
             </Stack>
           </Grid>
           
-          <Grid item xs={12} md={6}>
-            {departmentData.length > 0 && (
+          {departmentData.length > 0 && (
+            <Grid item xs={12} md={7}>
               <MagicalCard glowColor="#764ba2">
-                <CardContent>
-                  <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: 'white' }}>
+                <CardContent sx={{ p: 5 }}>
+                  <Typography variant="h4" sx={{ mb: 4, fontWeight: 700, color: 'white', textAlign: 'center' }}>
                     Department Distribution
                   </Typography>
-                  <ResponsiveContainer width="100%" height={400}>
+                  <ResponsiveContainer width="100%" height={500}>
                     <PieChart>
                       <defs>
                         {departmentData.map((entry, index) => (
@@ -1985,7 +1796,7 @@ const TeamSlide = ({ data, isMobile }) => {
                         cy="50%"
                         labelLine={false}
                         label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={120}
+                        outerRadius={180}
                         fill="#8884d8"
                         dataKey="value"
                         animationBegin={0}
@@ -2000,15 +1811,15 @@ const TeamSlide = ({ data, isMobile }) => {
                   </ResponsiveContainer>
                 </CardContent>
               </MagicalCard>
-            )}
-          </Grid>
+            </Grid>
+          )}
         </Grid>
       </motion.div>
     </Container>
   );
 };
 
-const ProductSlide = ({ data, isMobile }) => {
+const ProductSlide = ({ data }) => {
   const theme = useTheme();
   const milestones = data?.highlightedMilestones;
   
@@ -2026,15 +1837,16 @@ const ProductSlide = ({ data, isMobile }) => {
           sx={{ 
             fontWeight: 800,
             textAlign: 'center',
-            mb: 6,
+            mb: 8,
             color: 'white',
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            fontSize: '4rem'
           }}
         >
           Building the Future
         </Typography>
         
-        <Grid container spacing={3}>
+        <Grid container spacing={4} justifyContent="center">
           {milestones.map((milestone, index) => (
             <Grid item xs={12} md={6} key={milestone.milestoneId || index}>
               <motion.div
@@ -2049,15 +1861,15 @@ const ProductSlide = ({ data, isMobile }) => {
                     glowColor={milestone.status === 'Completed' ? '#38ef7d' : '#4facfe'}
                     sx={{ height: '100%' }}
                   >
-                    <CardContent>
-                      <Stack spacing={3}>
+                    <CardContent sx={{ p: 5 }}>
+                      <Stack spacing={4}>
                         <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                           <Box sx={{ flex: 1 }}>
-                            <Typography variant="h5" sx={{ fontWeight: 700, color: 'white', mb: 1 }}>
+                            <Typography variant="h4" sx={{ fontWeight: 800, color: 'white', mb: 2 }}>
                               {milestone.milestoneName}
                             </Typography>
                             {milestone.investorSummary && (
-                              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+                              <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.8 }}>
                                 {milestone.investorSummary}
                               </Typography>
                             )}
@@ -2070,18 +1882,21 @@ const ProductSlide = ({ data, isMobile }) => {
                                 ? 'linear-gradient(135deg, #11998e, #38ef7d)'
                                 : 'linear-gradient(135deg, #4facfe, #00f2fe)',
                               color: 'white',
-                              fontWeight: 600,
+                              fontWeight: 700,
+                              fontSize: '1rem',
+                              py: 3,
+                              px: 2,
                               boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                             }}
                           />
                         </Stack>
                         
                         <Box>
-                          <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                          <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+                            <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.5)' }}>
                               Progress
                             </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 600, color: 'white' }}>
+                            <Typography variant="h5" sx={{ fontWeight: 700, color: 'white' }}>
                               {milestone.completionPercentage || 0}%
                             </Typography>
                           </Stack>
@@ -2090,8 +1905,8 @@ const ProductSlide = ({ data, isMobile }) => {
                               variant="determinate"
                               value={0}
                               sx={{
-                                height: 12,
-                                borderRadius: 6,
+                                height: 16,
+                                borderRadius: 8,
                                 bgcolor: 'rgba(255,255,255,0.1)',
                               }}
                             />
@@ -2099,15 +1914,15 @@ const ProductSlide = ({ data, isMobile }) => {
                               variant="determinate"
                               value={milestone.completionPercentage || 0}
                               sx={{
-                                height: 12,
-                                borderRadius: 6,
+                                height: 16,
+                                borderRadius: 8,
                                 position: 'absolute',
                                 top: 0,
                                 left: 0,
                                 right: 0,
                                 background: 'transparent',
                                 '& .MuiLinearProgress-bar': {
-                                  borderRadius: 6,
+                                  borderRadius: 8,
                                   background: milestone.status === 'Completed'
                                     ? 'linear-gradient(90deg, #11998e, #38ef7d)'
                                     : 'linear-gradient(90deg, #4facfe, #00f2fe)',
@@ -2123,10 +1938,12 @@ const ProductSlide = ({ data, isMobile }) => {
                           <Chip
                             icon={<FlagIcon />}
                             label={`Due: ${new Date(milestone.plannedEndDate).toLocaleDateString()}`}
-                            size="small"
+                            size="large"
                             sx={{
                               background: 'rgba(255,255,255,0.1)',
                               color: 'rgba(255,255,255,0.8)',
+                              fontSize: '1rem',
+                              py: 3,
                               '& .MuiChip-icon': {
                                 color: 'rgba(255,255,255,0.6)'
                               }
@@ -2135,13 +1952,15 @@ const ProductSlide = ({ data, isMobile }) => {
                           {milestone.priority && (
                             <Chip
                               label={milestone.priority}
-                              size="small"
+                              size="large"
                               sx={{
                                 background: milestone.priority === 'High' 
                                   ? 'linear-gradient(135deg, #eb5757, #f2994a)'
                                   : 'rgba(255,255,255,0.1)',
                                 color: 'white',
-                                fontWeight: 600
+                                fontWeight: 700,
+                                fontSize: '1rem',
+                                py: 3
                               }}
                             />
                           )}
@@ -2159,7 +1978,7 @@ const ProductSlide = ({ data, isMobile }) => {
   );
 };
 
-const ChallengesSlide = ({ data, isMobile }) => {
+const ChallengesSlide = ({ data }) => {
   const theme = useTheme();
   
   const challenges = data?.talkingPoints?.filter(point => 
@@ -2184,19 +2003,20 @@ const ChallengesSlide = ({ data, isMobile }) => {
           sx={{ 
             fontWeight: 800,
             textAlign: 'center',
-            mb: 6,
+            mb: 8,
             color: 'white',
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            fontSize: '4rem'
           }}
         >
           The Road Ahead
         </Typography>
         
-        <Grid container spacing={4}>
+        <Grid container spacing={6} justifyContent="center">
           {/* Challenges */}
           {challenges.length > 0 && (
             <Grid item xs={12} md={6}>
-              <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: 'white' }}>
+              <Typography variant="h3" sx={{ mb: 4, fontWeight: 700, color: 'white', textAlign: 'center' }}>
                 Current Challenges
               </Typography>
               <Stack spacing={3}>
@@ -2209,20 +2029,22 @@ const ChallengesSlide = ({ data, isMobile }) => {
                     whileHover={{ x: 10 }}
                   >
                     <MagicalCard glowColor="#eb5757">
-                      <CardContent>
-                        <Stack direction="row" spacing={2}>
+                      <CardContent sx={{ p: 4 }}>
+                        <Stack direction="row" spacing={3} alignItems="flex-start">
                           <Avatar sx={{ 
                             background: 'linear-gradient(135deg, #eb5757, #f2994a)',
                             boxShadow: '0 8px 20px rgba(235, 87, 87, 0.4)',
-                            animation: `${pulse} 2s ease-in-out infinite`
+                            animation: `${pulse} 2s ease-in-out infinite`,
+                            width: 60,
+                            height: 60
                           }}>
-                            <WarningIcon />
+                            <WarningIcon sx={{ fontSize: 35 }} />
                           </Avatar>
                           <Box sx={{ flex: 1 }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'white', mb: 1 }}>
+                            <Typography variant="h5" sx={{ fontWeight: 700, color: 'white', mb: 2 }}>
                               {challenge.title}
                             </Typography>
-                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+                            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.8, fontSize: '1.1rem' }}>
                               {challenge.content}
                             </Typography>
                           </Box>
@@ -2238,7 +2060,7 @@ const ChallengesSlide = ({ data, isMobile }) => {
           {/* Opportunities */}
           {opportunities.length > 0 && (
             <Grid item xs={12} md={6}>
-              <Typography variant="h4" sx={{ mb: 3, fontWeight: 600, color: 'white' }}>
+              <Typography variant="h3" sx={{ mb: 4, fontWeight: 700, color: 'white', textAlign: 'center' }}>
                 Key Opportunities
               </Typography>
               <Stack spacing={3}>
@@ -2251,20 +2073,22 @@ const ChallengesSlide = ({ data, isMobile }) => {
                     whileHover={{ x: -10 }}
                   >
                     <MagicalCard glowColor="#38ef7d">
-                      <CardContent>
-                        <Stack direction="row" spacing={2}>
+                      <CardContent sx={{ p: 4 }}>
+                        <Stack direction="row" spacing={3} alignItems="flex-start">
                           <Avatar sx={{ 
                             background: 'linear-gradient(135deg, #11998e, #38ef7d)',
                             boxShadow: '0 8px 20px rgba(56, 239, 125, 0.4)',
-                            animation: `${pulse} 2s ease-in-out infinite`
+                            animation: `${pulse} 2s ease-in-out infinite`,
+                            width: 60,
+                            height: 60
                           }}>
-                            <StarIcon />
+                            <StarIcon sx={{ fontSize: 35 }} />
                           </Avatar>
                           <Box sx={{ flex: 1 }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'white', mb: 1 }}>
+                            <Typography variant="h5" sx={{ fontWeight: 700, color: 'white', mb: 2 }}>
                               {opportunity.title}
                             </Typography>
-                            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+                            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.8, fontSize: '1.1rem' }}>
                               {opportunity.content}
                             </Typography>
                           </Box>
@@ -2282,7 +2106,7 @@ const ChallengesSlide = ({ data, isMobile }) => {
   );
 };
 
-const AsksSlide = ({ data, isMobile }) => {
+const AsksSlide = ({ data }) => {
   const theme = useTheme();
   
   const asks = data?.talkingPoints?.filter(point => 
@@ -2295,19 +2119,19 @@ const AsksSlide = ({ data, isMobile }) => {
   
   const askCategories = [
     {
-      icon: <InsightsIcon sx={{ fontSize: 60 }} />,
+      icon: <InsightsIcon sx={{ fontSize: 80 }} />,
       title: 'Strategic Guidance',
       gradient: 'linear-gradient(135deg, #667eea, #764ba2)',
       items: asks.filter(a => a.content?.toLowerCase().includes('strategy') || a.content?.toLowerCase().includes('guidance'))
     },
     {
-      icon: <GroupsIcon sx={{ fontSize: 60 }} />,
+      icon: <GroupsIcon sx={{ fontSize: 80 }} />,
       title: 'Network & Connections',
       gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)',
       items: asks.filter(a => a.content?.toLowerCase().includes('introduction') || a.content?.toLowerCase().includes('connect'))
     },
     {
-      icon: <HandshakeIcon sx={{ fontSize: 60 }} />,
+      icon: <HandshakeIcon sx={{ fontSize: 80 }} />,
       title: 'General Support',
       gradient: 'linear-gradient(135deg, #fa709a, #fee140)',
       items: asks.filter(a => !a.content?.toLowerCase().includes('strategy') && !a.content?.toLowerCase().includes('introduction'))
@@ -2326,9 +2150,10 @@ const AsksSlide = ({ data, isMobile }) => {
           sx={{ 
             fontWeight: 800,
             textAlign: 'center',
-            mb: 6,
+            mb: 8,
             color: 'white',
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            fontSize: '4rem'
           }}
         >
           How You Can Help
@@ -2350,12 +2175,12 @@ const AsksSlide = ({ data, isMobile }) => {
                 >
                   <Card3D>
                     <MagicalCard glowColor="#764ba2" sx={{ height: '100%' }}>
-                      <CardContent sx={{ textAlign: 'center', p: 4 }}>
+                      <CardContent sx={{ textAlign: 'center', p: 5 }}>
                         <Box
                           sx={{
-                            width: 120,
-                            height: 120,
-                            margin: '0 auto 24px',
+                            width: 150,
+                            height: 150,
+                            margin: '0 auto 32px',
                             borderRadius: '50%',
                             background: category.gradient,
                             display: 'flex',
@@ -2365,10 +2190,10 @@ const AsksSlide = ({ data, isMobile }) => {
                             animation: `${float} 3s ease-in-out infinite`,
                           }}
                         >
-                          {React.cloneElement(category.icon, { sx: { fontSize: 60, color: 'white' } })}
+                          {React.cloneElement(category.icon, { sx: { fontSize: 80, color: 'white' } })}
                         </Box>
                         
-                        <Typography variant="h5" sx={{ fontWeight: 700, color: 'white', mb: 3 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 800, color: 'white', mb: 4 }}>
                           {category.title}
                         </Typography>
                         
@@ -2376,7 +2201,7 @@ const AsksSlide = ({ data, isMobile }) => {
                           <Stack spacing={2}>
                             {category.items.map((item, idx) => (
                               <Box key={idx} sx={{ textAlign: 'left' }}>
-                                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                                <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                                   • {item.title}
                                 </Typography>
                               </Box>
@@ -2386,7 +2211,7 @@ const AsksSlide = ({ data, isMobile }) => {
                           <Stack spacing={2}>
                             {actionItems.slice(0, 3).map((item, idx) => (
                               <Box key={idx} sx={{ textAlign: 'left' }}>
-                                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                                <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                                   • {item.action}
                                 </Typography>
                               </Box>
@@ -2406,11 +2231,11 @@ const AsksSlide = ({ data, isMobile }) => {
   );
 };
 
-const ClosingSlide = ({ data, isMobile }) => {
+const ClosingSlide = ({ data }) => {
   const theme = useTheme();
   
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="lg">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -2431,7 +2256,7 @@ const ClosingSlide = ({ data, isMobile }) => {
           >
             <EmojiEventsIcon 
               sx={{ 
-                fontSize: 180, 
+                fontSize: 220, 
                 color: 'white',
                 filter: 'drop-shadow(0 0 40px rgba(255, 215, 0, 0.6))',
                 background: 'linear-gradient(135deg, #ffd700, #ffed4e)',
@@ -2450,7 +2275,7 @@ const ClosingSlide = ({ data, isMobile }) => {
                   borderRadius: '50%',
                   top: '50%',
                   left: '50%',
-                  transform: `rotate(${i * 45}deg) translateY(-100px)`,
+                  transform: `rotate(${i * 45}deg) translateY(-120px)`,
                   animation: `${sparkle} 2s ease-in-out ${i * 0.25}s infinite`,
                 }}
               />
@@ -2461,7 +2286,7 @@ const ClosingSlide = ({ data, isMobile }) => {
             variant="h1" 
             sx={{ 
               fontWeight: 900,
-              fontSize: { xs: '4rem', md: '6rem' },
+              fontSize: '7rem',
               background: 'linear-gradient(135deg, #ffd700 0%, #ffed4e 25%, #f093fb 50%, #fa709a 75%, #ffd700 100%)',
               backgroundSize: '300% 300%',
               WebkitBackgroundClip: 'text',
@@ -2475,9 +2300,9 @@ const ClosingSlide = ({ data, isMobile }) => {
           </Typography>
           
           <Typography 
-            variant="h4" 
+            variant="h3" 
             sx={{ 
-              maxWidth: 600, 
+              maxWidth: 800, 
               fontWeight: 300,
               color: 'rgba(255, 255, 255, 0.9)',
               textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
@@ -2493,11 +2318,11 @@ const ClosingSlide = ({ data, isMobile }) => {
               transition={{ delay: 0.5 }}
             >
               <MagicalCard glowColor="#ffd700" sx={{ mt: 4 }}>
-                <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: 'white' }}>
+                <CardContent sx={{ p: 5 }}>
+                  <Typography variant="h4" sx={{ mb: 4, fontWeight: 700, color: 'white' }}>
                     Next Steps
                   </Typography>
-                  <Stack spacing={2} alignItems="flex-start">
+                  <Stack spacing={3} alignItems="flex-start">
                     {data.actionItems.slice(0, 3).map((item, index) => (
                       <motion.div
                         key={index}
@@ -2505,15 +2330,15 @@ const ClosingSlide = ({ data, isMobile }) => {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.7 + index * 0.1 }}
                       >
-                        <Stack direction="row" spacing={2} alignItems="center">
+                        <Stack direction="row" spacing={3} alignItems="center">
                           <Avatar sx={{
                             background: 'linear-gradient(135deg, #11998e, #38ef7d)',
-                            width: 40,
-                            height: 40
+                            width: 50,
+                            height: 50
                           }}>
-                            <CheckCircleIcon />
+                            <CheckCircleIcon sx={{ fontSize: 30 }} />
                           </Avatar>
-                          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                          <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)' }}>
                             {item.action}
                           </Typography>
                         </Stack>
@@ -2525,7 +2350,7 @@ const ClosingSlide = ({ data, isMobile }) => {
             </motion.div>
           )}
           
-          <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.7)', mt: 4 }}>
+          <Typography variant="h5" sx={{ color: 'rgba(255,255,255,0.7)', mt: 4 }}>
             Next update: {new Date(new Date().setMonth(new Date().getMonth() + 1)).toLocaleDateString('en-US', { 
               month: 'long', 
               year: 'numeric' 
@@ -2564,19 +2389,19 @@ const LoadingScreen = () => {
             ease: "easeInOut"
           }}
         >
-          <AutoAwesomeIcon sx={{ fontSize: 80, color: 'white' }} />
+          <AutoAwesomeIcon sx={{ fontSize: 100, color: 'white' }} />
         </motion.div>
-        <Typography variant="h5" sx={{ color: 'white' }}>
+        <Typography variant="h4" sx={{ color: 'white' }}>
           Preparing your magical presentation...
         </Typography>
-        <Box sx={{ width: 300 }}>
+        <Box sx={{ width: 400 }}>
           <LinearProgress 
             sx={{ 
-              height: 8,
-              borderRadius: 4,
+              height: 10,
+              borderRadius: 5,
               background: 'rgba(255,255,255,0.1)',
               '& .MuiLinearProgress-bar': {
-                borderRadius: 4,
+                borderRadius: 5,
                 background: 'linear-gradient(90deg, #4facfe 0%, #00f2fe 100%)'
               }
             }}
@@ -2599,9 +2424,9 @@ const ErrorScreen = ({ error, onRetry }) => (
       textAlign: 'center'
     }}
   >
-    <Stack spacing={3} alignItems="center" maxWidth={600}>
-      <ErrorOutlineIcon sx={{ fontSize: 80, color: '#eb5757' }} />
-      <Typography variant="h4" sx={{ color: 'white' }}>
+    <Stack spacing={4} alignItems="center" maxWidth={700}>
+      <ErrorOutlineIcon sx={{ fontSize: 100, color: '#eb5757' }} />
+      <Typography variant="h3" sx={{ color: 'white' }}>
         Oops! Something went wrong
       </Typography>
       <Alert 
@@ -2610,6 +2435,7 @@ const ErrorScreen = ({ error, onRetry }) => (
           width: '100%',
           background: 'rgba(235, 87, 87, 0.1)',
           color: 'white',
+          fontSize: '1.1rem',
           '& .MuiAlert-icon': {
             color: '#eb5757'
           }
@@ -2621,7 +2447,11 @@ const ErrorScreen = ({ error, onRetry }) => (
         variant="contained" 
         onClick={onRetry}
         startIcon={<RefreshIcon />}
+        size="large"
         sx={{
+          fontSize: '1.2rem',
+          py: 2,
+          px: 4,
           background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
           boxShadow: '0 8px 20px rgba(79, 172, 254, 0.4)',
           '&:hover': {
