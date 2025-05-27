@@ -38,7 +38,7 @@ const authenticatedNavItems = [
   { name: 'Fundraising', path: '/fundraising', icon: <BusinessCenterIcon /> },
   { name: 'KPIs', path: '/kpis', icon: <BarChartIcon /> },
   { name: 'Product Roadmap', path: '/product-milestones', icon: <RocketLaunchIcon /> }, 
-  //{ name: 'Analytics', path: '/analytics', icon: <AssessmentIcon /> },
+  { name: 'Analytics', path: '/analytics', icon: <AssessmentIcon /> },
   { name: 'Budgets', path: '/budgets', icon: <AccountBalanceWalletIcon /> },
   { name: 'Headcount', path: '/headcount', icon: <PeopleOutlineIcon /> },
   { name: 'Documents', path: '/documents', icon: <FolderIcon /> },
