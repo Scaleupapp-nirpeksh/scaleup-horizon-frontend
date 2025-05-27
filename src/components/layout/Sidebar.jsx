@@ -29,7 +29,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
-
+import VisibilityIcon from '@mui/icons-material/Visibility'; 
 
 const authenticatedNavItems = [
   { name: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
@@ -40,6 +40,7 @@ const authenticatedNavItems = [
   { name: 'Budgets', path: '/budgets', icon: <AccountBalanceWalletIcon /> },
   { name: 'Headcount', path: '/headcount', icon: <PeopleOutlineIcon /> },
   { name: 'Documents', path: '/documents', icon: <FolderIcon /> },
+  { name: 'Live Investor View', path: '/investor-dashboard', icon: <VisibilityIcon /> },
   { name: 'Investor Meetings', path: '/investor-meetings', icon: <EventNoteIcon /> },
   //{ name: 'Reports', path: '/reports', icon: <DescriptionIcon /> },
 ];

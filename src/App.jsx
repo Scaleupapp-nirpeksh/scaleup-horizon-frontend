@@ -1,6 +1,5 @@
 // src/App.jsx
 // Main application component: Sets up routing and authentication context.
-// AppLayout now unconditionally frames all content.
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -11,7 +10,7 @@ import DashboardPage from './pages/DashboardPage';
 import FinancialsPage from './pages/FinancialsPage';
 import FundraisingPage from './pages/FundraisingPage';
 import KpisPage from './pages/KpisPage';
-//import AnalyticsPage from './pages/AnalyticsPage';
+//import AnalyticsPage from './pages/AnalyticsPage'; // Assuming this might be added later
 import ReportsPage from './pages/ReportsPage';
 import BudgetPage from './pages/BudgetPage';
 import DocumentsPage from './pages/DocumentsPage';
@@ -21,23 +20,21 @@ import ProtectedRoute from './utils/ProtectedRoute';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import InvestorMeetingsPage from './pages/InvestorMeetingsPage';
 import HeadcountPage from './pages/HeadcountPage';
+import LiveInvestorDashboardPage from './pages/LiveInvestorDashboardPage'; // NEW: Import the new page
 
 // Main App Component
 function App() {
   return (
     <AuthProvider>
       <Router>
-        {/* The AuthLoadingGate handles the initial loading state from AuthContext */}
         <AuthLoadingGate>
-          {/* AppLayout now wraps ALL routes, including login/register and 404 */}
           <Routes>
-            <Route element={<AppLayout />}> {/* AppLayout is the parent for all pages */}
+            <Route element={<AppLayout />}>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               
-              {/* Protected routes are nested to inherit AppLayout and then apply protection */}
               <Route element={<ProtectedRoute />}>
-                <Route index element={<DashboardPage />} /> {/* Default route after login */}
+                <Route index element={<Navigate to="/dashboard" replace />} /> {/* Default to dashboard */}
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="financials" element={<FinancialsPage />} />
                 <Route path="fundraising" element={<FundraisingPage />} />
@@ -48,9 +45,10 @@ function App() {
                 <Route path="budgets" element={<BudgetPage />} />
                 <Route path="documents" element={<DocumentsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
+                {/* NEW: Route for the Live Investor Dashboard */}
+                <Route path="investor-dashboard" element={<LiveInvestorDashboardPage />} /> 
               </Route>
               
-              {/* Catch-all for 404, also within AppLayout */}
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
@@ -60,8 +58,6 @@ function App() {
   );
 }
 
-// This component ensures that the main routing logic doesn't try to render
-// AppLayout or its children while authentication is still loading.
 const AuthLoadingGate = ({ children }) => {
   const { isLoading } = useAuth();
   if (isLoading) {
