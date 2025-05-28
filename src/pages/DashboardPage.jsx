@@ -1,6 +1,7 @@
 // src/pages/DashboardPage.jsx
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api, { getUpcomingRecurringTransactions, getRounds, getInvestors, getCapTableSummary, getEsopGrants } from '../services/api';
 import {
   Container, Grid, Paper, Typography, Box, CircularProgress, Alert,
@@ -8,10 +9,11 @@ import {
   CardHeader, Avatar, Stack, useTheme, alpha, Fade, Grow, Skeleton,
   LinearProgress, IconButton, Button, Tooltip, Badge, ButtonGroup,
   Zoom, useMediaQuery, Fab, SwipeableDrawer, Tab, Tabs, CardActionArea,
-  ToggleButton, ToggleButtonGroup, Collapse, Menu, MenuItem
+  ToggleButton, ToggleButtonGroup, Collapse, Menu, MenuItem, TableContainer,
+  Table, TableHead, TableRow, TableCell, TableBody, Link
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, LineChart, Line, Area, AreaChart } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, LineChart, Line, Area, AreaChart, ComposedChart } from 'recharts';
 
 // Icons
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -60,6 +62,11 @@ import ShareIcon from '@mui/icons-material/Share';
 import WavesIcon from '@mui/icons-material/Waves';
 import BoltIcon from '@mui/icons-material/Bolt';
 import DiamondIcon from '@mui/icons-material/Diamond';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import HeadcountSummary from '../components/dashboard/HeadcountSummary';
 
 // Animations
@@ -248,6 +255,65 @@ const FloatingActionButton = styled(Fab)(({ theme }) => ({
   }
 }));
 
+const ProgressContainer = styled(Box)(({ theme }) => ({
+  height: 8,
+  borderRadius: 4,
+  backgroundColor: alpha(theme.palette.grey[300], 0.4),
+  overflow: 'hidden',
+  position: 'relative',
+  width: '100%',
+}));
+
+const ProgressBar = styled(Box)(({ theme, value, color = 'primary' }) => ({
+  position: 'absolute',
+  left: 0,
+  top: 0,
+  bottom: 0,
+  width: `${Math.max(0, Math.min(100, value))}%`,
+  backgroundColor: theme.palette[color].main,
+  borderRadius: 4,
+  transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)',
+}));
+
+const TransactionItem = styled(Box)(({ theme, type }) => ({
+  padding: theme.spacing(2),
+  borderRadius: theme.spacing(2),
+  background: alpha(
+    type === 'expense'
+      ? theme.palette.error.main
+      : theme.palette.success.main,
+    0.05
+  ),
+  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    transform: 'translateX(4px)',
+    borderColor: type === 'expense'
+      ? theme.palette.error.main
+      : theme.palette.success.main
+  }
+}));
+
+const GlowingBorder = styled(Box)(({ theme, color = 'primary' }) => ({
+  position: 'relative',
+  borderRadius: theme.spacing(3),
+  overflow: 'hidden',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    inset: 0,
+    borderRadius: theme.spacing(3),
+    padding: '2px',
+    background: `linear-gradient(135deg, 
+      ${theme.palette[color].main} 0%, 
+      ${theme.palette[color].light} 50%,
+      ${theme.palette[color].main} 100%)`,
+    mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+    maskComposite: 'exclude',
+    animation: `${pulse} 2s ease-in-out infinite`,
+  }
+}));
+
 const TabPanel = ({ children, value, index, ...other }) => (
   <div role="tabpanel" hidden={value !== index} {...other}>
     {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
@@ -433,7 +499,7 @@ const MetricCardItem = ({
                 {value !== null && value !== undefined ? (
                   <AnimatedNumber
                     value={value}
-                    prefix={title.includes('Balance') || title.includes('Burn') || title.includes('Funds') || title.includes('Valuation') ? '₹' : ''}
+                    prefix={title.includes('Balance') || title.includes('Burn') || title.includes('Funds') || title.includes('Revenue') || title.includes('Income') || title.includes('Valuation') ? '₹' : ''}
                     suffix={title.includes('Ratio') ? '%' : title.includes('Runway') ? ' mo' : ''}
                     decimals={title.includes('Ratio') || title.includes('Runway') ? 1 : 0}
                   />
@@ -503,10 +569,125 @@ const StatusBadge = ({ status, size = 'medium' }) => {
   );
 };
 
+// Month Progress Component
+const MonthProgress = ({ title, current, previous, loading = false, color = 'primary' }) => {
+  const theme = useTheme();
+  const percentage = previous > 0 ? (current / previous) * 100 : 0;
+  
+  return (
+    <Box sx={{ mb: 2 }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
+        <Typography variant="body2" color="text.secondary">{title}</Typography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {loading ? <Skeleton width={60} /> : `₹${current.toLocaleString()}`}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {loading ? <Skeleton width={40} /> : `/ ₹${previous.toLocaleString()}`}
+          </Typography>
+        </Stack>
+      </Stack>
+      <ProgressContainer>
+        {loading ? (
+          <Box sx={{ 
+            position: 'absolute', 
+            left: 0, 
+            top: 0, 
+            bottom: 0, 
+            width: '60%',
+            bgcolor: alpha(theme.palette.grey[400], 0.3),
+            animation: `${shimmer} 2s infinite linear`
+          }} />
+        ) : (
+          <ProgressBar value={percentage > 100 ? 100 : percentage} color={color} />
+        )}
+      </ProgressContainer>
+    </Box>
+  );
+};
+
+// Revenue/Expense Comparison Chart
+const FinancialTrendChart = ({ data, loading = false }) => {
+  const theme = useTheme();
+  
+  // Format data for the chart
+  const chartData = useMemo(() => {
+    if (!data || !data.expenses || !data.revenue) return [];
+    
+    // Combine expense and revenue data by month
+    const combinedData = [];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    // Map both datasets using month as the key
+    const expenseMap = new Map();
+    data.expenses.forEach(item => {
+      expenseMap.set(`${item.year}-${item.month}`, item.amount);
+    });
+    
+    const revenueMap = new Map();
+    data.revenue.forEach(item => {
+      revenueMap.set(`${item.year}-${item.month}`, item.amount);
+    });
+    
+    // Create combined dataset with all months
+    const allKeys = new Set([...expenseMap.keys(), ...revenueMap.keys()]);
+    Array.from(allKeys).sort().forEach(key => {
+      const [year, month] = key.split('-');
+      combinedData.push({
+        name: `${months[parseInt(month) - 1]} ${year}`,
+        expenses: expenseMap.get(key) || 0,
+        revenue: revenueMap.get(key) || 0,
+        netIncome: (revenueMap.get(key) || 0) - (expenseMap.get(key) || 0)
+      });
+    });
+    
+    return combinedData;
+  }, [data]);
+  
+  if (loading) {
+    return (
+      <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress size={40} thickness={4} />
+      </Box>
+    );
+  }
+  
+  return (
+    <Box sx={{ height: 300, mt: 1 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={alpha('#888', 0.1)} />
+          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+          <YAxis 
+            tickFormatter={(value) => `₹${value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}`}
+            tick={{ fontSize: 12 }}
+          />
+          <RechartsTooltip 
+            formatter={(value, name) => [`₹${value.toLocaleString()}`, name.charAt(0).toUpperCase() + name.slice(1)]}
+            labelFormatter={(label) => `${label}`}
+          />
+          <Legend />
+          <Bar dataKey="expenses" name="Expenses" fill={alpha(theme.palette.error.main, 0.8)} radius={[4, 4, 0, 0]} />
+          <Bar dataKey="revenue" name="Revenue" fill={alpha(theme.palette.success.main, 0.8)} radius={[4, 4, 0, 0]} />
+          <Line 
+            type="monotone" 
+            dataKey="netIncome" 
+            name="Net Income" 
+            stroke={theme.palette.primary.main} 
+            strokeWidth={2}
+            dot={{ r: 4, strokeWidth: 2 }}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </Box>
+  );
+};
+
 // Main Dashboard Component
 const DashboardPage = () => {
   const theme = useTheme();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   // State Management
@@ -530,6 +711,7 @@ const DashboardPage = () => {
   const [selectedMetricPeriod, setSelectedMetricPeriod] = useState('month');
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [revenueActiveTab, setRevenueActiveTab] = useState(0);
   const [moreMenuAnchor, setMoreMenuAnchor] = useState(null);
 
   // Data Fetching
@@ -616,7 +798,7 @@ const DashboardPage = () => {
     if (!overviewData) return null;
     
     const runway = parseFloat(overviewData.estimatedRunwayMonths) || 0;
-    const burnRate = overviewData.averageMonthlyBurnRate || 0;
+    const burnRate = parseFloat(overviewData.averageMonthlyBurnRate) || 0;
     const balance = overviewData.currentTotalBankBalance || 0;
     
     let score = 'healthy';
@@ -624,6 +806,38 @@ const DashboardPage = () => {
     if (runway < 3 || (burnRate > 0 && balance / burnRate < 3)) score = 'critical';
     
     return score;
+  }, [overviewData]);
+
+  // Prepare Revenue Trend Data
+  const revenueTrendData = useMemo(() => {
+    if (!overviewData?.historicalData?.revenue) return [];
+    
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return overviewData.historicalData.revenue.map(item => ({
+      name: months[item.month - 1],
+      value: item.amount
+    }));
+  }, [overviewData]);
+
+  // Calculate Growth Rates
+  const revenueGrowth = useMemo(() => {
+    if (!overviewData?.historicalData?.revenue || overviewData.historicalData.revenue.length < 2) return 0;
+    
+    const sortedRevenue = [...overviewData.historicalData.revenue].sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.month - b.month;
+    });
+    
+    if (sortedRevenue.length >= 2) {
+      const current = sortedRevenue[sortedRevenue.length - 1].amount;
+      const previous = sortedRevenue[sortedRevenue.length - 2].amount;
+      
+      if (previous > 0) {
+        return ((current - previous) / previous) * 100;
+      }
+    }
+    
+    return 0;
   }, [overviewData]);
 
   // Cap Table Chart Data
@@ -788,12 +1002,12 @@ const DashboardPage = () => {
                   loading: loading.overview
                 },
                 {
-                  label: 'Net Cash Flow',
-                  value: transactionMetrics.income - transactionMetrics.expenses,
+                  label: 'Monthly Revenue',
+                  value: overviewData?.averageMonthlyRevenue,
                   prefix: '₹',
-                  color: transactionMetrics.income - transactionMetrics.expenses >= 0 ? 'info' : 'error',
-                  icon: <ShowChartIcon />,
-                  loading: loading.recurring
+                  color: 'primary',
+                  icon: <TrendingUpIcon />,
+                  loading: loading.overview
                 }
               ].map((vital, index) => (
                 <Grid item xs={6} md={3} key={vital.label}>
@@ -934,10 +1148,207 @@ const DashboardPage = () => {
                 </Grid>
               </Box>
 
-               {/* Headcount Overview */}
-      <Box>
-        <HeadcountSummary />
-      </Box>
+              {/* Revenue Metrics */}
+              <Box>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+                    <AttachMoneyIcon sx={{ mr: 1.5 }} />
+                    Revenue Analysis
+                  </Typography>
+                </Stack>
+                
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <MetricCardItem
+                      title="Monthly Revenue"
+                      value={overviewData?.averageMonthlyRevenue}
+                      icon={<AttachMoneyIcon />}
+                      color="success"
+                      subtitle="3-month average"
+                      loading={loading.overview}
+                      trend={{ value: revenueGrowth ? parseFloat(revenueGrowth.toFixed(1)) : 0 }}
+                      index={0}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <MetricCardItem
+                      title="Net Income"
+                      value={overviewData?.netMonthlyIncome}
+                      icon={<CompareArrowsIcon />}
+                      color={parseFloat(overviewData?.netMonthlyIncome) >= 0 ? "primary" : "error"}
+                      subtitle="Revenue - Expenses"
+                      loading={loading.overview}
+                      index={1}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <MetricCardItem
+                      title="YTD Revenue"
+                      value={overviewData?.currentYear?.revenue || 0}
+                      icon={<TimelineIcon />}
+                      color="info"
+                      subtitle="This year"
+                      loading={loading.overview}
+                      index={2}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <MetricCardItem
+                      title="MTD Revenue"
+                      value={overviewData?.currentMonth?.revenue || 0}
+                      icon={<EqualizerIcon />}
+                      color="secondary"
+                      subtitle="This month"
+                      loading={loading.overview}
+                      index={3}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Revenue/Expense Chart */}
+              <StatsCard>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                  Revenue vs. Expenses
+                </Typography>
+                <FinancialTrendChart 
+                  data={overviewData?.historicalData} 
+                  loading={loading.overview} 
+                />
+              </StatsCard>
+
+              {/* Month-to-Date Progress */}
+              <StatsCard>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    Current Month Progress
+                  </Typography>
+                  <Chip
+                    label={new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    color="primary"
+                    size="small"
+                  />
+                </Stack>
+                
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <Box sx={{ p: 2, border: `1px solid ${alpha(theme.palette.divider, 0.1)}`, borderRadius: 2 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 2, color: theme.palette.success.main, fontWeight: 600 }}>
+                        Revenue
+                      </Typography>
+                      <MonthProgress
+                        title="MTD Revenue"
+                        current={overviewData?.currentMonth?.revenue || 0}
+                        previous={parseFloat(overviewData?.averageMonthlyRevenue) || 0}
+                        loading={loading.overview}
+                        color="success"
+                      />
+                      <MonthProgress
+                        title="YTD Revenue"
+                        current={overviewData?.currentYear?.revenue || 0}
+                        previous={(parseFloat(overviewData?.averageMonthlyRevenue) || 0) * 12}
+                        loading={loading.overview}
+                        color="success"
+                      />
+                    </Box>
+                  </Grid>
+                  
+                  <Grid item xs={12} md={6}>
+                    <Box sx={{ p: 2, border: `1px solid ${alpha(theme.palette.divider, 0.1)}`, borderRadius: 2 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 2, color: theme.palette.error.main, fontWeight: 600 }}>
+                        Expenses
+                      </Typography>
+                      <MonthProgress
+                        title="MTD Expenses"
+                        current={overviewData?.currentMonth?.expenses || 0}
+                        previous={parseFloat(overviewData?.averageMonthlyBurnRate) || 0}
+                        loading={loading.overview}
+                        color="error"
+                      />
+                      <MonthProgress
+                        title="YTD Expenses"
+                        current={overviewData?.currentYear?.expenses || 0}
+                        previous={(parseFloat(overviewData?.averageMonthlyBurnRate) || 0) * 12}
+                        loading={loading.overview}
+                        color="error"
+                      />
+                    </Box>
+                  </Grid>
+                </Grid>
+                
+                <Divider sx={{ my: 3 }} />
+                
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+                  Net Income
+                </Typography>
+                
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Paper sx={{ 
+                      p: 2, 
+                      borderRadius: 2,
+                      background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.primary.light, 0.02)} 100%)`,
+                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
+                    }}>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main' }}>
+                          <CalendarMonthIcon />
+                        </Avatar>
+                        <Box>
+                          <Typography variant="caption" color="text.secondary">
+                            Current Month Net Income
+                          </Typography>
+                          <Typography variant="h6" sx={{ 
+                            fontWeight: 700,
+                            color: (overviewData?.currentMonth?.netIncome || 0) >= 0 ? 'success.main' : 'error.main'
+                          }}>
+                            {loading.overview ? (
+                              <Skeleton width={80} />
+                            ) : (
+                              `₹${(overviewData?.currentMonth?.netIncome || 0).toLocaleString()}`
+                            )}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </Paper>
+                  </Grid>
+                  
+                  <Grid item xs={12} sm={6}>
+                    <Paper sx={{ 
+                      p: 2, 
+                      borderRadius: 2,
+                      background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.05)} 0%, ${alpha(theme.palette.secondary.light, 0.02)} 100%)`,
+                      border: `1px solid ${alpha(theme.palette.secondary.main, 0.1)}`
+                    }}>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.1), color: 'secondary.main' }}>
+                          <BoltIcon />
+                        </Avatar>
+                        <Box>
+                          <Typography variant="caption" color="text.secondary">
+                            Year-to-Date Net Income
+                          </Typography>
+                          <Typography variant="h6" sx={{ 
+                            fontWeight: 700,
+                            color: (overviewData?.currentYear?.netIncome || 0) >= 0 ? 'success.main' : 'error.main'
+                          }}>
+                            {loading.overview ? (
+                              <Skeleton width={80} />
+                            ) : (
+                              `₹${(overviewData?.currentYear?.netIncome || 0).toLocaleString()}`
+                            )}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </StatsCard>
+
+              {/* Headcount Overview */}
+              <Box>
+                <HeadcountSummary />
+              </Box>
 
               {/* Tabs for Different Sections */}
               <Box>
@@ -1230,7 +1641,252 @@ const DashboardPage = () => {
           {/* Right Column - Charts and Insights */}
           <Grid item xs={12} lg={4}>
             <Stack spacing={4}>
+              {/* Recent Revenue Transactions */}
+              <StatsCard>
+                <Box sx={{ mb: 2 }}>
+                  <Tabs
+                    value={revenueActiveTab}
+                    onChange={(e, newValue) => setRevenueActiveTab(newValue)}
+                    variant="fullWidth"
+                    sx={{ mb: 2 }}
+                  >
+                    <Tab label="Revenue" />
+                    <Tab label="Expenses" />
+                  </Tabs>
+                </Box>
 
+                {revenueActiveTab === 0 ? (
+                  <>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                        Recent Revenue
+                      </Typography>
+                      <Chip
+                        label={`${overviewData?.latestTransactions?.revenue?.length || 0} entries`}
+                        color="success"
+                        size="small"
+                      />
+                    </Box>
+
+                    {loading.overview ? (
+                      <Stack spacing={2}>
+                        {[1, 2, 3].map((i) => (
+                          <Skeleton key={i} variant="rectangular" height={80} sx={{ borderRadius: 2 }} />
+                        ))}
+                      </Stack>
+                    ) : overviewData?.latestTransactions?.revenue?.length > 0 ? (
+                      <Box sx={{ maxHeight: 450, overflowY: 'auto' }}>
+                        <Stack spacing={2}>
+                          {overviewData.latestTransactions.revenue.map((revenue, index) => (
+                            <Fade in timeout={index * 100} key={revenue._id}>
+                              <TransactionItem type="revenue">
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                  <Avatar
+                                    sx={{
+                                      bgcolor: alpha(theme.palette.success.main, 0.1),
+                                      color: 'success.main'
+                                    }}
+                                  >
+                                    <TrendingUpIcon />
+                                  </Avatar>
+                                  <Box sx={{ flex: 1 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                      {revenue.description}
+                                    </Typography>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                      <Typography variant="caption" color="text.secondary">
+                                        {new Date(revenue.date).toLocaleDateString()}
+                                      </Typography>
+                                      <Box sx={{ width: 4, height: 4, borderRadius: '50%', bgcolor: 'text.disabled' }} />
+                                      <Chip 
+                                        label={revenue.source} 
+                                        size="small" 
+                                        variant="outlined"
+                                        sx={{ height: 20, fontSize: '0.6rem' }}
+                                      />
+                                    </Stack>
+                                  </Box>
+                                  <Typography 
+                                    variant="h6" 
+                                    sx={{ 
+                                      fontWeight: 700,
+                                      color: 'success.main'
+                                    }}
+                                  >
+                                    +₹{revenue.amount.toLocaleString()}
+                                  </Typography>
+                                </Stack>
+                              </TransactionItem>
+                            </Fade>
+                          ))}
+                        </Stack>
+                      </Box>
+                    ) : (
+                      <Box sx={{ textAlign: 'center', py: 6 }}>
+                        <TrendingUpIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+                        <Typography color="text.secondary">
+                          No recent revenue transactions
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {overviewData?.latestTransactions?.revenue?.length > 0 && (
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        endIcon={<ArrowForwardIcon />}
+                        sx={{ mt: 2, borderRadius: 2 }}
+                        onClick={() => navigate('/financials')}
+                      >
+                        View All Revenue
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                        Recent Expenses
+                      </Typography>
+                      <Chip
+                        label={`${overviewData?.latestTransactions?.expenses?.length || 0} entries`}
+                        color="error"
+                        size="small"
+                      />
+                    </Box>
+
+                    {loading.overview ? (
+                      <Stack spacing={2}>
+                        {[1, 2, 3].map((i) => (
+                          <Skeleton key={i} variant="rectangular" height={80} sx={{ borderRadius: 2 }} />
+                        ))}
+                      </Stack>
+                    ) : overviewData?.latestTransactions?.expenses?.length > 0 ? (
+                      <Box sx={{ maxHeight: 450, overflowY: 'auto' }}>
+                        <Stack spacing={2}>
+                          {overviewData.latestTransactions.expenses.map((expense, index) => (
+                            <Fade in timeout={index * 100} key={expense._id}>
+                              <TransactionItem type="expense">
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                  <Avatar
+                                    sx={{
+                                      bgcolor: alpha(theme.palette.error.main, 0.1),
+                                      color: 'error.main'
+                                    }}
+                                  >
+                                    <TrendingDownIcon />
+                                  </Avatar>
+                                  <Box sx={{ flex: 1 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                      {expense.description}
+                                    </Typography>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                      <Typography variant="caption" color="text.secondary">
+                                        {new Date(expense.date).toLocaleDateString()}
+                                      </Typography>
+                                      <Box sx={{ width: 4, height: 4, borderRadius: '50%', bgcolor: 'text.disabled' }} />
+                                      <Chip 
+                                        label={expense.category} 
+                                        size="small" 
+                                        variant="outlined"
+                                        sx={{ height: 20, fontSize: '0.6rem' }}
+                                      />
+                                    </Stack>
+                                  </Box>
+                                  <Typography 
+                                    variant="h6" 
+                                    sx={{ 
+                                      fontWeight: 700,
+                                      color: 'error.main'
+                                    }}
+                                  >
+                                    -₹{expense.amount.toLocaleString()}
+                                  </Typography>
+                                </Stack>
+                              </TransactionItem>
+                            </Fade>
+                          ))}
+                        </Stack>
+                      </Box>
+                    ) : (
+                      <Box sx={{ textAlign: 'center', py: 6 }}>
+                        <TrendingDownIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+                        <Typography color="text.secondary">
+                          No recent expense transactions
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {overviewData?.latestTransactions?.expenses?.length > 0 && (
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        endIcon={<ArrowForwardIcon />}
+                        sx={{ mt: 2, borderRadius: 2 }}
+                        onClick={() => navigate('/financials')}
+                      >
+                        View All Expenses
+                      </Button>
+                    )}
+                  </>
+                )}
+              </StatsCard>
+
+              {/* Revenue Trend */}
+              <StatsCard>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                  Monthly Revenue Trend
+                </Typography>
+                <Box sx={{ height: 200 }}>
+                  {loading.overview ? (
+                    <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                      <CircularProgress size={30} thickness={4} />
+                    </Box>
+                  ) : revenueTrendData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={revenueTrendData}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={alpha('#888', 0.1)} />
+                        <XAxis dataKey="name" />
+                        <YAxis 
+                          tickFormatter={(value) => `₹${value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}`}
+                        />
+                        <RechartsTooltip 
+                          formatter={(value) => [`₹${value.toLocaleString()}`, 'Revenue']}
+                        />
+                        <Bar 
+                          dataKey="value" 
+                          fill={theme.palette.success.main}
+                          radius={[4, 4, 0, 0]}
+                          name="Revenue"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        No revenue trend data available
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+                
+                {revenueTrendData.length > 0 && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2">
+                      {revenueGrowth > 0 ? (
+                        <Typography component="span" color="success.main" sx={{ fontWeight: 600 }}>
+                          +{revenueGrowth.toFixed(1)}% growth
+                        </Typography>
+                      ) : (
+                        <Typography component="span" color="error.main" sx={{ fontWeight: 600 }}>
+                          {revenueGrowth.toFixed(1)}% change
+                        </Typography>
+                      )}
+                      {' '}from previous month
+                    </Typography>
+                  </Box>
+                )}
+              </StatsCard>
 
               {/* Cap Table Visualization */}
               {capTableChartData.length > 0 && (
@@ -1346,14 +2002,39 @@ const DashboardPage = () => {
                       color={parseFloat(overviewData?.estimatedRunwayMonths) > 6 ? 'success' : 'warning'}
                     />
                   </Box>
+                  
+                  <Box>
+                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Revenue to Expense Ratio
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {loading.overview ? <Skeleton width={40} /> : (
+                          overviewData?.averageMonthlyBurnRate > 0 
+                            ? `${((parseFloat(overviewData?.averageMonthlyRevenue) / parseFloat(overviewData?.averageMonthlyBurnRate)) * 100).toFixed(1)}%`
+                            : 'N/A'
+                        )}
+                      </Typography>
+                    </Stack>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={Math.min(
+                        (parseFloat(overviewData?.averageMonthlyRevenue) / parseFloat(overviewData?.averageMonthlyBurnRate)) * 100 || 0, 
+                        100
+                      )}
+                      sx={{ height: 8, borderRadius: 4 }}
+                      color={parseFloat(overviewData?.averageMonthlyRevenue) > parseFloat(overviewData?.averageMonthlyBurnRate) 
+                        ? 'success' 
+                        : 'warning'
+                      }
+                    />
+                  </Box>
                 </Stack>
               </StatsCard>
             </Stack>
           </Grid>
         </Grid>
       </Container>
-
-
 
       {/* More Menu */}
       <Menu
