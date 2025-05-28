@@ -169,26 +169,42 @@ export const calculateCustomKpiValue = (id, date) => api.post(`/enhanced/kpis/cu
 export const getKpiDashboardData = () => api.get('/enhanced/kpis/dashboard');
 export const initializeBuiltInKpis = () => api.post('/enhanced/kpis/initialize-builtin');
 
-// --- Predictive Analytics (Analytics Routes) ---
+// --- Predictive Analytics (Analytics Routes) - COMPLETE CRUD ---
+
+// Runway Scenarios
 export const createRunwayScenario = (data) => api.post('/analytics/runway-scenarios', data);
 export const getRunwayScenarios = () => api.get('/analytics/runway-scenarios');
+export const getRunwayScenarioById = (id) => api.get(`/analytics/runway-scenarios/${id}`);
+export const updateRunwayScenario = (id, data) => api.put(`/analytics/runway-scenarios/${id}`, data);
+export const deleteRunwayScenario = (id) => api.delete(`/analytics/runway-scenarios/${id}`);
 export const compareRunwayScenarios = () => api.get('/analytics/runway-scenarios/compare');
-// Add getById, delete, and update for runway scenarios if backend supports it
 
+// Fundraising Predictions
 export const createFundraisingPrediction = (data) => api.post('/analytics/fundraising-predictions', data);
+export const getFundraisingPredictions = () => api.get('/analytics/fundraising-predictions');
+export const getFundraisingPredictionById = (id) => api.get(`/analytics/fundraising-predictions/${id}`);
+export const updateFundraisingPrediction = (id, data) => api.put(`/analytics/fundraising-predictions/${id}`, data);
+export const deleteFundraisingPrediction = (id) => api.delete(`/analytics/fundraising-predictions/${id}`);
 export const getFundraisingReadiness = () => api.get('/analytics/fundraising-readiness');
 export const getMarketComparables = (params) => api.get('/analytics/market-comparables', { params });
-// Add get, update, delete for fundraising predictions
 
+// Cash Flow Forecasts
 export const createCashFlowForecast = (data) => api.post('/analytics/cash-flow-forecasts', data);
+export const getCashFlowForecasts = () => api.get('/analytics/cash-flow-forecasts');
+export const getCashFlowForecastById = (id) => api.get(`/analytics/cash-flow-forecasts/${id}`);
+export const updateCashFlowForecast = (id, data) => api.put(`/analytics/cash-flow-forecasts/${id}`, data);
+export const deleteCashFlowForecast = (id) => api.delete(`/analytics/cash-flow-forecasts/${id}`);
 export const getHistoricalCashFlowData = () => api.get('/analytics/cash-flow-data/historical');
 export const getCurrentCashPosition = () => api.get('/analytics/cash-position/current');
-// Add get, update, delete for cash flow forecasts
 
+// Revenue Cohorts
 export const createRevenueCohort = (data) => api.post('/analytics/revenue-cohorts', data);
+export const getRevenueCohorts = () => api.get('/analytics/revenue-cohorts');
+export const getRevenueCohortById = (id) => api.get(`/analytics/revenue-cohorts/${id}`);
+export const updateRevenueCohort = (id, data) => api.put(`/analytics/revenue-cohorts/${id}`, data);
+export const deleteRevenueCohort = (id) => api.delete(`/analytics/revenue-cohorts/${id}`);
 export const generateCohortProjections = (cohortId, data) => api.post(`/analytics/revenue-cohorts/${cohortId}/projections`, data);
 export const getCohortsComparison = () => api.get('/analytics/revenue-cohorts/compare');
-// Add get, update, delete for revenue cohorts
 
 // --- Document Management (Advanced Features Routes) ---
 export const uploadDocumentFile = (formData) => api.post('/advanced/documents/upload', formData, {
@@ -301,6 +317,7 @@ export const deleteProductMilestoneTask = (milestoneId, taskId) => api.delete(`/
 export const addMilestoneTask = addProductMilestoneTask;
 export const updateMilestoneTask = updateProductMilestoneTask;
 export const deleteMilestoneTask = deleteProductMilestoneTask;
+
 // --- Investor Reports (Live Dashboard & Narratives) ---
 export const getLiveDashboardData = () => api.get('/investor-reports/live-dashboard-data');
 export const createInvestorReportNarrative = (data) => api.post('/investor-reports', data);
