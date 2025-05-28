@@ -334,6 +334,8 @@ export const optimizeCashflowML = (data) => api.post('/enhanced/ml/optimize-cash
 export const identifySpendingPatternsML = () => api.get('/enhanced/ml/spending-patterns');
 export const trainMlModel = (modelName) => api.post('/enhanced/ml/train', { model: modelName });
 
+export const updateCohortMetrics = (cohortId, metricsData) => 
+  api.patch(`/analytics/revenue-cohorts/${cohortId}/metrics`, { metrics: metricsData });
 
 // --- Utility functions for frontend ---
 export const getAvailableInvestors = (params) => getInvestors(params); // Re-uses getInvestors

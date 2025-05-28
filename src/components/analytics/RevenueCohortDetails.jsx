@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import {
   Box, Paper, Grid, Typography, Stack, IconButton, Chip,
   Avatar, LinearProgress, Divider, List, ListItem, ListItemIcon, ListItemText,
-  Button, TextField, Card, Tab, Tabs, FormControl, InputLabel, Select, MenuItem
+  Button, TextField, Card, Tab, Tabs, FormControl, InputLabel, Select, MenuItem,
+  Tooltip
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import {
@@ -24,9 +25,11 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import DataUsageIcon from '@mui/icons-material/DataUsage';
 
 import { ScenarioChip, PredictionCard, InsightBox } from './StyledComponents';
 import { formatCurrency, formatDate, formatPercentage } from './formatters';
+import CohortMetricsEditor from './CohortMetricsEditor';
 
 const RevenueCohortDetails = ({
   cohorts,
@@ -34,10 +37,12 @@ const RevenueCohortDetails = ({
   setSelectedCohort,
   onEdit,
   onHistoryClick,
-  onGenerateProjections
+  onGenerateProjections,
+  onUpdateCohort
 }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [metricView, setMetricView] = useState('retention');
+  const [showMetricsEditor, setShowMetricsEditor] = useState(false);
   
   // Prepare chart data from cohort metrics
   const prepareRetentionData = () => {
@@ -201,6 +206,14 @@ const RevenueCohortDetails = ({
                       <MenuItem value="ltv">LTV</MenuItem>
                     </Select>
                   </FormControl>
+                  <Tooltip title="Edit Metrics Data">
+                    <IconButton
+                      size="small"
+                      onClick={() => setShowMetricsEditor(true)}
+                    >
+                      <DataUsageIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                   <IconButton
                     size="small"
                     onClick={() => onEdit('cohort', selectedCohort)}
@@ -919,6 +932,19 @@ const RevenueCohortDetails = ({
             </Grid>
           )}
         </Paper>
+      )}
+      {/* Metrics Editor Dialog */}
+      {selectedCohort && (
+        <CohortMetricsEditor
+          open={showMetricsEditor}
+          onClose={() => setShowMetricsEditor(false)}
+          cohort={selectedCohort}
+          onSave={(updatedCohort) => {
+            if (onUpdateCohort) {
+              onUpdateCohort(updatedCohort);
+            }
+          }}
+        />
       )}
     </Box>
   );

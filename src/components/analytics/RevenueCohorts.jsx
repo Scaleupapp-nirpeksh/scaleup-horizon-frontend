@@ -14,6 +14,7 @@ import {
   getRevenueCohorts,
   getRevenueCohortById,
   updateRevenueCohort,
+  updateCohortMetrics,
   deleteRevenueCohort,
   generateCohortProjections
 } from '../../services/api';
@@ -91,6 +92,34 @@ const RevenueCohorts = ({
     } catch (error) {
       console.error('Error creating/updating cohort:', error);
       onShowError(`Failed to ${editCohortMode ? 'update' : 'create'} cohort`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle update cohort metrics
+  const handleUpdateCohortMetrics = async (updatedCohort) => {
+    try {
+      setLoading(true);
+      
+      // Call the dedicated API endpoint for updating metrics
+      await updateCohortMetrics(updatedCohort._id, updatedCohort.metrics);
+      onShowSuccess('Cohort metrics updated successfully!');
+      
+      // Fetch the updated cohort to ensure we have all derived values
+      const response = await getRevenueCohortById(updatedCohort._id);
+      const refreshedCohort = response.data;
+      
+      // Update the selected cohort and the cohorts list
+      setSelectedCohort(refreshedCohort);
+      setCohorts(prevCohorts => 
+        prevCohorts.map(c => 
+          c._id === refreshedCohort._id ? refreshedCohort : c
+        )
+      );
+    } catch (error) {
+      console.error('Error updating cohort metrics:', error);
+      onShowError('Failed to update cohort metrics');
     } finally {
       setLoading(false);
     }
@@ -262,6 +291,7 @@ const RevenueCohorts = ({
           onEdit={onEditItem || handleEditCohort}
           onHistoryClick={() => setViewMode('history')}
           onGenerateProjections={handleGenerateProjections}
+          onUpdateCohort={handleUpdateCohortMetrics}
         />
       )}
 
