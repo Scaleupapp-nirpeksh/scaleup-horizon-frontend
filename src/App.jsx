@@ -36,12 +36,12 @@ function OnboardingWrapper() {
   useEffect(() => {
     // Check if user has completed onboarding
     const hasCompletedOnboarding = localStorage.getItem('scaleup_onboarding_completed');
-    const skipOnboarding = localStorage.getItem('scaleup_skip_onboarding'); // For development
+    //const skipOnboarding = localStorage.getItem('scaleup_skip_onboarding'); // For development
     
-    //if (!hasCompletedOnboarding && !skipOnboarding) {
-     // setShowOnboarding(true);
-   // }
-   setShowOnboarding(true); 
+    if (!hasCompletedOnboarding ) {
+      setShowOnboarding(true);
+    }
+   //setShowOnboarding(true); 
     setOnboardingChecked(true);
   }, []);
 
