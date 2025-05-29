@@ -119,7 +119,7 @@ const AuthLoadingGate = ({ children }) => {
   const { isLoading } = useAuth(); 
   
   if (isLoading) { 
-    return <LoadingSpinner fullScreen message="Initializing App..." />;
+    return <LoadingSpinner fullScreen message="Loading..." />;
   }
   return children;
 };
