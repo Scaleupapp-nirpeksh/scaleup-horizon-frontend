@@ -8,13 +8,27 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import AlertMessage from '../common/AlertMessage';
 import { uploadDocumentFile, getRounds, getInvestors } from '../../services/api'; // Assuming getRounds and getInvestors
 
-const documentCategories = ['Investor Agreement', 'Financial Report', 'Pitch Deck', 'Legal', 'Meeting Minutes', 'Product Specs', 'Other'];
+// Updated to match backend enum exactly
+const documentCategories = [
+  'Investor Agreement', 
+  'Shareholder Agreement', 
+  'Financial Report', 
+  'Pitch Deck', 
+  'Board Minutes',
+  'Legal Document', 
+  'Compliance Document', 
+  'Invoice', 
+  'Receipt', 
+  'Contract', 
+  'Employee Document', 
+  'Other'
+];
 
 const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
   const [file, setFile] = useState(null);
   const [fileNameDisplay, setFileNameDisplay] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState(documentCategories[0]);
+  const [category, setCategory] = useState('Other'); // Default to 'Other' which is safe
   const [tags, setTags] = useState([]);
   const [associatedRoundId, setAssociatedRoundId] = useState('');
   const [associatedInvestorId, setAssociatedInvestorId] = useState('');
@@ -79,7 +93,7 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
       setFile(null);
       setFileNameDisplay('');
       setDescription('');
-      setCategory(documentCategories[0]);
+      setCategory('Other'); // Reset to default
       setTags([]);
       setAssociatedRoundId('');
       setAssociatedInvestorId('');
@@ -112,13 +126,29 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
             </Button>
           </Grid>
           <Grid item xs={12}>
-            <TextField name="description" label="Description" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth required multiline rows={2}/>
+            <TextField 
+              name="description" 
+              label="Description" 
+              value={description} 
+              onChange={(e) => setDescription(e.target.value)} 
+              fullWidth 
+              required 
+              multiline 
+              rows={2}
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth required>
               <InputLabel>Category</InputLabel>
-              <Select name="category" value={category} label="Category" onChange={(e) => setCategory(e.target.value)}>
-                {documentCategories.map(cat => <MenuItem key={cat} value={cat}>{cat}</MenuItem>)}
+              <Select 
+                name="category" 
+                value={category} 
+                label="Category" 
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                {documentCategories.map(cat => (
+                  <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
@@ -148,24 +178,46 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
            <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
               <InputLabel>Associate with Round (Optional)</InputLabel>
-              <Select value={associatedRoundId} label="Associate with Round (Optional)" onChange={(e) => setAssociatedRoundId(e.target.value)}>
+              <Select 
+                value={associatedRoundId} 
+                label="Associate with Round (Optional)" 
+                onChange={(e) => setAssociatedRoundId(e.target.value)}
+              >
                 <MenuItem value=""><em>None</em></MenuItem>
-                {rounds.map(round => <MenuItem key={round._id} value={round._id}>{round.name}</MenuItem>)}
+                {rounds.map(round => (
+                  <MenuItem key={round._id} value={round._id}>{round.name}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
              <FormControl fullWidth>
               <InputLabel>Associate with Investor (Optional)</InputLabel>
-              <Select value={associatedInvestorId} label="Associate with Investor (Optional)" onChange={(e) => setAssociatedInvestorId(e.target.value)}>
+              <Select 
+                value={associatedInvestorId} 
+                label="Associate with Investor (Optional)" 
+                onChange={(e) => setAssociatedInvestorId(e.target.value)}
+              >
                 <MenuItem value=""><em>None</em></MenuItem>
-                {investors.map(inv => <MenuItem key={inv._id} value={inv._id}>{inv.name}</MenuItem>)}
+                {investors.map(inv => (
+                  <MenuItem key={inv._id} value={inv._id}>{inv.name}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
           <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
-            {onCancel && <Button variant="text" onClick={onCancel} disabled={isLoading}>Cancel</Button>}
-            <Button type="submit" variant="contained" color="primary" disabled={isLoading || !file} startIcon={isLoading ? <CircularProgress size={20} color="inherit"/> : <UploadFileIcon />}>
+            {onCancel && (
+              <Button variant="text" onClick={onCancel} disabled={isLoading}>
+                Cancel
+              </Button>
+            )}
+            <Button 
+              type="submit" 
+              variant="contained" 
+              color="primary" 
+              disabled={isLoading || !file} 
+              startIcon={isLoading ? <CircularProgress size={20} color="inherit"/> : <UploadFileIcon />}
+            >
               {isLoading ? 'Uploading...' : 'Upload Document'}
             </Button>
           </Grid>
