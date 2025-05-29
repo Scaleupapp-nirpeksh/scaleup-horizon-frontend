@@ -31,25 +31,134 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       console.warn('API request unauthorized (401). Forcing logout.');
+      // It's generally better to handle logout logic within AuthContext or a dedicated auth service
+      // to ensure proper state cleanup and navigation.
+      // For now, we'll just remove the token. The AuthContext should observe this.
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser'); // Assuming user info is also stored
-      // Redirect to login, consider using React Router's navigation context if available
-      // For simplicity here, direct navigation, but a more robust solution is preferred in a full app.
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-         // window.location.href = '/login'; // Commented out to prevent actual redirection in test environments
-         console.log("Redirect to /login would happen here.");
-      }
+      localStorage.removeItem('activeOrganization'); // Clear active organization on auth failure
+
+      // Notify other parts of the app about logout, e.g., via a custom event or state management
+      const logoutEvent = new Event('auth-logout');
+      window.dispatchEvent(logoutEvent);
+      
+      // Avoid direct navigation here if possible, let the app's routing/auth state handle it.
+      // if (window.location.pathname !== '/login' && window.location.pathname !== '/register-owner' && !window.location.pathname.startsWith('/complete-setup')) {
+      //    console.log("Redirect to /login would happen here due to 401.");
+      //    // window.location.href = '/login'; 
+      // }
     }
     return Promise.reject(error);
   }
 );
 
-// --- Authentication ---
-export const loginUser = (credentials) => api.post('/auth/login', credentials);
-export const registerUser = (userData) => api.post('/auth/register', userData);
-// export const getMe = () => api.get('/auth/me'); // If you add a /me route on backend
+// --- New Authentication Endpoints ---
 
-// --- Financials (from /financials routes) ---
+/**
+ * Registers the first user (owner) and creates their organization.
+ * @param {object} ownerData - Data for the new owner and organization.
+ * @param {string} ownerData.name - User's full name.
+ * @param {string} ownerData.email - User's email.
+ * @param {string} ownerData.password - User's password.
+ * @param {string} ownerData.organizationName - Name of the organization to create.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const registerOrganizationOwner = (ownerData) => api.post('/auth/register-owner', ownerData);
+
+/**
+ * Completes account setup for a user provisioned by an admin.
+ * @param {string} setupToken - The account setup token from the URL/link.
+ * @param {object} passwordData - Object containing the new password.
+ * @param {string} passwordData.password - The new password.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const completeAccountSetup = (setupToken, passwordData) => api.post(`/auth/complete-setup/${setupToken}`, passwordData);
+
+/**
+ * Logs in a user.
+ * The backend now returns activeOrganization and memberships.
+ * @param {object} credentials - User's login credentials.
+ * @param {string} credentials.email - User's email.
+ * @param {string} credentials.password - User's password.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const loginUser = (credentials) => api.post('/auth/login', credentials);
+
+/**
+ * Sets the active organization for the logged-in user.
+ * @param {object} data - Object containing the organizationId.
+ * @param {string} data.organizationId - The ID of the organization to set as active.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const setActiveOrganization = (data) => api.post('/auth/set-active-organization', data);
+
+/**
+ * Gets the current logged-in user's profile, active organization, and memberships.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getMe = () => api.get('/auth/me');
+
+
+// --- New Organization Management Endpoints ---
+
+/**
+ * Gets details of the user's currently active organization.
+ * Relies on req.organization being populated by authMiddleware on the backend.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const getActiveOrganizationDetails = () => api.get('/organizations/my');
+
+/**
+ * Updates details of the user's currently active organization.
+ * Only 'owner' role can update.
+ * @param {object} organizationData - Data to update for the organization.
+ * @param {string} [organizationData.name] - New name for the organization.
+ * @param {string} [organizationData.industry] - New industry.
+ * @param {string} [organizationData.timezone] - New timezone.
+ * @param {string} [organizationData.currency] - New currency.
+ * @param {object} [organizationData.settings] - New settings object.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateActiveOrganizationDetails = (organizationData) => api.put('/organizations/my', organizationData);
+
+/**
+ * Provisions a new member for the active organization (invites a user).
+ * Only 'owner' role can provision.
+ * @param {object} memberData - Data for the new member.
+ * @param {string} memberData.email - Email of the user to invite.
+ * @param {string} memberData.name - Name of the user to invite.
+ * @param {string} memberData.role - Role for the new member (e.g., 'member', 'owner').
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const provisionNewMember = (memberData) => api.post('/organizations/my/members/provision', memberData);
+
+/**
+ * Lists all members of the active organization.
+ * Accessible by 'owner' or 'member' roles.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const listOrganizationMembers = () => api.get('/organizations/my/members');
+
+/**
+ * Updates a member's role in the active organization.
+ * Only 'owner' role can update roles.
+ * @param {string} memberUserId - The ID of the member whose role is to be updated.
+ * @param {object} roleData - Object containing the new role.
+ * @param {string} roleData.newRole - The new role to assign.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const updateMemberRole = (memberUserId, roleData) => api.put(`/organizations/my/members/${memberUserId}/role`, roleData);
+
+/**
+ * Removes a member from the active organization.
+ * Only 'owner' role can remove members.
+ * @param {string} memberUserId - The ID of the member to remove.
+ * @returns {Promise<AxiosResponse<any>>}
+ */
+export const removeMemberFromOrganization = (memberUserId) => api.delete(`/organizations/my/members/${memberUserId}`);
+
+
+// --- Existing Financials (from /financials routes) ---
 export const addExpense = (expenseData) => api.post('/financials/expenses', expenseData);
 export const getExpenses = (params) => api.get('/financials/expenses', { params });
 export const getExpenseById = (id) => api.get(`/financials/expenses/${id}`);
