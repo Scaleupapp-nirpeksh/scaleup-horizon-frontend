@@ -25,7 +25,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import BusinessIcon from '@mui/icons-material/Business';
 import CircleIcon from '@mui/icons-material/Circle';
-
+import TaskIcon from '@mui/icons-material/Task';
 // Subtle animation
 const subtleShimmer = keyframes`
   0% { background-position: -100% 0; }
@@ -184,10 +184,11 @@ const authenticatedNavItems = [
   { name: 'Fundraising', path: '/fundraising', icon: <BusinessCenterIcon />, status: null },
   { name: 'KPIs', path: '/kpis', icon: <BarChartIcon />, status: null },
   { name: 'Product Roadmap', path: '/product-milestones', icon: <RocketLaunchIcon />, status: null }, 
-  { name: 'Analytics', path: '/analytics', icon: <AssessmentIcon />, status: null },
+  //{ name: 'Analytics', path: '/analytics', icon: <AssessmentIcon />, status: null },
   { name: 'Budgets', path: '/budgets', icon: <AccountBalanceWalletIcon />, status: null },
   { name: 'Headcount', path: '/headcount', icon: <PeopleOutlineIcon />, status: null },
   { name: 'Documents', path: '/documents', icon: <FolderIcon />, status: null },
+  { name: 'Task Tracking', path: '/tasks', icon: <TaskIcon />, status: 'new' },
   { name: 'Live Investor View', path: '/investor-dashboard', icon: <VisibilityIcon />, status: null },
   { name: 'Investor Meetings', path: '/investor-meetings', icon: <EventNoteIcon />, status: null },
 ];

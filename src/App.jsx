@@ -26,7 +26,7 @@ import HeadcountPage from './pages/HeadcountPage';
 import LiveInvestorDashboardPage from './pages/LiveInvestorDashboardPage';
 import ProductMilestonesPage from './pages/ProductMilestonesPage';
 import InvestorPresentationPage from './pages/InvestorPresentationPage';
-
+import TasksPage from './pages/TasksPage';
 // Onboarding Wrapper Component
 function OnboardingWrapper() {
   const navigate = useNavigate();
@@ -85,6 +85,7 @@ function OnboardingWrapper() {
           <Route path="reports" element={<ReportsPage />} />
           <Route path="budgets" element={<BudgetPage />} />
           <Route path="documents" element={<DocumentsPage />} />
+          <Route path="tasks" element={<TasksPage />} />
           
           {/* Settings Routes */}
           <Route path="settings" element={<SettingsPage />} /> 

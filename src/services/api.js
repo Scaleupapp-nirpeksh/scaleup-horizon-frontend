@@ -450,4 +450,44 @@ export const updateCohortMetrics = (cohortId, metricsData) =>
 export const getAvailableInvestors = (params) => getInvestors(params); // Re-uses getInvestors
 export const getAvailableTeamMembers = (params) => getHeadcounts(params); // Re-uses getHeadcounts
 
+
+// --- Task Management (from /tasks routes) ---
+
+// Task CRUD Operations
+export const createTask = (taskData) => api.post('/tasks', taskData);
+export const getTasks = (params) => api.get('/tasks', { params });
+export const getTaskById = (id) => api.get(`/tasks/${id}`);
+export const updateTask = (id, taskData) => api.put(`/tasks/${id}`, taskData);
+export const archiveTask = (id) => api.delete(`/tasks/${id}`);
+export const getTaskSubcategories = (category) => api.get('/tasks/subcategories', { params: { category } });
+// Task Assignment & Watchers
+export const assignTask = (id, data) => api.post(`/tasks/${id}/assign`, data);
+export const updateTaskWatchers = (id, data) => api.post(`/tasks/${id}/watchers`, data);
+
+// Task Comments
+export const getTaskComments = (taskId) => api.get(`/tasks/${taskId}/comments`);
+export const addTaskComment = (taskId, commentData) => api.post(`/tasks/${taskId}/comments`, commentData);
+export const updateTaskComment = (taskId, commentId, commentData) => api.put(`/tasks/${taskId}/comments/${commentId}`, commentData);
+export const deleteTaskComment = (taskId, commentId) => api.delete(`/tasks/${taskId}/comments/${commentId}`);
+
+// Task Analytics
+export const getTaskStats = (params) => api.get('/tasks/stats', { params });
+
+// Helper function to format task filters
+export const formatTaskFilters = (filters) => {
+  const params = {};
+  
+  if (filters.status && filters.status !== 'all') params.status = filters.status;
+  if (filters.priority && filters.priority !== 'all') params.priority = filters.priority;
+  if (filters.assignee && filters.assignee !== 'all') params.assignee = filters.assignee;
+  if (filters.category && filters.category !== 'all') params.category = filters.category;
+  if (filters.search) params.search = filters.search;
+  if (filters.myTasks) params.myTasks = 'true';
+  if (filters.sortBy) params.sortBy = filters.sortBy;
+  if (filters.page) params.page = filters.page;
+  if (filters.limit) params.limit = filters.limit;
+  
+  return params;
+};
+
 export default api;
