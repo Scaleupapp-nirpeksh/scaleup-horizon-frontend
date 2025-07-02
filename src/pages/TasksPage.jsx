@@ -417,11 +417,11 @@ const TasksPage = () => {
     }
   };
   
-  // Update the handleCreateTask to work with the new dialog
   const handleCreateTask = async (formData) => {
     setCreateLoading(true);
     try {
-      // Transform the form data to match backend expectations
+      console.log('Creating task with data:', formData);
+      
       const taskData = {
         title: formData.title,
         description: formData.description,
@@ -429,21 +429,28 @@ const TasksPage = () => {
         subcategory: formData.subcategory,
         tags: formData.tags,
         priority: formData.priority,
-        assignee: formData.assignee,
         dueDate: formData.dueDate,
         startDate: formData.startDate,
         parentTask: formData.parentTask,
         blockedBy: formData.blockedBy,
-        // Add subcategory to custom fields as well if needed
         customFields: formData.subcategory ? { subcategory: formData.subcategory } : undefined
       };
-
+  
+      // CRITICAL FIX: Only include assignee field if it has a valid ObjectId
+      if (formData.assignee && formData.assignee !== null && formData.assignee !== undefined) {
+        taskData.assignee = formData.assignee;
+      }
+      // If assignee is null/undefined, don't include the field at all
+  
+      console.log('Sending to API:', taskData);
+  
       const res = await createTask(taskData);
       setSuccess('Task created successfully!');
       setCreateTaskOpen(false);
       fetchTasks(true);
     } catch (err) {
       console.error('Error creating task:', err);
+      console.error('Error response:', err.response?.data);
       setError(err.response?.data?.msg || 'Failed to create task');
     } finally {
       setCreateLoading(false);

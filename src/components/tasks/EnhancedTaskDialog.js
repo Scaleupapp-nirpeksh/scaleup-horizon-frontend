@@ -82,13 +82,12 @@ const EnhancedTaskDialog = ({
   const [errors, setErrors] = useState({});
   const [tagInput, setTagInput] = useState('');
 
-  // Initialize form when dialog opens
   useEffect(() => {
     if (open) {
       if (existingTask) {
         setTaskForm({
           ...existingTask,
-          assignee: existingTask.assignee?._id || null
+          assignee: existingTask.assignee?._id || existingTask.assignee?.userId || null // Handle both cases
         });
       } else {
         // Reset form for new task
@@ -128,15 +127,24 @@ const EnhancedTaskDialog = ({
 
   const handleSubmit = () => {
     if (validateForm()) {
+      console.log('=== TASK FORM DEBUG (FIXED) ===');
+      console.log('taskForm.assignee:', taskForm.assignee);
+      console.log('members array:', members);
+      console.log('members with userId:', members.map(m => ({ userId: m.userId, name: m.name })));
+      console.log('selected member:', members.find(m => m.userId === taskForm.assignee));
+      
       const submitData = {
         ...taskForm,
-        assignee: taskForm.assignee || undefined,
-        subcategory: showCustomSubcategory ? customSubcategory : taskForm.subcategory
+        assignee: taskForm.assignee, // Remove || undefined
+        subcategory: showCustomSubcategory ? customSubcategory : (taskForm.subcategory || null),
       };
+      
+      console.log('submitData.assignee:', submitData.assignee);
+      console.log('=== END DEBUG ===');
+      
       onSubmit(submitData);
     }
   };
-
   const handleQuickDate = (option) => {
     const today = new Date();
     switch (option) {
@@ -481,43 +489,47 @@ const EnhancedTaskDialog = ({
                     </Alert>
                   ) : (
                     <Autocomplete
-                      options={members}
-                      getOptionLabel={(option) => option.name || ''}
-                      value={members.find(m => m._id === taskForm.assignee) || null}
-                      onChange={(e, newValue) => {
-                        setTaskForm({ ...taskForm, assignee: newValue?._id || null });
-                      }}
-                      renderInput={(params) => (
-                        <TextField 
-                          {...params} 
-                          placeholder="Select team member"
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <>
-                                <InputAdornment position="start">
-                                  <PersonAddIcon color="action" />
-                                </InputAdornment>
-                                {params.InputProps.startAdornment}
-                              </>
-                            ),
-                          }}
-                        />
-                      )}
-                      renderOption={(props, option) => (
-                        <ListItem {...props}>
-                          <ListItemAvatar>
-                            <Avatar sx={{ width: 32, height: 32 }}>
-                              {option.name?.charAt(0) || '?'}
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ListItemText 
-                            primary={option.name}
-                            secondary={option.email}
-                          />
-                        </ListItem>
-                      )}
-                    />
+  options={members}
+  getOptionLabel={(option) => option.name || ''}
+  value={members.find(m => m.userId === taskForm.assignee) || null} // Changed from m._id to m.userId
+  onChange={(e, newValue) => {
+    console.log('Assignee selection changed:', newValue);
+    setTaskForm({ 
+      ...taskForm, 
+      assignee: newValue?.userId || null  // Changed from newValue?._id to newValue?.userId
+    });
+  }}
+  renderInput={(params) => (
+    <TextField 
+      {...params} 
+      placeholder="Select team member"
+      InputProps={{
+        ...params.InputProps,
+        startAdornment: (
+          <>
+            <InputAdornment position="start">
+              <PersonAddIcon color="action" />
+            </InputAdornment>
+            {params.InputProps.startAdornment}
+          </>
+        ),
+      }}
+    />
+  )}
+  renderOption={(props, option) => (
+    <ListItem {...props}>
+      <ListItemAvatar>
+        <Avatar sx={{ width: 32, height: 32 }}>
+          {option.name?.charAt(0) || '?'}
+        </Avatar>
+      </ListItemAvatar>
+      <ListItemText 
+        primary={option.name}
+        secondary={option.email}
+      />
+    </ListItem>
+  )}
+/>
                   )}
                 </Box>
 
@@ -625,9 +637,9 @@ const EnhancedTaskDialog = ({
                         <Chip 
                           size="small" 
                           avatar={<Avatar sx={{ width: 20, height: 20 }}>
-                            {members.find(m => m._id === taskForm.assignee)?.name?.charAt(0)}
+                            {members.find(m => m.userId === taskForm.assignee)?.name?.charAt(0)}
                           </Avatar>}
-                          label={members.find(m => m._id === taskForm.assignee)?.name}
+                          label={members.find(m => m.userId === taskForm.assignee)?.name}
                         />
                       </Stack>
                     )}
