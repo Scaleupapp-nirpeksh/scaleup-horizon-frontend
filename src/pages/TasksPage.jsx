@@ -1,4 +1,4 @@
-// UpdatedTasksPage.jsx - Integration with improved Kanban board
+// UpdatedTasksPage.jsx - Integration with improved Kanban board and Analytics
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -64,10 +64,13 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import LabelIcon from '@mui/icons-material/Label';
 import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 // Component imports
 import EnhancedTaskDialog from '../components/tasks/EnhancedTaskDialog';
-import ImprovedKanbanBoard from '../components/tasks/ImprovedKanbanBoard'; // Our new component
+import ImprovedKanbanBoard from '../components/tasks/ImprovedKanbanBoard';
+import TaskAnalytics from '../components/tasks/TaskAnalytics';
 
 // API imports
 import {
@@ -275,7 +278,7 @@ const TasksPage = () => {
   });
   
   // View & Filter State
-  const [viewMode, setViewMode] = useState('kanban'); // kanban, list, calendar
+  const [viewMode, setViewMode] = useState('kanban'); // kanban, list, analytics
   const [filters, setFilters] = useState({
     status: 'all',
     priority: 'all',
@@ -517,6 +520,91 @@ const TasksPage = () => {
     setSelectedTaskMenu(taskId);
     setMoreMenuAnchor(anchorEl);
   }, []);
+  
+  // Calculate enhanced stats for analytics
+  const enhancedStats = useMemo(() => {
+    if (!stats || !tasks.length) return stats;
+
+    const now = new Date();
+    const overdueCount = tasks.filter(task => 
+      task.dueDate && new Date(task.dueDate) < now && task.status !== 'completed'
+    ).length;
+
+    const completedTasks = tasks.filter(task => task.status === 'completed');
+    const totalTasks = tasks.length;
+    const completionRate = totalTasks > 0 ? (completedTasks.length / totalTasks) * 100 : 0;
+
+    // Calculate task distribution by assignee from actual tasks
+    const tasksByAssignee = {};
+    tasks.forEach(task => {
+      if (task.assignee) {
+        const assigneeId = task.assignee._id || task.assignee;
+        const assigneeName = task.assignee.name || 'Unknown';
+        
+        if (!tasksByAssignee[assigneeId]) {
+          tasksByAssignee[assigneeId] = {
+            _id: assigneeId,
+            name: assigneeName,
+            taskCount: 0,
+            completed: 0,
+            inProgress: 0,
+            todo: 0,
+            overdue: 0
+          };
+        }
+        
+        tasksByAssignee[assigneeId].taskCount++;
+        
+        switch (task.status) {
+          case 'completed':
+            tasksByAssignee[assigneeId].completed++;
+            break;
+          case 'in_progress':
+            tasksByAssignee[assigneeId].inProgress++;
+            break;
+          case 'todo':
+            tasksByAssignee[assigneeId].todo++;
+            break;
+        }
+        
+        if (task.dueDate && new Date(task.dueDate) < now && task.status !== 'completed') {
+          tasksByAssignee[assigneeId].overdue++;
+        }
+      }
+    });
+
+    // Calculate category distribution from actual tasks
+    const categoryDistribution = {};
+    tasks.forEach(task => {
+      const category = task.category || 'other';
+      categoryDistribution[category] = (categoryDistribution[category] || 0) + 1;
+    });
+
+    // Calculate priority distribution from actual tasks
+    const priorityDistribution = {};
+    tasks.forEach(task => {
+      const priority = task.priority || 'medium';
+      priorityDistribution[priority] = (priorityDistribution[priority] || 0) + 1;
+    });
+
+    // Calculate status distribution from actual tasks
+    const statusDistribution = {};
+    tasks.forEach(task => {
+      const status = task.status || 'todo';
+      statusDistribution[status] = (statusDistribution[status] || 0) + 1;
+    });
+
+    return {
+      ...stats,
+      totalTasks,
+      overdueCount,
+      completionRate,
+      tasksByAssignee: Object.values(tasksByAssignee),
+      categoryDistribution: Object.entries(categoryDistribution).map(([_id, count]) => ({ _id, count })),
+      priorityDistribution: Object.entries(priorityDistribution).map(([_id, count]) => ({ _id, count })),
+      statusDistribution: Object.entries(statusDistribution).map(([_id, count]) => ({ _id, count }))
+    };
+  }, [stats, tasks]);
   
   // Render Functions
   const renderListView = () => (
@@ -986,7 +1074,7 @@ const TasksPage = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {stats?.totalTasks || 0}
+                    {enhancedStats?.totalTasks || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Total Tasks
@@ -1004,7 +1092,7 @@ const TasksPage = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {stats?.statusDistribution?.find(s => s._id === 'in_progress')?.count || 0}
+                    {enhancedStats?.statusDistribution?.find(s => s._id === 'in_progress')?.count || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     In Progress
@@ -1022,7 +1110,7 @@ const TasksPage = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {stats?.statusDistribution?.find(s => s._id === 'completed')?.count || 0}
+                    {enhancedStats?.statusDistribution?.find(s => s._id === 'completed')?.count || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Completed
@@ -1040,7 +1128,7 @@ const TasksPage = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {stats?.overdueCount || 0}
+                    {enhancedStats?.overdueCount || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Overdue
@@ -1189,6 +1277,10 @@ const TasksPage = () => {
               <ViewListIcon sx={{ mr: 1 }} />
               List
             </ToggleButton>
+            <ToggleButton value="analytics">
+              <AnalyticsIcon sx={{ mr: 1 }} />
+              Analytics
+            </ToggleButton>
           </ToggleButtonGroup>
           
           <IconButton 
@@ -1199,10 +1291,10 @@ const TasksPage = () => {
           </IconButton>
         </Stack>
         
-        {/* Main Content - Use ImprovedKanbanBoard */}
+        {/* Main Content */}
         {refreshing && <LinearProgress sx={{ mb: 2 }} />}
         
-        {viewMode === 'kanban' ? (
+        {viewMode === 'kanban' && (
           <ImprovedKanbanBoard
             tasks={tasks}
             onDragEnd={handleDragEnd}
@@ -1210,8 +1302,15 @@ const TasksPage = () => {
             onTaskMenu={handleTaskMenu}
             loading={loading}
           />
-        ) : (
-          renderListView()
+        )}
+        
+        {viewMode === 'list' && renderListView()}
+        
+        {viewMode === 'analytics' && (
+          <TaskAnalytics 
+            stats={enhancedStats} 
+            tasks={tasks}
+          />
         )}
         
         {/* Dialogs */}
