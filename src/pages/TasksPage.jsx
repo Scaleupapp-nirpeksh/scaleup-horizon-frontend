@@ -1,4 +1,4 @@
-// src/pages/TasksPage.jsx
+// UpdatedTasksPage.jsx - Integration with improved Kanban board
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -15,10 +15,6 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { format, formatDistanceToNow, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
 
 // Icons
@@ -71,6 +67,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 // Component imports
 import EnhancedTaskDialog from '../components/tasks/EnhancedTaskDialog';
+import ImprovedKanbanBoard from '../components/tasks/ImprovedKanbanBoard'; // Our new component
 
 // API imports
 import {
@@ -94,11 +91,6 @@ const slideIn = keyframes`
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
 `;
 
 const rotate = keyframes`
@@ -187,40 +179,6 @@ const StatsCard = styled(Card)(({ theme, color = 'primary' }) => ({
   },
   '&:hover::before': {
     left: '100%',
-  }
-}));
-
-const KanbanColumn = styled(Paper)(({ theme }) => ({
-  backgroundColor: alpha(theme.palette.background.paper, 0.8),
-  backdropFilter: 'blur(10px)',
-  borderRadius: theme.spacing(2),
-  padding: theme.spacing(2),
-  minHeight: 600,
-  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.08)}`,
-  }
-}));
-
-const TaskCard = styled(Card)(({ theme, priority, isDragging }) => ({
-  marginBottom: theme.spacing(1.5),
-  borderRadius: theme.spacing(1.5),
-  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-  borderLeft: `4px solid ${
-    priority === 'critical' ? theme.palette.error.main :
-    priority === 'high' ? theme.palette.warning.main :
-    priority === 'medium' ? theme.palette.info.main :
-    theme.palette.success.main
-  }`,
-  cursor: 'pointer',
-  transition: 'all 0.2s ease',
-  opacity: isDragging ? 0.5 : 1,
-  transform: isDragging ? 'rotate(5deg)' : 'none',
-  background: theme.palette.background.paper,
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, 0.12)}`,
   }
 }));
 
@@ -364,9 +322,6 @@ const TasksPage = () => {
         listOrganizationMembers()
       ]);
       
-      // Log to debug
-      console.log('Members fetched:', membersRes.data);
-      
       setTasks(tasksRes.data.tasks || []);
       setPagination(tasksRes.data.pagination || {});
       setStats(statsRes.data || null);
@@ -388,21 +343,6 @@ const TasksPage = () => {
     fetchTasks();
   }, [fetchTasks]);
   
-  // Add a loading state specifically for members in the header
-  useEffect(() => {
-    // Fetch members separately if needed on initial load
-    if (members.length === 0 && activeOrganization) {
-      listOrganizationMembers()
-        .then(res => {
-          const membersList = res.data?.members || res.data || [];
-          setMembers(Array.isArray(membersList) ? membersList : []);
-        })
-        .catch(err => {
-          console.error('Error fetching members:', err);
-        });
-    }
-  }, [activeOrganization]);
-  
   // Fetch Comments
   const fetchComments = async (taskId) => {
     setLoadingComments(true);
@@ -417,6 +357,7 @@ const TasksPage = () => {
     }
   };
   
+  // Task operations
   const handleCreateTask = async (formData) => {
     setCreateLoading(true);
     try {
@@ -435,15 +376,14 @@ const TasksPage = () => {
         blockedBy: formData.blockedBy,
         customFields: formData.subcategory ? { subcategory: formData.subcategory } : undefined
       };
-  
-      // CRITICAL FIX: Only include assignee field if it has a valid ObjectId
+
+      // Only include assignee field if it has a valid value
       if (formData.assignee && formData.assignee !== null && formData.assignee !== undefined) {
         taskData.assignee = formData.assignee;
       }
-      // If assignee is null/undefined, don't include the field at all
-  
+
       console.log('Sending to API:', taskData);
-  
+
       const res = await createTask(taskData);
       setSuccess('Task created successfully!');
       setCreateTaskOpen(false);
@@ -457,7 +397,6 @@ const TasksPage = () => {
     }
   };
 
-  // Update the handleUpdateTask to work with the enhanced dialog
   const handleUpdateTaskFromDialog = async (formData) => {
     setUpdateLoading(true);
     try {
@@ -543,7 +482,7 @@ const TasksPage = () => {
     }
   };
   
-  // Drag and Drop Handler
+  // Drag and Drop Handler for Kanban
   const handleDragEnd = (result) => {
     if (!result.destination) return;
     
@@ -566,195 +505,20 @@ const TasksPage = () => {
       }
     }
   };
-  
-  // Group tasks by status for Kanban view
-  const tasksByStatus = useMemo(() => {
-    const grouped = {
-      todo: [],
-      in_progress: [],
-      in_review: [],
-      blocked: [],
-      completed: []
-    };
-    
-    tasks.forEach(task => {
-      if (grouped[task.status]) {
-        grouped[task.status].push(task);
-      }
-    });
-    
-    return grouped;
-  }, [tasks]);
+
+  // Task click handlers
+  const handleTaskClick = useCallback((task) => {
+    setSelectedTask(task);
+    setTaskDetailOpen(true);
+    fetchComments(task._id);
+  }, []);
+
+  const handleTaskMenu = useCallback((taskId, anchorEl) => {
+    setSelectedTaskMenu(taskId);
+    setMoreMenuAnchor(anchorEl);
+  }, []);
   
   // Render Functions
-  const renderKanbanView = () => (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <Grid container spacing={2}>
-        {Object.entries(tasksByStatus).map(([status, statusTasks]) => (
-          <Grid item xs={12} sm={6} lg={2.4} key={status}>
-            <KanbanColumn elevation={0}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>
-                  {status.replace('_', ' ')}
-                </Typography>
-                <Chip 
-                  label={statusTasks.length} 
-                  size="small" 
-                  color={getStatusColor(status)}
-                />
-              </Stack>
-              
-              <Droppable droppableId={status}>
-                {(provided, snapshot) => (
-                  <Box
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    sx={{
-                      minHeight: 400,
-                      backgroundColor: snapshot.isDraggingOver 
-                        ? alpha(theme.palette.primary.main, 0.05)
-                        : 'transparent',
-                      borderRadius: 1,
-                      transition: 'background-color 0.2s ease',
-                      p: 1
-                    }}
-                  >
-                    {statusTasks.map((task, index) => (
-                      <Draggable key={task._id} draggableId={task._id} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <TaskCard
-                              priority={task.priority}
-                              isDragging={snapshot.isDragging}
-                              onClick={() => {
-                                setSelectedTask(task);
-                                setTaskDetailOpen(true);
-                                fetchComments(task._id);
-                              }}
-                            >
-                              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                                <Stack spacing={1.5}>
-                                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                                    <Typography variant="subtitle2" sx={{ fontWeight: 600, pr: 1 }}>
-                                      {task.title}
-                                    </Typography>
-                                    <IconButton 
-                                      size="small" 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedTaskMenu(task._id);
-                                        setMoreMenuAnchor(e.currentTarget);
-                                      }}
-                                    >
-                                      <MoreVertIcon fontSize="small" />
-                                    </IconButton>
-                                  </Stack>
-                                  
-                                  {task.description && (
-                                    <Typography 
-                                      variant="caption" 
-                                      color="text.secondary"
-                                      sx={{
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: 2,
-                                        WebkitBoxOrient: 'vertical',
-                                      }}
-                                    >
-                                      {task.description}
-                                    </Typography>
-                                  )}
-                                  
-                                  <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                                    <Chip
-                                      icon={getPriorityIcon(task.priority)}
-                                      label={task.priority}
-                                      size="small"
-                                      sx={{ fontSize: '0.7rem' }}
-                                    />
-                                    {task.category && (
-                                      <Chip
-                                        icon={<LabelIcon />}
-                                        label={task.category}
-                                        size="small"
-                                        variant="outlined"
-                                        sx={{ fontSize: '0.7rem' }}
-                                      />
-                                    )}
-                                    {task.subcategory && (
-                                      <Chip
-                                        icon={<SubdirectoryArrowRightIcon />}
-                                        label={task.subcategory}
-                                        size="small"
-                                        variant="outlined"
-                                        color="secondary"
-                                        sx={{ fontSize: '0.65rem' }}
-                                      />
-                                    )}
-                                  </Stack>
-                                  
-                                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                    <Stack direction="row" spacing={1} alignItems="center">
-                                      {task.assignee && (
-                                        <Tooltip title={task.assignee.name}>
-                                          <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>
-                                            {task.assignee.name.charAt(0)}
-                                          </Avatar>
-                                        </Tooltip>
-                                      )}
-                                      {task.dueDate && (
-                                        <Tooltip title={`Due: ${format(new Date(task.dueDate), 'MMM dd, yyyy')}`}>
-                                          <Chip
-                                            icon={<AccessTimeIcon />}
-                                            label={format(new Date(task.dueDate), 'MMM dd')}
-                                            size="small"
-                                            color={new Date(task.dueDate) < new Date() ? 'error' : 'default'}
-                                            sx={{ fontSize: '0.7rem' }}
-                                          />
-                                        </Tooltip>
-                                      )}
-                                    </Stack>
-                                    
-                                    <Stack direction="row" spacing={0.5}>
-                                      {task.subtasks?.length > 0 && (
-                                        <Tooltip title={`${task.subtasks.length} subtasks`}>
-                                          <IconButton size="small">
-                                            <AccountTreeIcon fontSize="small" />
-                                          </IconButton>
-                                        </Tooltip>
-                                      )}
-                                      {task.comments?.length > 0 && (
-                                        <Badge badgeContent={task.comments.length} color="primary">
-                                          <IconButton size="small">
-                                            <CommentIcon fontSize="small" />
-                                          </IconButton>
-                                        </Badge>
-                                      )}
-                                    </Stack>
-                                  </Stack>
-                                </Stack>
-                              </CardContent>
-                            </TaskCard>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </Box>
-                )}
-              </Droppable>
-            </KanbanColumn>
-          </Grid>
-        ))}
-      </Grid>
-    </DragDropContext>
-  );
-  
   const renderListView = () => (
     <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
       <Table>
@@ -774,11 +538,7 @@ const TasksPage = () => {
             <TableRow 
               key={task._id}
               hover
-              onClick={() => {
-                setSelectedTask(task);
-                setTaskDetailOpen(true);
-                fetchComments(task._id);
-              }}
+              onClick={() => handleTaskClick(task)}
               sx={{ cursor: 'pointer' }}
             >
               <TableCell>
@@ -847,8 +607,7 @@ const TasksPage = () => {
                   size="small"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedTaskMenu(task._id);
-                    setMoreMenuAnchor(e.currentTarget);
+                    handleTaskMenu(task._id, e.currentTarget);
                   }}
                 >
                   <MoreVertIcon />
@@ -1200,10 +959,7 @@ const TasksPage = () => {
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
-                onClick={() => {
-                  console.log('New Task button clicked');
-                  setCreateTaskOpen(true);
-                }}
+                onClick={() => setCreateTaskOpen(true)}
                 sx={{
                   bgcolor: 'white',
                   color: theme.palette.primary.main,
@@ -1443,10 +1199,20 @@ const TasksPage = () => {
           </IconButton>
         </Stack>
         
-        {/* Main Content */}
+        {/* Main Content - Use ImprovedKanbanBoard */}
         {refreshing && <LinearProgress sx={{ mb: 2 }} />}
         
-        {viewMode === 'kanban' ? renderKanbanView() : renderListView()}
+        {viewMode === 'kanban' ? (
+          <ImprovedKanbanBoard
+            tasks={tasks}
+            onDragEnd={handleDragEnd}
+            onTaskClick={handleTaskClick}
+            onTaskMenu={handleTaskMenu}
+            loading={loading}
+          />
+        ) : (
+          renderListView()
+        )}
         
         {/* Dialogs */}
         {renderTaskDetail()}

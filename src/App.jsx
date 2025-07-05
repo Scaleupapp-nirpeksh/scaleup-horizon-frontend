@@ -27,6 +27,7 @@ import LiveInvestorDashboardPage from './pages/LiveInvestorDashboardPage';
 import ProductMilestonesPage from './pages/ProductMilestonesPage';
 import InvestorPresentationPage from './pages/InvestorPresentationPage';
 import TasksPage from './pages/TasksPage';
+import './styles/KanbanBoard.css';
 // Onboarding Wrapper Component
 function OnboardingWrapper() {
   const navigate = useNavigate();

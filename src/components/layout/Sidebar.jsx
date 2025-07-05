@@ -1,4 +1,4 @@
-// src/components/layout/Sidebar.jsx
+// src/components/layout/Sidebar.jsx - FINAL FIXED VERSION
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext'; 
@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { useTheme, styled, alpha, keyframes } from '@mui/material/styles';
 
-// Icons
+// Icons (keeping all your existing icons)
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -26,28 +26,39 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import BusinessIcon from '@mui/icons-material/Business';
 import CircleIcon from '@mui/icons-material/Circle';
 import TaskIcon from '@mui/icons-material/Task';
-// Subtle animation
+
+// Animations
 const subtleShimmer = keyframes`
   0% { background-position: -100% 0; }
   100% { background-position: 100% 0; }
 `;
 
-// Styled Components
+// CRITICAL FIX: Completely rewritten drawer styling
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
+  width: 250,
+  flexShrink: 0,
   '& .MuiDrawer-paper': {
+    width: 250,
     boxSizing: 'border-box',
     backgroundColor: theme.palette.background.paper,
     borderRight: `1px solid ${theme.palette.divider}`,
-    position: 'relative',
-    // Add padding top to prevent content from going under the header
-    paddingTop: '64px', // Standard MUI AppBar height
+    // CRITICAL: Remove all positioning conflicts
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    height: '100vh',
+    zIndex: theme.zIndex.drawer,
+    // CRITICAL: No padding top or margin
     overflowX: 'hidden',
   }
 }));
 
+// CRITICAL FIX: Organization header with proper top spacing
 const OrganizationHeader = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2.5),
-  margin: theme.spacing(2, 2, 0, 2),
+  padding: theme.spacing(2),
+  margin: theme.spacing(0, 2, 0, 2),
+  // CRITICAL: Add top margin to push below header
+  marginTop: theme.spacing(9), // 64px header + some spacing
   borderRadius: theme.spacing(2),
   textAlign: 'center',
   background: `linear-gradient(135deg, 
@@ -73,8 +84,8 @@ const OrganizationHeader = styled(Box)(({ theme }) => ({
 }));
 
 const LogoContainer = styled(Box)(({ theme }) => ({
-  width: 56,
-  height: 56,
+  width: 48,
+  height: 48,
   margin: '0 auto',
   marginBottom: theme.spacing(1),
   borderRadius: '50%',
@@ -84,11 +95,9 @@ const LogoContainer = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   border: `2px solid ${alpha(theme.palette.common.white, 0.25)}`,
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  position: 'relative',
   '&:hover': {
     backgroundColor: alpha(theme.palette.common.white, 0.2),
-    transform: 'scale(1.05) rotate(5deg)',
-    boxShadow: `0 0 20px ${alpha(theme.palette.common.white, 0.3)}`,
+    transform: 'scale(1.05)',
   }
 }));
 
@@ -149,42 +158,27 @@ const StatusDot = styled(CircleIcon)(({ theme, status }) => ({
   color: status === 'new' 
     ? theme.palette.success.main 
     : theme.palette.warning.main,
-  filter: `drop-shadow(0 0 3px ${status === 'new' 
-    ? theme.palette.success.main 
-    : theme.palette.warning.main})`,
-}));
-
-const SectionDivider = styled(Divider)(({ theme }) => ({
-  margin: theme.spacing(1, 2),
-  opacity: 0.1,
 }));
 
 const FooterSection = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   textAlign: 'center',
+  marginTop: 'auto', // Push to bottom
   borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-  background: `linear-gradient(to top, 
-    ${alpha(theme.palette.primary.main, 0.02)} 0%, 
-    transparent 100%)`,
   '& .footer-text': {
     color: theme.palette.text.secondary,
     fontSize: '0.75rem',
     opacity: 0.7,
-    transition: 'opacity 0.2s ease',
-    '&:hover': {
-      opacity: 1,
-    }
   }
 }));
 
-// Navigation items
+// Navigation items (keeping your existing items)
 const authenticatedNavItems = [
   { name: 'Dashboard', path: '/dashboard', icon: <DashboardIcon />, status: null },
   { name: 'Financials', path: '/financials', icon: <AttachMoneyIcon />, status: null },
   { name: 'Fundraising', path: '/fundraising', icon: <BusinessCenterIcon />, status: null },
   { name: 'KPIs', path: '/kpis', icon: <BarChartIcon />, status: null },
   { name: 'Product Roadmap', path: '/product-milestones', icon: <RocketLaunchIcon />, status: null }, 
-  //{ name: 'Analytics', path: '/analytics', icon: <AssessmentIcon />, status: null },
   { name: 'Budgets', path: '/budgets', icon: <AccountBalanceWalletIcon />, status: null },
   { name: 'Headcount', path: '/headcount', icon: <PeopleOutlineIcon />, status: null },
   { name: 'Documents', path: '/documents', icon: <FolderIcon />, status: null },
@@ -199,7 +193,7 @@ const unAuthenticatedNavItems = [
 ];
 
 const Sidebar = ({ open, onClose, drawerWidth }) => {
-  const { isAuthenticated, activeOrganization, user } = useAuth(); 
+  const { isAuthenticated, activeOrganization } = useAuth(); 
   const theme = useTheme();
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -221,7 +215,7 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <OrganizationHeader>
         <LogoContainer>
-          <BusinessIcon sx={{ fontSize: 28, color: 'inherit' }} />
+          <BusinessIcon sx={{ fontSize: 24, color: 'inherit' }} />
         </LogoContainer>
         
         <Typography 
@@ -234,13 +228,11 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             px: 1,
-            letterSpacing: '0.5px',
+            fontSize: '1rem',
           }}
         >
           {activeOrganization?.name || 'ScaleUp Horizon'}
         </Typography>
-        
-        
       </OrganizationHeader>
       
       <NavigationList sx={{ flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
@@ -264,6 +256,7 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
                       sx: {
                         transition: 'transform 0.2s ease',
                         transform: hoveredItem === item.name ? 'scale(1.1)' : 'scale(1)',
+                        fontSize: '1.25rem',
                       }
                     })}
                   </StyledListItemIcon>
@@ -286,7 +279,6 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
                       sx: { 
                         fontWeight: isActive ? 600 : 400,
                         fontSize: '0.875rem',
-                        letterSpacing: '0.3px',
                       }
                     }}
                   />
@@ -297,8 +289,6 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
         })}
       </NavigationList>
       
-      
-      
       <FooterSection>
         <Typography className="footer-text">
           &copy; {new Date().getFullYear()} ScaleUp App
@@ -307,51 +297,41 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
     </Box>
   );
 
-  return (
-    <Box
-      component="nav"
-      sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }} 
-      aria-label="application navigation"
-    >
-      {/* Mobile drawer */}
+  // CRITICAL: Simplified drawer variants
+  if (isMobile) {
+    return (
       <StyledDrawer
         variant="temporary"
-        open={open} 
+        open={open}
         onClose={onClose}
-        ModalProps={{
-          keepMounted: true, 
-        }}
+        ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { 
-            width: drawerWidth,
-            // Ensure mobile drawer also has proper padding
-            paddingTop: '64px',
-            zIndex: (theme) => theme.zIndex.drawer,
+          '& .MuiDrawer-paper': {
+            marginTop: '64px',
+            height: 'calc(100vh - 64px)',
           },
         }}
       >
         {drawerContent}
       </StyledDrawer>
-      
-      {/* Desktop drawer */}
-      <StyledDrawer
-        variant="persistent" 
-        open={open} 
-        sx={{
-          display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': { 
-            width: drawerWidth,
-            position: 'relative',
-            height: '100vh',
-            // Make sure desktop drawer is below header
-            zIndex: (theme) => theme.zIndex.drawer - 1,
-          },
-        }}
-      >
-        {drawerContent}
-      </StyledDrawer>
-    </Box>
+    );
+  }
+
+  // Desktop drawer - only show when open
+  if (!open) return null;
+
+  return (
+    <StyledDrawer
+      variant="persistent"
+      anchor="left"
+      open={open}
+      sx={{
+        display: { xs: 'none', md: 'block' },
+      }}
+    >
+      {drawerContent}
+    </StyledDrawer>
   );
 };
 

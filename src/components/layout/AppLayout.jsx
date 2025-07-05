@@ -1,17 +1,17 @@
-// src/components/layout/AppLayout.jsx
-// Application layout with Header and Sidebar, ensuring main content is scrollable.
+// src/components/layout/AppLayout.jsx - FINAL FIX
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Box from '@mui/material/Box';
-import { useTheme } from '@mui/material/styles'; // Import useTheme
+import { useTheme, useMediaQuery } from '@mui/material';
 
 const drawerWidth = 250;
 
 const AppLayout = () => {
-  const theme = useTheme(); // Access theme for breakpoints and transitions
-  const [sidebarOpen, setSidebarOpen] = useState(true); // Default to open for desktop
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
   const handleDrawerToggle = () => {
     setSidebarOpen(!sidebarOpen);
@@ -19,32 +19,58 @@ const AppLayout = () => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Header onDrawerToggle={handleDrawerToggle} drawerWidth={drawerWidth} />
-      <Sidebar open={sidebarOpen} onClose={handleDrawerToggle} drawerWidth={drawerWidth} />
-      <Box
-        component="main"
+      {/* CRITICAL: Header with proper z-index */}
+      <Header 
+        onDrawerToggle={handleDrawerToggle} 
+        drawerWidth={drawerWidth}
         sx={{
-          flexGrow: 1,
-          // Apply padding directly here, it's part of the scrollable content area
-          padding: theme.spacing(3), // Consistent padding
-          marginTop: '64px', // AppBar height
-          height: 'calc(100vh - 64px)', // Crucial: Full viewport height minus header
-          overflowY: 'auto', // Crucial: Enables vertical scrolling for this Box only
-          width: { // Dynamically adjust width based on sidebar state
-            xs: '100%', // Full width on extra small screens (mobile, sidebar overlays)
-            md: `calc(100% - ${sidebarOpen ? drawerWidth : 0}px)` // Adjust for persistent sidebar on medium+
-          },
-          marginLeft: { // Dynamically adjust margin based on sidebar state for persistent drawer
-            xs: 0, // No margin on mobile
-            md: `${sidebarOpen ? drawerWidth : 0}px`
-          },
-          transition: theme.transitions.create(['margin-left', 'width'], { // Smooth transition for width/margin
+          zIndex: theme.zIndex.drawer + 1, // Ensure header is above sidebar
+        }}
+      />
+      
+      {/* CRITICAL: Sidebar that starts from top but content below header */}
+      <Box
+        sx={{
+          width: { xs: 0, md: sidebarOpen ? drawerWidth : 0 },
+          flexShrink: 0,
+          transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,
           }),
         }}
       >
-        <Outlet /> {/* Page content will be rendered here and will scroll if it overflows */}
+        <Sidebar 
+          open={sidebarOpen} 
+          onClose={handleDrawerToggle} 
+          drawerWidth={drawerWidth} 
+        />
+      </Box>
+      
+      {/* CRITICAL: Main content with no margin - just flex grow */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+          backgroundColor: theme.palette.background.default,
+        }}
+      >
+        {/* Spacer for header */}
+        <Box sx={{ height: '64px', flexShrink: 0 }} />
+        
+        {/* Scrollable content area */}
+        <Box
+          sx={{
+            flexGrow: 1,
+            overflowY: 'auto',
+            padding: theme.spacing(3),
+            height: 'calc(100vh - 64px)',
+          }}
+        >
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );
