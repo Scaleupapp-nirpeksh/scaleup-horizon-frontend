@@ -1,5 +1,5 @@
 // src/pages/ProductMilestonesPage.jsx
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   Container, Typography, Box, Grid, Paper, Card, CardContent, Stack,
   Button, IconButton, Avatar, Chip, Divider, Tooltip, Badge, useTheme,
@@ -8,13 +8,15 @@ import {
   Select, FormHelperText, Tab, Tabs, Autocomplete, InputAdornment, ListItem,
   ListItemAvatar, ListItemText, List, CircularProgress, Alert, AlertTitle,
   Checkbox, FormGroup, FormControlLabel, Zoom, Slide, ToggleButton,
-  ToggleButtonGroup, Stepper, Step, StepLabel, StepContent, AvatarGroup
+  ToggleButtonGroup, Stepper, Step, StepLabel, StepContent, AvatarGroup,
+  Collapse, useMediaQuery
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useNavigate } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 // Icons
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
@@ -59,6 +61,18 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import GroupsIcon from '@mui/icons-material/Groups';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CommentIcon from '@mui/icons-material/Comment';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import LabelIcon from '@mui/icons-material/Label';
+import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import WarningIcon from '@mui/icons-material/Warning';
+import InfoIcon from '@mui/icons-material/Info';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ArchiveIcon from '@mui/icons-material/Archive';
 
 // API
 import {
@@ -75,7 +89,7 @@ import {
   getHeadcounts,
 } from '../services/api';
 
-// Magical Animations
+// Enhanced Animations
 const float = keyframes`
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   33% { transform: translateY(-20px) rotate(-5deg); }
@@ -110,7 +124,18 @@ const gradientShift = keyframes`
   50% { background-position: 100% 50%; }
 `;
 
-// Magical Styled Components
+const slideDown = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+// Enhanced Styled Components
 const MagicalBackground = styled(Box)(({ theme }) => ({
   position: 'fixed',
   top: 0,
@@ -222,7 +247,122 @@ const MagicalMetricCard = styled(Card)(({ theme, glowColor = 'primary' }) => ({
   }
 }));
 
-const MilestoneCard = styled(Card)(({ theme, status }) => {
+// Enhanced Kanban Components
+const KanbanContainer = styled(Box)(({ theme }) => ({
+  width: '100%',
+  overflowX: 'auto',
+  paddingBottom: theme.spacing(1),
+  position: 'relative',
+  zIndex: 1,
+  
+  '&::-webkit-scrollbar': {
+    height: 8,
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: alpha(theme.palette.divider, 0.1),
+    borderRadius: 4,
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+    borderRadius: 4,
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.5),
+    },
+  },
+}));
+
+const KanbanGrid = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(2),
+  minWidth: 'fit-content',
+  padding: theme.spacing(1),
+  flexWrap: 'nowrap',
+  position: 'relative',
+  zIndex: 2,
+  
+  [theme.breakpoints.down('md')]: {
+    gap: theme.spacing(1),
+  },
+}));
+
+const KanbanColumn = styled(Paper)(({ theme }) => ({
+  width: 320,
+  minWidth: 320,
+  maxWidth: 320,
+  backgroundColor: alpha(theme.palette.background.paper, 0.9),
+  backdropFilter: 'blur(10px)',
+  borderRadius: theme.spacing(2),
+  padding: theme.spacing(2),
+  minHeight: 600,
+  maxHeight: 'calc(100vh - 300px)',
+  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'relative',
+  zIndex: 3,
+  
+  '&:hover': {
+    boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.08)}`,
+    transform: 'translateY(-2px)',
+  },
+  
+  '&[data-is-drag-occurring="true"]': {
+    zIndex: 4,
+  },
+  
+  [theme.breakpoints.down('sm')]: {
+    width: 300,
+    minWidth: 300,
+    maxWidth: 300,
+  },
+}));
+
+const ColumnHeader = styled(Box)(({ theme }) => ({
+  position: 'sticky',
+  top: 0,
+  backgroundColor: alpha(theme.palette.background.paper, 0.95),
+  backdropFilter: 'blur(10px)',
+  zIndex: 5,
+  marginBottom: theme.spacing(2),
+  paddingBottom: theme.spacing(1),
+  borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+}));
+
+const TasksContainer = styled(Box)(({ theme, isDraggingOver }) => ({
+  flex: 1,
+  overflowY: 'auto',
+  paddingRight: theme.spacing(0.5),
+  marginRight: -theme.spacing(0.5),
+  position: 'relative',
+  zIndex: 4,
+  minHeight: 100,
+  
+  backgroundColor: isDraggingOver 
+    ? alpha(theme.palette.primary.main, 0.05)
+    : 'transparent',
+  borderRadius: theme.spacing(1),
+  border: isDraggingOver 
+    ? `2px dashed ${alpha(theme.palette.primary.main, 0.3)}`
+    : '2px dashed transparent',
+  transition: 'all 0.2s ease',
+  
+  '&::-webkit-scrollbar': {
+    width: 6,
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: 'transparent',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: alpha(theme.palette.divider, 0.3),
+    borderRadius: 3,
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.divider, 0.5),
+    },
+  },
+}));
+
+const MilestoneCard = styled(Card)(({ theme, status, isDragging }) => {
   let statusColor;
   switch (status) {
     case 'Planning':
@@ -248,49 +388,59 @@ const MilestoneCard = styled(Card)(({ theme, status }) => {
   }
 
   return {
-    borderRadius: theme.spacing(2.5),
-    background: theme.palette.mode === 'dark'
-      ? `linear-gradient(135deg, ${alpha('#1e293b', 0.9)} 0%, ${alpha('#334155', 0.9)} 100%)`
-      : `linear-gradient(135deg, ${alpha('#ffffff', 0.95)} 0%, ${alpha('#f8fafc', 0.95)} 100%)`,
-    backdropFilter: 'blur(10px)',
+    marginBottom: theme.spacing(1.5),
+    borderRadius: theme.spacing(1.5),
     border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+    borderLeft: `4px solid ${statusColor}`,
+    background: theme.palette.background.paper,
     position: 'relative',
-    overflow: 'hidden',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    cursor: 'pointer',
-    '&:hover': {
-      transform: 'translateY(-4px) scale(1.01)',
-      boxShadow: `0 12px 24px ${alpha(statusColor, 0.2)}`,
-      border: `1px solid ${alpha(statusColor, 0.3)}`,
-      '&::before': {
-        width: '8px',
-        opacity: 1,
+    cursor: isDragging ? 'grabbing' : 'grab',
+    userSelect: 'none',
+    
+    zIndex: isDragging ? 9999 : 6,
+    
+    ...(!isDragging && {
+      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+      animation: `${slideDown} 0.3s ease`,
+      
+      '&:hover': {
+        transform: 'translateY(-2px)',
+        boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, 0.15)}`,
+        borderLeftWidth: 6,
+        zIndex: 10,
       },
-      '& .milestone-title': {
-        color: theme.palette.primary.main,
+      
+      '&:active': {
+        animation: `${pulse} 0.2s ease`,
+      },
+    }),
+    
+    ...(isDragging && {
+      '& *': {
+        pointerEvents: 'none',
+      },
+      
+      opacity: 0.95,
+      transform: 'scale(1.05) rotate(3deg)',
+      boxShadow: `0 12px 40px ${alpha(theme.palette.common.black, 0.3)}`,
+      borderLeftWidth: 6,
+      
+      position: 'relative',
+      transition: 'all 0.1s ease-out',
+      
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        top: -2,
+        left: -2,
+        right: -2,
+        bottom: -2,
+        background: `linear-gradient(45deg, ${alpha(theme.palette.primary.main, 0.2)}, ${alpha(theme.palette.secondary.main, 0.2)})`,
+        borderRadius: 'inherit',
+        zIndex: -1,
+        filter: 'blur(4px)',
       }
-    },
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '5px',
-      height: '100%',
-      background: `linear-gradient(180deg, ${statusColor} 0%, ${alpha(statusColor, 0.6)} 100%)`,
-      opacity: 0.8,
-      transition: 'all 0.3s ease',
-    },
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      width: '100px',
-      height: '100px',
-      background: `radial-gradient(circle, ${alpha(statusColor, 0.1)} 0%, transparent 70%)`,
-      transform: 'translate(30px, -30px)',
-    }
+    }),
   };
 });
 
@@ -331,6 +481,60 @@ const TimelineBar = styled(Box)(({ theme }) => ({
     boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
   }
 }));
+
+// Status configuration for kanban
+const STATUS_CONFIG = {
+  'Planning': {
+    label: 'Planning',
+    icon: <ScienceIcon />,
+    color: 'info',
+    bgColor: '#e3f2fd'
+  },
+  'In Development': {
+    label: 'In Development',
+    icon: <BuildIcon />,
+    color: 'warning',
+    bgColor: '#fff3e0'
+  },
+  'Testing': {
+    label: 'Testing',
+    icon: <BugReportIcon />,
+    color: 'secondary',
+    bgColor: '#f3e5f5'
+  },
+  'Deploying': {
+    label: 'Deploying',
+    icon: <RocketLaunchIcon />,
+    color: 'primary',
+    bgColor: '#e8f5e8'
+  },
+  'Completed': {
+    label: 'Completed',
+    icon: <CheckCircleIcon />,
+    color: 'success',
+    bgColor: '#e8f5e8'
+  },
+  'On Hold': {
+    label: 'On Hold',
+    icon: <PauseCircleIcon />,
+    color: 'default',
+    bgColor: '#f5f5f5'
+  },
+  'Cancelled': {
+    label: 'Cancelled',
+    icon: <CancelIcon />,
+    color: 'error',
+    bgColor: '#ffebee'
+  }
+};
+
+// Priority configuration
+const PRIORITY_CONFIG = {
+  'Critical': { icon: <LocalFireDepartmentIcon color="error" />, color: '#f44336' },
+  'High': { icon: <WarningIcon color="warning" />, color: '#ff9800' },
+  'Medium': { icon: <InfoIcon color="info" />, color: '#2196f3' },
+  'Low': { icon: <FlagIcon color="success" />, color: '#4caf50' }
+};
 
 const AnimatedNumber = ({ value, duration = 1500, prefix = '', suffix = '', decimals = 0 }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -397,46 +601,13 @@ const AnimatedNumber = ({ value, duration = 1500, prefix = '', suffix = '', deci
 
 // Helper Components
 const StatusChip = ({ status }) => {
-  let color, icon;
-  switch (status) {
-    case 'Planning':
-      color = 'info';
-      icon = <ScienceIcon fontSize="small" />;
-      break;
-    case 'In Development':
-      color = 'warning';
-      icon = <BuildIcon fontSize="small" />;
-      break;
-    case 'Testing':
-      color = 'secondary';
-      icon = <BugReportIcon fontSize="small" />;
-      break;
-    case 'Deploying':
-      color = 'primary';
-      icon = <RocketLaunchIcon fontSize="small" />;
-      break;
-    case 'Completed':
-      color = 'success';
-      icon = <CheckCircleIcon fontSize="small" />;
-      break;
-    case 'On Hold':
-      color = 'default';
-      icon = <PauseCircleIcon fontSize="small" />;
-      break;
-    case 'Cancelled':
-      color = 'error';
-      icon = <CancelIcon fontSize="small" />;
-      break;
-    default:
-      color = 'default';
-      icon = <PendingIcon fontSize="small" />;
-  }
-
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG['Planning'];
+  
   return (
     <Chip
-      icon={icon}
+      icon={config.icon}
       label={status}
-      color={color}
+      color={config.color}
       size="small"
       sx={{
         fontWeight: 600,
@@ -449,31 +620,17 @@ const StatusChip = ({ status }) => {
 };
 
 const PriorityChip = ({ priority }) => {
-  let color;
-  switch (priority) {
-    case 'Critical':
-      color = 'error';
-      break;
-    case 'High':
-      color = 'warning';
-      break;
-    case 'Medium':
-      color = 'info';
-      break;
-    case 'Low':
-      color = 'default';
-      break;
-    default:
-      color = 'default';
-  }
-
+  const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG['Medium'];
+  
   return (
     <Chip
-      icon={<FlagIcon fontSize="small" />}
+      icon={config.icon}
       label={priority}
-      color={color}
       size="small"
-      sx={{ fontWeight: 600 }}
+      sx={{ 
+        fontWeight: 600,
+        '& .MuiChip-icon': { fontSize: '0.8rem' }
+      }}
     />
   );
 };
@@ -517,25 +674,289 @@ const TabPanel = ({ children, value, index, ...other }) => (
   </div>
 );
 
-// Utility Functions
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
-};
+// Milestone Item Component for Kanban
+const MilestoneItem = React.memo(({ milestone, index, onClick, onMenuClick }) => {
+  const theme = useTheme();
+  
+  const handleClick = useCallback((e) => {
+    if (!e.defaultPrevented) {
+      onClick(milestone);
+    }
+  }, [milestone, onClick]);
+  
+  const handleMenuClick = useCallback((e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onMenuClick(milestone._id, e.currentTarget);
+  }, [milestone._id, onMenuClick]);
 
-const calculateDaysRemaining = (endDate) => {
-  if (!endDate) return null;
-  const today = new Date();
-  const end = new Date(endDate);
-  const diffTime = end - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-};
+  const daysRemaining = useMemo(() => {
+    if (!milestone.plannedEndDate) return null;
+    const today = new Date();
+    const end = new Date(milestone.plannedEndDate);
+    const diffTime = end - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }, [milestone.plannedEndDate]);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+  
+  return (
+    <Draggable draggableId={milestone._id} index={index}>
+      {(provided, snapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          style={{
+            ...provided.draggableProps.style,
+            ...(snapshot.isDragging && {
+              zIndex: 9999,
+              position: 'fixed',
+            }),
+          }}
+        >
+          <MilestoneCard
+            status={milestone.status}
+            isDragging={snapshot.isDragging}
+            onClick={handleClick}
+            elevation={snapshot.isDragging ? 8 : 1}
+          >
+            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+              <Stack spacing={1.5}>
+                {/* Milestone Header */}
+                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                  <Typography 
+                    variant="subtitle2" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      pr: 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      lineHeight: 1.3
+                    }}
+                  >
+                    {milestone.name}
+                  </Typography>
+                  <IconButton 
+                    size="small" 
+                    onClick={handleMenuClick}
+                    sx={{ 
+                      opacity: 0.7, 
+                      '&:hover': { opacity: 1 },
+                      zIndex: 10
+                    }}
+                  >
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+                
+                {/* Milestone Description */}
+                {milestone.description && (
+                  <Typography 
+                    variant="caption" 
+                    color="text.secondary"
+                    sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      lineHeight: 1.4
+                    }}
+                  >
+                    {milestone.description}
+                  </Typography>
+                )}
+
+                {/* Progress Bar */}
+                <Box>
+                  <AnimatedProgress 
+                    variant="determinate" 
+                    value={milestone.completionPercentage || 0}
+                  />
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                    {milestone.completionPercentage || 0}% complete
+                  </Typography>
+                </Box>
+                
+                {/* Milestone Tags */}
+                <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ gap: 0.5 }}>
+                  <PriorityChip priority={milestone.priority} />
+                  {milestone.milestoneType && (
+                    <Chip
+                      icon={<MilestoneTypeIcon type={milestone.milestoneType} />}
+                      label={milestone.milestoneType}
+                      size="small"
+                      variant="outlined"
+                      sx={{ fontSize: '0.7rem', height: 24 }}
+                    />
+                  )}
+                  {milestone.visibleToInvestors && (
+                    <Chip
+                      icon={<VisibilityIcon sx={{ fontSize: '0.7rem' }} />}
+                      label="Investor"
+                      size="small"
+                      color="info"
+                      sx={{ fontSize: '0.65rem', height: 22 }}
+                    />
+                  )}
+                </Stack>
+                
+                {/* Milestone Footer */}
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    {milestone.productOwner && (
+                      <Tooltip title={milestone.productOwner.name || 'Product Owner'}>
+                        <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>
+                          {(milestone.productOwner.name || '?').charAt(0)}
+                        </Avatar>
+                      </Tooltip>
+                    )}
+                    {daysRemaining !== null && (
+                      <Tooltip title={`Due: ${formatDate(milestone.plannedEndDate)}`}>
+                        <Chip
+                          icon={<AccessTimeIcon sx={{ fontSize: '0.7rem' }} />}
+                          label={
+                            daysRemaining < 0 
+                              ? `${Math.abs(daysRemaining)}d overdue`
+                              : daysRemaining === 0 
+                                ? 'Due today'
+                                : `${daysRemaining}d left`
+                          }
+                          size="small"
+                          color={daysRemaining < 0 ? 'error' : daysRemaining <= 3 ? 'warning' : 'default'}
+                          sx={{ 
+                            fontSize: '0.7rem',
+                            height: 22,
+                            '& .MuiChip-icon': { fontSize: '0.7rem' }
+                          }}
+                        />
+                      </Tooltip>
+                    )}
+                  </Stack>
+                  
+                  <Stack direction="row" spacing={0.5}>
+                    {milestone.teamMembers?.length > 0 && (
+                      <Tooltip title={`${milestone.teamMembers.length} team members`}>
+                        <Badge badgeContent={milestone.teamMembers.length} color="primary" max={99}>
+                          <GroupIcon sx={{ fontSize: '1rem', opacity: 0.7 }} />
+                        </Badge>
+                      </Tooltip>
+                    )}
+                    {milestone.tasks?.length > 0 && (
+                      <Tooltip title={`${milestone.tasks.length} tasks`}>
+                        <Badge badgeContent={milestone.tasks.length} color="secondary" max={99}>
+                          <TaskAltIcon sx={{ fontSize: '1rem', opacity: 0.7 }} />
+                        </Badge>
+                      </Tooltip>
+                    )}
+                  </Stack>
+                </Stack>
+              </Stack>
+            </CardContent>
+          </MilestoneCard>
+        </div>
+      )}
+    </Draggable>
+  );
+});
+
+// Kanban Column Component
+const KanbanColumnComponent = React.memo(({ 
+  status, 
+  milestones, 
+  onMilestoneClick, 
+  onMilestoneMenu
+}) => {
+  const theme = useTheme();
+  const config = STATUS_CONFIG[status];
+  
+  return (
+    <Droppable droppableId={status}>
+      {(provided, snapshot) => (
+        <KanbanColumn 
+          data-is-drag-occurring={snapshot.isDraggingOver}
+          sx={{
+            ...(snapshot.isDraggingOver && {
+              backgroundColor: alpha(theme.palette.primary.main, 0.05),
+              borderColor: theme.palette.primary.main,
+              borderWidth: 2,
+              transform: 'scale(1.02)',
+            })
+          }}
+        >
+          <ColumnHeader>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Stack direction="row" spacing={1} alignItems="center">
+                {config.icon}
+                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1rem' }}>
+                  {config.label}
+                </Typography>
+              </Stack>
+              <Chip 
+                label={milestones.length} 
+                size="small" 
+                color={config.color}
+                sx={{ 
+                  fontWeight: 600,
+                  minWidth: 32,
+                  height: 24
+                }}
+              />
+            </Stack>
+          </ColumnHeader>
+          
+          <TasksContainer
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            isDraggingOver={snapshot.isDraggingOver}
+          >
+            {milestones.length === 0 ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: 200,
+                  opacity: 0.5
+                }}
+              >
+                {config.icon}
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  No milestones in {config.label.toLowerCase()}
+                </Typography>
+              </Box>
+            ) : (
+              milestones.map((milestone, index) => (
+                <MilestoneItem
+                  key={milestone._id}
+                  milestone={milestone}
+                  index={index}
+                  onClick={onMilestoneClick}
+                  onMenuClick={onMilestoneMenu}
+                />
+              ))
+            )}
+            {provided.placeholder}
+          </TasksContainer>
+        </KanbanColumn>
+      )}
+    </Droppable>
+  );
+});
 
 // Initial form data
 const initialFormData = {
@@ -580,13 +1001,14 @@ const initialTaskData = {
 const ProductMilestonesPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   // State Management
   const [loading, setLoading] = useState(true);
   const [milestones, setMilestones] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [selectedMilestone, setSelectedMilestone] = useState(null);
-  const [viewMode, setViewMode] = useState('kanban'); // kanban, list, timeline
+  const [viewMode, setViewMode] = useState('kanban');
   const [activeTab, setActiveTab] = useState(0);
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
@@ -670,6 +1092,53 @@ const ProductMilestonesPage = () => {
     fetchMilestones();
     fetchStatistics();
   }, [fetchTeamMembers, fetchMilestones, fetchStatistics]);
+
+  // Group milestones by status for kanban
+  const milestonesByStatus = useMemo(() => {
+    const grouped = {};
+    
+    // Initialize all statuses
+    Object.keys(STATUS_CONFIG).forEach(status => {
+      grouped[status] = [];
+    });
+    
+    // Group milestones
+    milestones.forEach(milestone => {
+      if (grouped[milestone.status]) {
+        grouped[milestone.status].push(milestone);
+      }
+    });
+    
+    return grouped;
+  }, [milestones]);
+
+  // Handle drag end for kanban
+  const handleDragEnd = useCallback(async (result) => {
+    const { destination, source, draggableId } = result;
+    
+    if (!destination) return;
+    
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    try {
+      // Update milestone status
+      await updateProductMilestone(draggableId, { 
+        status: destination.droppableId 
+      });
+      
+      // Refresh milestones
+      fetchMilestones();
+      setSuccess('Milestone status updated successfully!');
+    } catch (err) {
+      console.error('Error updating milestone status:', err);
+      setError('Failed to update milestone status');
+    }
+  }, [fetchMilestones]);
 
   // Form handlers
   const handleFormChange = (field, value) => {
@@ -1156,116 +1625,28 @@ const ProductMilestonesPage = () => {
             ) : (
               <>
                 {viewMode === 'kanban' && (
-                  <Grid container spacing={3}>
-                    {['Planning', 'In Development', 'Testing', 'Completed'].map((status) => (
-                      <Grid item xs={12} md={3} key={status}>
-                        <Paper
-                          elevation={0}
-                          sx={{
-                            p: 2,
-                            borderRadius: 2.5,
-                            background: theme.palette.mode === 'dark'
-                              ? alpha('#1e293b', 0.6)
-                              : alpha('#ffffff', 0.9),
-                            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                            minHeight: 500
-                          }}
-                        >
-                          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                            <StatusChip status={status} />
-                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                              {milestones.filter(m => m.status === status).length}
-                            </Typography>
-                          </Stack>
-                          <Stack spacing={2}>
-                            {milestones
-                              .filter(m => m.status === status)
-                              .map((milestone, index) => (
-                                <Slide key={milestone._id} direction="up" in timeout={300 + index * 50}>
-                                  <MilestoneCard
-                                    status={milestone.status}
-                                    onClick={() => {
-                                      setSelectedMilestone(milestone);
-                                      fetchMilestoneDetails(milestone._id);
-                                    }}
-                                  >
-                                    <CardContent sx={{ p: 2 }}>
-                                      <Stack spacing={1}>
-                                        <Stack direction="row" justifyContent="space-between" alignItems="start">
-                                          <Box sx={{ flex: 1 }}>
-                                            <Typography 
-                                              variant="subtitle1" 
-                                              className="milestone-title"
-                                              sx={{ 
-                                                fontWeight: 600,
-                                                transition: 'color 0.3s ease'
-                                              }}
-                                            >
-                                              {milestone.name}
-                                            </Typography>
-                                            <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.5 }}>
-                                              <MilestoneTypeIcon type={milestone.milestoneType} />
-                                              <Typography variant="caption" color="text.secondary">
-                                                {milestone.milestoneType}
-                                              </Typography>
-                                            </Stack>
-                                          </Box>
-                                          <IconButton
-                                            size="small"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setMenuAnchor(e.currentTarget);
-                                              setSelectedMilestoneForMenu(milestone);
-                                            }}
-                                          >
-                                            <MoreVertIcon fontSize="small" />
-                                          </IconButton>
-                                        </Stack>
-                                        
-                                        <Box>
-                                          <AnimatedProgress 
-                                            variant="determinate" 
-                                            value={milestone.completionPercentage || 0}
-                                          />
-                                          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                                            {milestone.completionPercentage || 0}% complete
-                                          </Typography>
-                                        </Box>
-                                        
-                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                          <Typography variant="caption" color="text.secondary">
-                                            Due: {formatDate(milestone.plannedEndDate)}
-                                          </Typography>
-                                          <PriorityChip priority={milestone.priority} />
-                                        </Stack>
-                                        
-                                        {milestone.teamMembers?.length > 0 && (
-                                          <AvatarGroup max={3} sx={{ justifyContent: 'flex-start' }}>
-                                            {milestone.teamMembers.map((member, idx) => (
-                                              <Avatar
-                                                key={idx}
-                                                sx={{ 
-                                                  width: 24, 
-                                                  height: 24,
-                                                  fontSize: '0.75rem',
-                                                  bgcolor: theme.palette.primary.main
-                                                }}
-                                              >
-                                                {member.name?.charAt(0).toUpperCase()}
-                                              </Avatar>
-                                            ))}
-                                          </AvatarGroup>
-                                        )}
-                                      </Stack>
-                                    </CardContent>
-                                  </MilestoneCard>
-                                </Slide>
-                              ))}
-                          </Stack>
-                        </Paper>
-                      </Grid>
-                    ))}
-                  </Grid>
+                  <DragDropContext onDragEnd={handleDragEnd}>
+                    <KanbanContainer>
+                      <KanbanGrid>
+                        {Object.keys(STATUS_CONFIG).map((status) => (
+                          <KanbanColumnComponent
+                            key={status}
+                            status={status}
+                            milestones={milestonesByStatus[status] || []}
+                            onMilestoneClick={(milestone) => {
+                              setSelectedMilestone(milestone);
+                              fetchMilestoneDetails(milestone._id);
+                            }}
+                            onMilestoneMenu={(milestoneId, anchor) => {
+                              const milestone = milestones.find(m => m._id === milestoneId);
+                              setSelectedMilestoneForMenu(milestone);
+                              setMenuAnchor(anchor);
+                            }}
+                          />
+                        ))}
+                      </KanbanGrid>
+                    </KanbanContainer>
+                  </DragDropContext>
                 )}
 
                 {viewMode === 'list' && (
@@ -1326,6 +1707,9 @@ const ProductMilestonesPage = () => {
                                       variant="determinate" 
                                       value={milestone.completionPercentage || 0}
                                     />
+                                    <Typography variant="caption" color="text.secondary">
+                                      {milestone.completionPercentage || 0}% complete
+                                    </Typography>
                                   </Stack>
                                 </Grid>
                                 <Grid item xs={12} md={3}>
@@ -1334,19 +1718,25 @@ const ProductMilestonesPage = () => {
                                       Timeline
                                     </Typography>
                                     <Typography variant="body2">
-                                      {formatDate(milestone.plannedStartDate)} - {formatDate(milestone.plannedEndDate)}
+                                      {milestone.plannedStartDate ? new Date(milestone.plannedStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'} - {milestone.plannedEndDate ? new Date(milestone.plannedEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                                     </Typography>
-                                    {calculateDaysRemaining(milestone.plannedEndDate) !== null && (
-                                      <Typography 
-                                        variant="caption" 
-                                        color={calculateDaysRemaining(milestone.plannedEndDate) < 0 ? 'error' : 'text.secondary'}
-                                      >
-                                        {calculateDaysRemaining(milestone.plannedEndDate) < 0
-                                          ? `${Math.abs(calculateDaysRemaining(milestone.plannedEndDate))} days overdue`
-                                          : `${calculateDaysRemaining(milestone.plannedEndDate)} days remaining`
-                                        }
-                                      </Typography>
-                                    )}
+                                    {milestone.plannedEndDate && (() => {
+                                      const today = new Date();
+                                      const end = new Date(milestone.plannedEndDate);
+                                      const diffTime = end - today;
+                                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                      return (
+                                        <Typography 
+                                          variant="caption" 
+                                          color={diffDays < 0 ? 'error' : 'text.secondary'}
+                                        >
+                                          {diffDays < 0
+                                            ? `${Math.abs(diffDays)} days overdue`
+                                            : `${diffDays} days remaining`
+                                          }
+                                        </Typography>
+                                      );
+                                    })()}
                                   </Stack>
                                 </Grid>
                                 <Grid item xs={12} md={2}>
@@ -1399,7 +1789,13 @@ const ProductMilestonesPage = () => {
                               .filter(m => m.quarter === quarter._id)
                               .map((milestone) => {
                                 const progress = milestone.completionPercentage || 0;
-                                const daysRemaining = calculateDaysRemaining(milestone.plannedEndDate);
+                                const daysRemaining = (() => {
+                                  if (!milestone.plannedEndDate) return null;
+                                  const today = new Date();
+                                  const end = new Date(milestone.plannedEndDate);
+                                  const diffTime = end - today;
+                                  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                })();
                                 
                                 return (
                                   <TimelineBar
@@ -1457,14 +1853,18 @@ const ProductMilestonesPage = () => {
                               })}
                           </Stack>
                         </Box>
-                      ))}
+                      )) || (
+                        <Typography color="text.secondary" textAlign="center">
+                          No quarterly breakdown data available
+                        </Typography>
+                      )}
                     </Stack>
                   </Paper>
                 )}
               </>
             )}
 
-            {/* Milestone Details Drawer */}
+            {/* Milestone Details Dialog */}
             {selectedMilestone && (
               <Dialog
                 open={!!selectedMilestone}
@@ -1579,38 +1979,44 @@ const ProductMilestonesPage = () => {
                           <Stack spacing={2}>
                             <Box>
                               <Typography variant="caption" color="text.secondary">Planned Start</Typography>
-                              <Typography>{formatDate(selectedMilestone.plannedStartDate)}</Typography>
+                              <Typography>{selectedMilestone.plannedStartDate ? new Date(selectedMilestone.plannedStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}</Typography>
                             </Box>
                             <Box>
                               <Typography variant="caption" color="text.secondary">Planned End</Typography>
-                              <Typography>{formatDate(selectedMilestone.plannedEndDate)}</Typography>
+                              <Typography>{selectedMilestone.plannedEndDate ? new Date(selectedMilestone.plannedEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}</Typography>
                             </Box>
                             {selectedMilestone.actualStartDate && (
                               <Box>
                                 <Typography variant="caption" color="text.secondary">Actual Start</Typography>
-                                <Typography>{formatDate(selectedMilestone.actualStartDate)}</Typography>
+                                <Typography>{new Date(selectedMilestone.actualStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Typography>
                               </Box>
                             )}
                             {selectedMilestone.actualEndDate && (
                               <Box>
                                 <Typography variant="caption" color="text.secondary">Actual End</Typography>
-                                <Typography>{formatDate(selectedMilestone.actualEndDate)}</Typography>
+                                <Typography>{new Date(selectedMilestone.actualEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Typography>
                               </Box>
                             )}
-                            {calculateDaysRemaining(selectedMilestone.plannedEndDate) !== null && (
-                              <Box>
-                                <Typography variant="caption" color="text.secondary">Status</Typography>
-                                <Typography 
-                                  color={calculateDaysRemaining(selectedMilestone.plannedEndDate) < 0 ? 'error' : 'success'}
-                                  sx={{ fontWeight: 600 }}
-                                >
-                                  {calculateDaysRemaining(selectedMilestone.plannedEndDate) < 0
-                                    ? `${Math.abs(calculateDaysRemaining(selectedMilestone.plannedEndDate))} days overdue`
-                                    : `${calculateDaysRemaining(selectedMilestone.plannedEndDate)} days remaining`
-                                  }
-                                </Typography>
-                              </Box>
-                            )}
+                            {selectedMilestone.plannedEndDate && (() => {
+                              const today = new Date();
+                              const end = new Date(selectedMilestone.plannedEndDate);
+                              const diffTime = end - today;
+                              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                              return (
+                                <Box>
+                                  <Typography variant="caption" color="text.secondary">Status</Typography>
+                                  <Typography 
+                                    color={diffDays < 0 ? 'error' : 'success'}
+                                    sx={{ fontWeight: 600 }}
+                                  >
+                                    {diffDays < 0
+                                      ? `${Math.abs(diffDays)} days overdue`
+                                      : `${diffDays} days remaining`
+                                    }
+                                  </Typography>
+                                </Box>
+                              );
+                            })()}
                           </Stack>
                         </Paper>
                       </Grid>
