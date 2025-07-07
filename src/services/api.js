@@ -1,5 +1,5 @@
 // src/services/api.js
-// Axios instance for making API calls to the backend.
+// Enhanced Axios instance for making API calls to the backend with comprehensive fundraising support
 import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001/api/horizon';
@@ -238,27 +238,197 @@ export const updateBudget = (id, budgetData) => api.put(`/advanced/budgets/${id}
 export const deleteBudget = (id) => api.delete(`/advanced/budgets/${id}`);
 export const getBudgetVsActualsReport = (params) => api.get('/advanced/reports/budget-vs-actuals', { params });
 
-// --- Fundraising Module (from /fundraising routes) ---
+// =============================================================================
+// ENHANCED FUNDRAISING MODULE - WITH CALCULATION SUPPORT
+// =============================================================================
+
+// --- ENHANCED FUNDRAISING DASHBOARD ---
+
+/**
+ * Get comprehensive fundraising dashboard with calculations
+ * @returns {Promise<AxiosResponse>} Dashboard with round stats, investor metrics, cap table summary
+ */
+export const getFundraisingDashboard = () => api.get('/fundraising/dashboard');
+
+// --- ENHANCED ROUND MANAGEMENT ---
+
+/**
+ * Create a new fundraising round with automatic valuation calculations
+ * @param {object} roundData - Round data with calculation fields
+ * @param {string} roundData.name - Round name
+ * @param {number} roundData.targetAmount - Amount to raise
+ * @param {number} roundData.equityPercentageOffered - Equity % to give away
+ * @param {number} roundData.existingSharesPreRound - Current founder shares
+ * @param {string} [roundData.currency] - Currency (defaults to org currency)
+ * @param {string} [roundData.roundType] - Type of round
+ * @returns {Promise<AxiosResponse>} Enhanced round with calculated valuations
+ */
 export const createRound = (roundData) => api.post('/fundraising/rounds', roundData);
+
+/**
+ * Get all fundraising rounds with enhanced progress data
+ * @returns {Promise<AxiosResponse>} Array of rounds with formattedValuation, progressSummary
+ */
 export const getRounds = () => api.get('/fundraising/rounds');
+
+/**
+ * Get single round with comprehensive data and related investors
+ * @param {string} id - Round ID
+ * @returns {Promise<AxiosResponse>} Round with investors, cap table entries, validation
+ */
 export const getRoundById = (id) => api.get(`/fundraising/rounds/${id}`);
+
+/**
+ * Update round with potential recalculation of valuations
+ * @param {string} id - Round ID
+ * @param {object} roundData - Updated round data
+ * @returns {Promise<AxiosResponse>} Updated round with recalculation status
+ */
 export const updateRound = (id, roundData) => api.put(`/fundraising/rounds/${id}`, roundData);
+
+/**
+ * Delete round with comprehensive cleanup
+ * @param {string} id - Round ID
+ * @returns {Promise<AxiosResponse>} Deletion confirmation
+ */
 export const deleteRound = (id) => api.delete(`/fundraising/rounds/${id}`);
 
+// --- NEW ROUND CALCULATION & PREVIEW ENDPOINTS ---
+
+/**
+ * Preview investment impact before actual investment
+ * @param {string} roundId - Round ID
+ * @param {object} investmentData - Investment details
+ * @param {number} investmentData.investmentAmount - Amount to invest
+ * @returns {Promise<AxiosResponse>} Impact preview with shares, equity %, new totals
+ */
+export const previewInvestmentImpact = (roundId, investmentData) => 
+  api.post(`/fundraising/rounds/${roundId}/preview-investment`, investmentData);
+
+/**
+ * Manually trigger round metrics recalculation
+ * @param {string} roundId - Round ID
+ * @returns {Promise<AxiosResponse>} Updated round metrics and calculation results
+ */
+export const recalculateRoundMetrics = (roundId) => 
+  api.post(`/fundraising/rounds/${roundId}/recalculate`);
+
+// --- ENHANCED INVESTOR MANAGEMENT ---
+
+/**
+ * Add investor with automatic equity allocation calculation
+ * @param {object} investorData - Investor data
+ * @param {string} investorData.name - Investor name
+ * @param {number} investorData.totalCommittedAmount - Total commitment
+ * @param {string} investorData.roundId - Associated round ID
+ * @param {string} investorData.investmentVehicle - SAFE, Equity, etc.
+ * @returns {Promise<AxiosResponse>} Investor with calculated equity allocation
+ */
 export const addInvestor = (investorData) => api.post('/fundraising/investors', investorData);
+
+/**
+ * Get all investors with enhanced investment summary data
+ * @param {object} [params] - Query parameters
+ * @param {string} [params.roundId] - Filter by round ID
+ * @returns {Promise<AxiosResponse>} Array of investors with investmentSummary
+ */
 export const getInvestors = (params) => api.get('/fundraising/investors', { params }); // Used by getAvailableInvestors
+
+/**
+ * Get single investor with comprehensive investment data
+ * @param {string} id - Investor ID
+ * @returns {Promise<AxiosResponse>} Investor with investment summary, cap table entry
+ */
 export const getInvestorById = (id) => api.get(`/fundraising/investors/${id}`);
+
+/**
+ * Update investor with potential equity recalculation
+ * @param {string} id - Investor ID
+ * @param {object} investorData - Updated investor data
+ * @returns {Promise<AxiosResponse>} Updated investor with recalculation status
+ */
 export const updateInvestor = (id, investorData) => api.put(`/fundraising/investors/${id}`, investorData);
+
+/**
+ * Delete investor with comprehensive cleanup of cap table and round data
+ * @param {string} id - Investor ID
+ * @returns {Promise<AxiosResponse>} Deletion confirmation
+ */
 export const deleteInvestor = (id) => api.delete(`/fundraising/investors/${id}`);
 
+// --- ENHANCED TRANCHE MANAGEMENT ---
+
+/**
+ * Add tranche to investor with share allocation calculation
+ * @param {string} investorId - Investor ID
+ * @param {object} trancheData - Tranche data
+ * @param {number} trancheData.trancheNumber - Tranche number
+ * @param {number} trancheData.agreedAmount - Agreed amount
+ * @param {number} [trancheData.receivedAmount] - Amount actually received
+ * @param {string} [trancheData.paymentMethod] - Payment method
+ * @returns {Promise<AxiosResponse>} Updated investor with new tranche
+ */
 export const addTranche = (investorId, trancheData) => api.post(`/fundraising/investors/${investorId}/tranches`, trancheData);
+
+/**
+ * Update tranche with payment processing and equity allocation
+ * @param {string} investorId - Investor ID
+ * @param {string} trancheId - Tranche ID
+ * @param {object} trancheData - Updated tranche data
+ * @param {number} [trancheData.receivedAmount] - Amount received
+ * @param {string} [trancheData.paymentMethod] - Payment method
+ * @param {string} [trancheData.transactionReference] - Transaction reference
+ * @returns {Promise<AxiosResponse>} Updated investor with payment processing results
+ */
 export const updateTranche = (investorId, trancheId, trancheData) => api.put(`/fundraising/investors/${investorId}/tranches/${trancheId}`, trancheData);
+
+/**
+ * Delete tranche with payment and equity cleanup
+ * @param {string} investorId - Investor ID
+ * @param {string} trancheId - Tranche ID
+ * @returns {Promise<AxiosResponse>} Updated investor after tranche removal
+ */
 export const deleteTranche = (investorId, trancheId) => api.delete(`/fundraising/investors/${investorId}/tranches/${trancheId}`);
 
+// --- ENHANCED CAP TABLE MANAGEMENT ---
+
+/**
+ * Add cap table entry with automatic calculations
+ * @param {object} entryData - Cap table entry data
+ * @param {string} entryData.shareholderName - Shareholder name
+ * @param {string} entryData.shareholderType - Founder, Investor, etc.
+ * @param {number} entryData.numberOfShares - Number of shares
+ * @param {string} entryData.securityType - Common Stock, Preferred, etc.
+ * @returns {Promise<AxiosResponse>} Cap table entry with formattedInfo, ROI
+ */
 export const addCapTableEntry = (entryData) => api.post('/fundraising/captable', entryData);
+
+/**
+ * Get enhanced cap table summary with statistics and equity percentages
+ * @returns {Promise<AxiosResponse>} Enhanced entries with summary stats, ROI calculations
+ */
 export const getCapTableSummary = () => api.get('/fundraising/captable');
+
+/**
+ * Get single cap table entry with enhanced data
+ * @param {string} id - Cap table entry ID
+ * @returns {Promise<AxiosResponse>} Entry with formattedInfo, ROI calculations
+ */
 export const getCapTableEntryById = (id) => api.get(`/fundraising/captable/${id}`);
+
+/**
+ * Update cap table entry with value recalculation
+ * @param {string} id - Cap table entry ID
+ * @param {object} entryData - Updated entry data
+ * @returns {Promise<AxiosResponse>} Updated entry with recalculated values
+ */
 export const updateCapTableEntry = (id, entryData) => api.put(`/fundraising/captable/${id}`, entryData);
+
+/**
+ * Delete cap table entry with equity percentage adjustment
+ * @param {string} id - Cap table entry ID
+ * @returns {Promise<AxiosResponse>} Deletion confirmation
+ */
 export const deleteCapTableEntry = (id) => api.delete(`/fundraising/captable/${id}`);
 
 // --- ESOP Grants (Advanced Features Routes) ---

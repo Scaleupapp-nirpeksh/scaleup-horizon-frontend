@@ -1,9 +1,10 @@
-// src/components/fundraising/RoundsSection.jsx
+// src/components/fundraising/RoundsSection.jsx - ENHANCED FULL VERSION
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Button, Grid, Paper, IconButton, Tooltip, CircularProgress, 
   Card, CardContent, Avatar, Chip, Dialog, DialogTitle, DialogContent, DialogActions, 
-  alpha, useTheme, Grow, Stack, LinearProgress, Fade, Skeleton, Badge
+  alpha, useTheme, Grow, Stack, LinearProgress, Fade, Skeleton, Badge, Alert,
+  TextField, InputAdornment, Divider, Menu, MenuItem
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
@@ -21,9 +22,22 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DescriptionIcon from '@mui/icons-material/Description';
+import CalculateIcon from '@mui/icons-material/Calculate';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PeopleIcon from '@mui/icons-material/People';
+import ShareIcon from '@mui/icons-material/Share';
+import TimelineIcon from '@mui/icons-material/Timeline';
 
 import RoundForm from './RoundForm';
-import { getRounds, deleteRound } from '../../services/api';
+import { 
+  getRounds, 
+  deleteRound, 
+  previewInvestmentImpact, 
+  recalculateRoundMetrics,
+  getFundraisingDashboard 
+} from '../../services/api';
 import AlertMessage from '../common/AlertMessage';
 
 // Enhanced styled components
@@ -141,22 +155,116 @@ const EmptyStateContainer = styled(Box)(({ theme }) => ({
   border: `2px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
 }));
 
+const InvestmentPreviewDialog = ({ open, onClose, round }) => {
+  const [investmentAmount, setInvestmentAmount] = useState('');
+  const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handlePreview = async () => {
+    if (!investmentAmount || !round) return;
+    
+    setLoading(true);
+    try {
+      const response = await previewInvestmentImpact(round._id, { 
+        investmentAmount: parseFloat(investmentAmount) 
+      });
+      setPreview(response.data);
+    } catch (error) {
+      console.error('Preview error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    if (!amount) return '₹0';
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(1)}Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    return `₹${amount.toLocaleString()}`;
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Investment Impact Preview - {round?.name}</DialogTitle>
+      <DialogContent>
+        <TextField
+          fullWidth
+          label="Investment Amount (₹)"
+          type="number"
+          value={investmentAmount}
+          onChange={(e) => setInvestmentAmount(e.target.value)}
+          sx={{ mb: 3, mt: 1 }}
+          InputProps={{
+            startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+          }}
+        />
+        
+        <Button 
+          variant="contained" 
+          onClick={handlePreview}
+          disabled={!investmentAmount || loading}
+          startIcon={loading ? <CircularProgress size={20} /> : <CalculateIcon />}
+          sx={{ mb: 3 }}
+        >
+          {loading ? 'Calculating...' : 'Preview Impact'}
+        </Button>
+
+        {preview && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <Typography variant="h6" gutterBottom>Investment Impact</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Typography variant="body2" color="text.secondary">Shares Allocated</Typography>
+                <Typography variant="h6">{preview.sharesAllocated?.toLocaleString()}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body2" color="text.secondary">Equity Percentage</Typography>
+                <Typography variant="h6">{preview.equityPercentage?.toFixed(2)}%</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body2" color="text.secondary">New Total Raised</Typography>
+                <Typography variant="h6">{formatCurrency(preview.newTotalRaised)}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body2" color="text.secondary">Progress</Typography>
+                <Typography variant="h6">{preview.newProgressPercentage?.toFixed(1)}%</Typography>
+              </Grid>
+            </Grid>
+          </Alert>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const RoundsSection = () => {
   const theme = useTheme();
   const [rounds, setRounds] = useState([]);
+  const [dashboardData, setDashboardData] = useState(null);
   const [roundToEdit, setRoundToEdit] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [showFormDialog, setShowFormDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null, name: '' });
+  const [previewDialog, setPreviewDialog] = useState({ open: false, round: null });
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedRound, setSelectedRound] = useState(null);
 
-  const fetchRounds = useCallback(async () => {
+  const fetchRoundsData = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await getRounds();
-      setRounds(response.data || []);
+      const [roundsRes, dashboardRes] = await Promise.all([
+        getRounds(),
+        getFundraisingDashboard()
+      ]);
+      
+      setRounds(roundsRes.data || []);
+      setDashboardData(dashboardRes.data || null);
     } catch (error) {
-      console.error("Error fetching rounds:", error);
+      console.error("Error fetching rounds data:", error);
       setMessage({ type: 'error', text: 'Could not load fundraising rounds.' });
     } finally {
       setLoading(false);
@@ -164,17 +272,11 @@ const RoundsSection = () => {
   }, []);
 
   useEffect(() => {
-    fetchRounds();
-  }, [fetchRounds]);
-
-  // Calculate summary metrics
-  const totalTarget = rounds.reduce((sum, round) => sum + (round.targetAmount || 0), 0);
-  const totalReceived = rounds.reduce((sum, round) => sum + (round.totalFundsReceived || 0), 0);
-  const openRounds = rounds.filter(round => round.status === 'Open').length;
-  const closedRounds = rounds.filter(round => round.status === 'Closed').length;
+    fetchRoundsData();
+  }, [fetchRoundsData]);
 
   const handleRoundSaved = (savedRound) => {
-    fetchRounds();
+    fetchRoundsData();
     setRoundToEdit(null);
     setShowFormDialog(false);
     setMessage({ type: 'success', text: `Round "${savedRound.name}" saved successfully.` });
@@ -184,10 +286,24 @@ const RoundsSection = () => {
   const handleEditRound = (round) => {
     setRoundToEdit(round);
     setShowFormDialog(true);
+    setAnchorEl(null);
+  };
+
+  const handleRecalculateMetrics = async (roundId) => {
+    try {
+      await recalculateRoundMetrics(roundId);
+      setMessage({ type: 'success', text: 'Round metrics recalculated successfully.' });
+      fetchRoundsData();
+    } catch (error) {
+      console.error("Error recalculating metrics:", error);
+      setMessage({ type: 'error', text: 'Could not recalculate round metrics.' });
+    }
+    setAnchorEl(null);
   };
 
   const handleOpenDeleteDialog = (id, name) => {
     setDeleteDialog({ open: true, id, name });
+    setAnchorEl(null);
   };
 
   const handleCloseDeleteDialog = () => {
@@ -199,13 +315,23 @@ const RoundsSection = () => {
     try {
       await deleteRound(deleteDialog.id);
       setMessage({ type: 'success', text: `Round "${deleteDialog.name}" deleted.` });
-      fetchRounds();
+      fetchRoundsData();
     } catch (error) {
       console.error("Error deleting round:", error);
       setMessage({ type: 'error', text: 'Could not delete round.' });
     } finally {
       handleCloseDeleteDialog();
     }
+  };
+
+  const handleMenuClick = (event, round) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRound(round);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRound(null);
   };
 
   const formatDate = (date) => {
@@ -217,9 +343,16 @@ const RoundsSection = () => {
     });
   };
 
+  const formatCurrency = (amount) => {
+    if (!amount || amount === 0) return '₹0';
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(1)}Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    return `₹${amount.toLocaleString()}`;
+  };
+
   return (
     <Box>
-      {/* Header Section */}
+      {/* Enhanced Header Section */}
       <Stack spacing={3} sx={{ mb: 4 }}>
         <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'stretch', sm: 'center' }} spacing={2}>
           <Box>
@@ -227,115 +360,145 @@ const RoundsSection = () => {
               Funding Rounds
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Track and manage your fundraising milestones
+              Track and manage your fundraising milestones with real-time calculations
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<RocketLaunchIcon />}
-            onClick={() => {
-              setRoundToEdit(null);
-              setShowFormDialog(true);
-            }}
-            sx={{ 
-              borderRadius: '12px', 
-              fontWeight: 600, 
-              px: 3,
-              py: 1.5,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              boxShadow: '0 4px 20px rgba(102, 126, 234, 0.25)',
-              '&:hover': {
-                boxShadow: '0 6px 30px rgba(102, 126, 234, 0.35)',
-              }
-            }}
-          >
-            New Round
-          </Button>
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={fetchRoundsData}
+              disabled={loading}
+              sx={{ borderRadius: '12px' }}
+            >
+              Refresh
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<RocketLaunchIcon />}
+              onClick={() => {
+                setRoundToEdit(null);
+                setShowFormDialog(true);
+              }}
+              sx={{ 
+                borderRadius: '12px', 
+                fontWeight: 600, 
+                px: 3,
+                py: 1.5,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                boxShadow: '0 4px 20px rgba(102, 126, 234, 0.25)',
+                '&:hover': {
+                  boxShadow: '0 6px 30px rgba(102, 126, 234, 0.35)',
+                }
+              }}
+            >
+              New Round
+            </Button>
+          </Stack>
         </Stack>
 
-        {/* Summary Metrics */}
-        <Grid container spacing={2}>
-          <Grid item xs={6} sm={3}>
-            <MetricCard elevation={0}>
-              <Stack spacing={1} alignItems="center">
-                <Avatar sx={{ 
-                  bgcolor: alpha(theme.palette.primary.main, 0.1), 
-                  color: 'primary.main',
-                  width: 40,
-                  height: 40
-                }}>
-                  <GroupWorkIcon />
-                </Avatar>
-                <Typography variant="h4" fontWeight={700}>
-                  {rounds.length}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                  TOTAL ROUNDS
-                </Typography>
-              </Stack>
-            </MetricCard>
+        {/* Enhanced Summary Metrics from Dashboard */}
+        {dashboardData?.overview && (
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={3}>
+              <MetricCard elevation={0}>
+                <Stack spacing={1} alignItems="center">
+                  <Avatar sx={{ 
+                    bgcolor: alpha(theme.palette.primary.main, 0.1), 
+                    color: 'primary.main',
+                    width: 40,
+                    height: 40
+                  }}>
+                    <GroupWorkIcon />
+                  </Avatar>
+                  <Typography variant="h4" fontWeight={700}>
+                    {dashboardData.overview.totalRounds}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                    TOTAL ROUNDS
+                  </Typography>
+                </Stack>
+              </MetricCard>
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <MetricCard elevation={0}>
+                <Stack spacing={1} alignItems="center">
+                  <Avatar sx={{ 
+                    bgcolor: alpha(theme.palette.info.main, 0.1), 
+                    color: 'info.main',
+                    width: 40,
+                    height: 40
+                  }}>
+                    <PlayCircleOutlineIcon />
+                  </Avatar>
+                  <Typography variant="h4" fontWeight={700} color="info.main">
+                    {dashboardData.overview.openRounds}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                    OPEN ROUNDS
+                  </Typography>
+                </Stack>
+              </MetricCard>
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <MetricCard elevation={0}>
+                <Stack spacing={1} alignItems="center">
+                  <Avatar sx={{ 
+                    bgcolor: alpha(theme.palette.warning.main, 0.1), 
+                    color: 'warning.main',
+                    width: 40,
+                    height: 40
+                  }}>
+                    <FlagIcon />
+                  </Avatar>
+                  <Typography variant="h4" fontWeight={700} color="warning.main">
+                    {formatCurrency(dashboardData.overview.totalTargetAmount)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                    TARGET AMOUNT
+                  </Typography>
+                </Stack>
+              </MetricCard>
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <MetricCard elevation={0}>
+                <Stack spacing={1} alignItems="center">
+                  <Avatar sx={{ 
+                    bgcolor: alpha(theme.palette.success.main, 0.1), 
+                    color: 'success.main',
+                    width: 40,
+                    height: 40
+                  }}>
+                    <MonetizationOnIcon />
+                  </Avatar>
+                  <Typography variant="h4" fontWeight={700} color="success.main">
+                    {formatCurrency(dashboardData.overview.totalFundsReceived)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                    TOTAL RAISED
+                  </Typography>
+                </Stack>
+              </MetricCard>
+            </Grid>
           </Grid>
-          <Grid item xs={6} sm={3}>
-            <MetricCard elevation={0}>
-              <Stack spacing={1} alignItems="center">
-                <Avatar sx={{ 
-                  bgcolor: alpha(theme.palette.info.main, 0.1), 
-                  color: 'info.main',
-                  width: 40,
-                  height: 40
-                }}>
-                  <PlayCircleOutlineIcon />
-                </Avatar>
-                <Typography variant="h4" fontWeight={700} color="info.main">
-                  {openRounds}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                  OPEN ROUNDS
-                </Typography>
-              </Stack>
-            </MetricCard>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <MetricCard elevation={0}>
-              <Stack spacing={1} alignItems="center">
-                <Avatar sx={{ 
-                  bgcolor: alpha(theme.palette.warning.main, 0.1), 
-                  color: 'warning.main',
-                  width: 40,
-                  height: 40
-                }}>
-                  <FlagIcon />
-                </Avatar>
-                <Typography variant="h4" fontWeight={700} color="warning.main">
-                  ₹{(totalTarget / 10000000).toFixed(1)}Cr
-                </Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                  TARGET AMOUNT
-                </Typography>
-              </Stack>
-            </MetricCard>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <MetricCard elevation={0}>
-              <Stack spacing={1} alignItems="center">
-                <Avatar sx={{ 
-                  bgcolor: alpha(theme.palette.success.main, 0.1), 
-                  color: 'success.main',
-                  width: 40,
-                  height: 40
-                }}>
-                  <MonetizationOnIcon />
-                </Avatar>
-                <Typography variant="h4" fontWeight={700} color="success.main">
-                  ₹{(totalReceived / 10000000).toFixed(1)}Cr
-                </Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                  TOTAL RAISED
-                </Typography>
-              </Stack>
-            </MetricCard>
-          </Grid>
-        </Grid>
+        )}
+
+        {/* Overall Progress Indicator */}
+        {dashboardData?.overview && dashboardData.overview.totalTargetAmount > 0 && (
+          <Alert severity="info" sx={{ borderRadius: 2 }}>
+            <Typography variant="body2">
+              <strong>Overall Fundraising Progress:</strong> {' '}
+              {formatCurrency(dashboardData.overview.totalFundsReceived)} of {' '}
+              {formatCurrency(dashboardData.overview.totalTargetAmount)} raised {' '}
+              ({dashboardData.overview.overallProgress?.toFixed(1)}% complete)
+            </Typography>
+            <LinearProgress 
+              variant="determinate" 
+              value={dashboardData.overview.overallProgress || 0}
+              sx={{ mt: 1, height: 6, borderRadius: 3 }}
+            />
+          </Alert>
+        )}
       </Stack>
 
       <AlertMessage message={message.text} severity={message.type || 'info'} />
@@ -372,7 +535,7 @@ const RoundsSection = () => {
               Launch Your First Funding Round
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 400, mx: 'auto' }}>
-              Start tracking your fundraising journey by creating your first funding round
+              Start tracking your fundraising journey by creating your first funding round with automatic valuations
             </Typography>
             <Button
               variant="contained"
@@ -390,7 +553,7 @@ const RoundsSection = () => {
         </Fade>
       )}
 
-      {/* Round Cards */}
+      {/* Enhanced Round Cards */}
       {!loading && rounds.length > 0 && (
         <Grid container spacing={3}>
           {rounds.map((round, index) => (
@@ -398,7 +561,7 @@ const RoundsSection = () => {
               <Grow in timeout={200 + index * 100}>
                 <StyledRoundCard>
                   <CardContent sx={{ p: 3 }}>
-                    {/* Header */}
+                    {/* Enhanced Header */}
                     <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 3 }}>
                       <Stack direction="row" spacing={2} alignItems="center" sx={{ flex: 1 }}>
                         <StatusIcon status={round.status}>
@@ -413,13 +576,28 @@ const RoundsSection = () => {
                           })()}
                         </StatusIcon>
                         <Box sx={{ flex: 1 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-                            {round.name}
-                          </Typography>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                              {round.name}
+                            </Typography>
+                            {round.roundType && (
+                              <Chip 
+                                label={round.roundType} 
+                                size="small"
+                                sx={{ 
+                                  height: 20,
+                                  fontSize: '0.7rem',
+                                  backgroundColor: alpha(theme.palette.secondary.main, 0.1),
+                                  color: 'secondary.main'
+                                }}
+                              />
+                            )}
+                          </Stack>
                           <Chip 
                             label={round.status} 
                             size="small"
                             sx={{ 
+                              mt: 0.5,
                               fontWeight: 600,
                               fontSize: '0.75rem',
                               height: 24,
@@ -429,27 +607,16 @@ const RoundsSection = () => {
                           />
                         </Box>
                       </Stack>
-                      <Stack direction="row" spacing={0.5}>
-                        <Tooltip title="Edit Round">
-                          <IconButton size="small" onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditRound(round);
-                          }}>
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete Round">
-                          <IconButton size="small" onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenDeleteDialog(round._id, round.name);
-                          }}>
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
+                      <IconButton 
+                        size="small" 
+                        onClick={(e) => handleMenuClick(e, round)}
+                        sx={{ ml: 1 }}
+                      >
+                        <MoreVertIcon fontSize="small" />
+                      </IconButton>
                     </Stack>
 
-                    {/* Progress Section */}
+                    {/* Enhanced Progress Section */}
                     <Box sx={{ mb: 3 }}>
                       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
                         <Typography variant="body2" color="text.secondary">
@@ -472,7 +639,7 @@ const RoundsSection = () => {
                             Raised
                           </Typography>
                           <Typography variant="h6" fontWeight={700} color="success.main">
-                            ₹{(round.totalFundsReceived / 100000).toFixed(1)}L
+                            {formatCurrency(round.totalFundsReceived)}
                           </Typography>
                         </Box>
                         <Box textAlign="right">
@@ -480,13 +647,13 @@ const RoundsSection = () => {
                             Target
                           </Typography>
                           <Typography variant="h6" fontWeight={700}>
-                            ₹{(round.targetAmount / 100000).toFixed(1)}L
+                            {formatCurrency(round.targetAmount)}
                           </Typography>
                         </Box>
                       </Stack>
                     </Box>
 
-                    {/* Details Grid */}
+                    {/* Enhanced Details Grid */}
                     <Grid container spacing={2} sx={{ mb: 2 }}>
                       <Grid item xs={6}>
                         <Stack direction="row" alignItems="center" spacing={1}>
@@ -516,8 +683,8 @@ const RoundsSection = () => {
                       </Grid>
                     </Grid>
 
-                    {/* Valuation */}
-                    {round.currentValuationPreMoney && (
+                    {/* Enhanced Valuation Display */}
+                    {round.formattedValuation && (
                       <Box sx={{ 
                         p: 2, 
                         borderRadius: 2, 
@@ -525,19 +692,67 @@ const RoundsSection = () => {
                         border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                         mb: 2
                       }}>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <AccountBalanceIcon sx={{ fontSize: 20, color: 'primary.main' }} />
-                          <Box>
+                        <Grid container spacing={2}>
+                          <Grid item xs={6}>
                             <Typography variant="caption" color="text.secondary">
-                              Pre-Money Valuation
+                              Pre-Money
                             </Typography>
                             <Typography variant="body1" fontWeight={600} color="primary.main">
-                              ₹{(round.currentValuationPreMoney / 10000000).toFixed(1)}Cr
+                              {round.formattedValuation.preMoney}
                             </Typography>
-                          </Box>
-                        </Stack>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Typography variant="caption" color="text.secondary">
+                              Post-Money
+                            </Typography>
+                            <Typography variant="body1" fontWeight={600} color="primary.main">
+                              {round.formattedValuation.postMoney}
+                            </Typography>
+                          </Grid>
+                          {round.formattedValuation.pricePerShare !== '₹0' && (
+                            <Grid item xs={12}>
+                              <Divider sx={{ my: 1 }} />
+                              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                <Typography variant="caption" color="text.secondary">
+                                  Price per Share
+                                </Typography>
+                                <Typography variant="body2" fontWeight={600}>
+                                  {round.formattedValuation.pricePerShare}
+                                </Typography>
+                              </Stack>
+                            </Grid>
+                          )}
+                        </Grid>
                       </Box>
                     )}
+
+                    {/* Enhanced Progress Summary */}
+                    {round.progressSummary && (
+                      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          <PeopleIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                          <Typography variant="caption" color="text.secondary">
+                            Investors
+                          </Typography>
+                        </Stack>
+                        <Typography variant="body2" fontWeight={600}>
+                          {round.progressSummary.metrics?.investorCount || 0}
+                        </Typography>
+                      </Stack>
+                    )}
+
+                    {/* Time Information */}
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <TimelineIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                        <Typography variant="caption" color="text.secondary">
+                          Days Open
+                        </Typography>
+                      </Stack>
+                      <Typography variant="body2" fontWeight={600}>
+                        {round.daysOpen || 0} days
+                      </Typography>
+                    </Stack>
 
                     {/* Notes */}
                     {round.notes && (
@@ -562,6 +777,47 @@ const RoundsSection = () => {
           ))}
         </Grid>
       )}
+
+      {/* Enhanced Context Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          sx: { borderRadius: 2, minWidth: 200 }
+        }}
+      >
+        <MenuItem onClick={() => handleEditRound(selectedRound)}>
+          <EditIcon sx={{ mr: 1, fontSize: 18 }} />
+          Edit Round
+        </MenuItem>
+        <MenuItem onClick={() => {
+          setPreviewDialog({ open: true, round: selectedRound });
+          handleMenuClose();
+        }}>
+          <VisibilityIcon sx={{ mr: 1, fontSize: 18 }} />
+          Preview Investment
+        </MenuItem>
+        <MenuItem onClick={() => handleRecalculateMetrics(selectedRound?._id)}>
+          <RefreshIcon sx={{ mr: 1, fontSize: 18 }} />
+          Recalculate Metrics
+        </MenuItem>
+        <Divider />
+        <MenuItem 
+          onClick={() => handleOpenDeleteDialog(selectedRound?._id, selectedRound?.name)}
+          sx={{ color: 'error.main' }}
+        >
+          <DeleteIcon sx={{ mr: 1, fontSize: 18 }} />
+          Delete Round
+        </MenuItem>
+      </Menu>
+
+      {/* Investment Preview Dialog */}
+      <InvestmentPreviewDialog
+        open={previewDialog.open}
+        onClose={() => setPreviewDialog({ open: false, round: null })}
+        round={previewDialog.round}
+      />
 
       {/* Round Form Dialog */}
       <Dialog

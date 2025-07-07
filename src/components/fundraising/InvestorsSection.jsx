@@ -1,34 +1,30 @@
-// src/components/fundraising/InvestorsSection.jsx
+// src/components/fundraising/InvestorsSection.jsx - COMPLETE FIXED VERSION
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Button, Grid, Paper, List, ListItem, ListItemText,
-  IconButton, Tooltip, Divider, CircularProgress, Card, CardHeader, CardContent, Avatar, Chip,
-  Dialog, DialogTitle, DialogContent, DialogActions, alpha, useTheme, Grow, Stack,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Select, MenuItem, 
-  FormControl, InputLabel, LinearProgress, Fade, InputAdornment, TextField, Skeleton
+  Box, Typography, Button, Grid, Paper, IconButton, Tooltip, CircularProgress,
+  Card, CardContent, Avatar, Chip, Collapse, LinearProgress, Stack, alpha,
+  useTheme, Grow, Fade, Dialog, DialogTitle, DialogContent, DialogActions,
+  TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import PeopleIcon from '@mui/icons-material/People';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import BusinessIcon from '@mui/icons-material/Business';
-import InfoIcon from '@mui/icons-material/Info';
-import GroupWorkIcon from '@mui/icons-material/GroupWork';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import PhoneIcon from '@mui/icons-material/Phone';
-import EmailIcon from '@mui/icons-material/Email';
+import PeopleIcon from '@mui/icons-material/People';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import HandshakeIcon from '@mui/icons-material/Handshake';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import PaymentIcon from '@mui/icons-material/Payment';
+import ShareIcon from '@mui/icons-material/Share';
+
 import InvestorForm from './InvestorForm';
 import { getInvestors, deleteInvestor, getRounds } from '../../services/api';
 import AlertMessage from '../common/AlertMessage';
@@ -39,71 +35,80 @@ const StyledInvestorCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.spacing(3),
   transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
   border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
-  overflow: 'hidden',
   backgroundColor: theme.palette.background.paper,
+  overflow: 'hidden',
   position: 'relative',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '4px',
-    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
-    opacity: 0,
-    transition: 'opacity 0.3s ease',
-  },
   '&:hover': {
-    transform: 'translateY(-8px)',
-    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.12)',
-    '&::before': {
-      opacity: 1,
-    }
-  },
+    transform: 'translateY(-4px)',
+    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.08)',
+  }
 }));
 
-const StatusBadge = styled(Box)(({ theme, status }) => {
+const MetricCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  borderRadius: theme.spacing(2.5),
+  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)',
+  backdropFilter: 'blur(10px)',
+  border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+  transition: 'all 0.3s ease',
+  textAlign: 'center',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+  }
+}));
+
+const MetricItem = styled(Box)(({ theme }) => ({
+  textAlign: 'center',
+  padding: theme.spacing(1),
+}));
+
+const StatusChip = styled(Chip)(({ theme, status }) => {
   const getStatusColor = () => {
     switch(status) {
-      case 'Invested': return { bg: '#10b981', text: '#fff' };
-      case 'Hard Committed': return { bg: '#3b82f6', text: '#fff' };
-      case 'Soft Committed': return { bg: '#6366f1', text: '#fff' };
-      case 'Pitched': return { bg: '#8b5cf6', text: '#fff' };
-      case 'Declined': return { bg: '#ef4444', text: '#fff' };
-      case 'Introduced': return { bg: '#64748b', text: '#fff' };
-      default: return { bg: '#94a3b8', text: '#fff' };
+      case 'Invested': return { bg: theme.palette.success.main, text: '#fff' };
+      case 'Hard Committed': return { bg: theme.palette.info.main, text: '#fff' };
+      case 'Soft Committed': return { bg: theme.palette.warning.main, text: '#fff' };
+      case 'Negotiating': return { bg: theme.palette.secondary.main, text: '#fff' };
+      case 'Pitched': return { bg: theme.palette.primary.main, text: '#fff' };
+      case 'Declined': return { bg: theme.palette.error.main, text: '#fff' };
+      case 'Passed': return { bg: theme.palette.grey[600], text: '#fff' };
+      default: return { bg: theme.palette.grey[300], text: theme.palette.text.primary };
     }
   };
 
   const colors = getStatusColor();
-
+  
   return {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    padding: '6px 12px',
-    borderRadius: '12px',
     backgroundColor: colors.bg,
     color: colors.text,
     fontSize: '0.75rem',
+    height: '28px',
     fontWeight: 600,
-    letterSpacing: '0.5px',
-    textTransform: 'uppercase',
-    boxShadow: `0 2px 8px ${alpha(colors.bg, 0.3)}`,
   };
 });
 
-const MetricBox = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderRadius: theme.spacing(2),
-  background: alpha(theme.palette.grey[100], 0.5),
-  border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    background: alpha(theme.palette.primary.main, 0.05),
-    borderColor: alpha(theme.palette.primary.main, 0.2),
-  }
-}));
+const TrancheStatusChip = styled(Chip)(({ theme, status }) => {
+  const getTrancheStatusColor = () => {
+    switch(status) {
+      case 'Fully Received': return { bg: theme.palette.success.main, text: '#fff' };
+      case 'Partially Received': return { bg: theme.palette.warning.main, text: '#fff' };
+      case 'Pending': return { bg: theme.palette.grey[400], text: '#fff' };
+      case 'Cancelled': return { bg: theme.palette.error.main, text: '#fff' };
+      default: return { bg: theme.palette.grey[300], text: theme.palette.text.primary };
+    }
+  };
+
+  const colors = getTrancheStatusColor();
+  
+  return {
+    backgroundColor: colors.bg,
+    color: colors.text,
+    fontSize: '0.7rem',
+    height: '24px',
+    fontWeight: 600,
+  };
+});
 
 const EmptyStateContainer = styled(Box)(({ theme }) => ({
   textAlign: 'center',
@@ -111,22 +116,6 @@ const EmptyStateContainer = styled(Box)(({ theme }) => ({
   borderRadius: theme.spacing(3),
   background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.secondary.main, 0.03)} 100%)`,
   border: `2px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
-}));
-
-const SearchBar = styled(TextField)(({ theme }) => ({
-  '& .MuiOutlinedInput-root': {
-    borderRadius: theme.spacing(2),
-    backgroundColor: alpha(theme.palette.background.paper, 0.8),
-    backdropFilter: 'blur(10px)',
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      backgroundColor: theme.palette.background.paper,
-    },
-    '&.Mui-focused': {
-      backgroundColor: theme.palette.background.paper,
-      boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
-    }
-  }
 }));
 
 const getStatusIcon = (status) => {
@@ -141,6 +130,293 @@ const getStatusIcon = (status) => {
   }
 };
 
+/**
+ * Enhanced Tranche Row Component
+ */
+const TrancheRow = ({ tranche, index, pricePerShare }) => {
+  const theme = useTheme();
+  const receivedAmount = tranche.receivedAmount || 0;
+  const agreedAmount = tranche.agreedAmount || 0;
+  const progress = agreedAmount > 0 ? (receivedAmount / agreedAmount) * 100 : 0;
+  const calculatedShares = pricePerShare > 0 ? Math.round(receivedAmount / pricePerShare) : 0;
+  
+  const formatCurrency = (amount) => {
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)}Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    return `₹${amount.toLocaleString()}`;
+  };
+  
+  return (
+    <Box sx={{ p: 2, mb: 1, backgroundColor: alpha(theme.palette.primary.main, 0.03), borderRadius: 1 }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+        <Typography variant="subtitle2" fontWeight={600}>
+          Tranche {tranche.trancheNumber}
+        </Typography>
+        <TrancheStatusChip label={tranche.status} status={tranche.status} size="small" />
+      </Stack>
+      
+      <Grid container spacing={2} sx={{ mb: 1 }}>
+        <Grid item xs={4}>
+          <Typography variant="caption" color="text.secondary">Agreed</Typography>
+          <Typography variant="body2" fontWeight={600}>
+            {formatCurrency(agreedAmount)}
+          </Typography>
+        </Grid>
+        <Grid item xs={4}>
+          <Typography variant="caption" color="text.secondary">Received</Typography>
+          <Typography variant="body2" fontWeight={600} color="success.main">
+            {formatCurrency(receivedAmount)}
+          </Typography>
+        </Grid>
+        <Grid item xs={4}>
+          <Typography variant="caption" color="text.secondary">Shares</Typography>
+          <Typography variant="body2" fontWeight={600}>
+            {calculatedShares.toLocaleString()}
+          </Typography>
+        </Grid>
+      </Grid>
+      
+      {/* Progress bar for this tranche */}
+      <LinearProgress 
+        variant="determinate" 
+        value={Math.min(progress, 100)}
+        sx={{ 
+          height: 4,
+          borderRadius: 2,
+          backgroundColor: alpha(theme.palette.primary.main, 0.1),
+          '& .MuiLinearProgress-bar': {
+            borderRadius: 2,
+            backgroundColor: progress >= 100 ? theme.palette.success.main : theme.palette.warning.main
+          }
+        }}
+      />
+      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+        {progress.toFixed(0)}% received
+        {tranche.dateReceived && ` • Paid ${new Date(tranche.dateReceived).toLocaleDateString()}`}
+        {tranche.triggerCondition && ` • ${tranche.triggerCondition}`}
+      </Typography>
+    </Box>
+  );
+};
+
+/**
+ * Enhanced Investor Card Component
+ */
+const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, rounds }) => {
+  const theme = useTheme();
+  
+  // ✅ FIX: Calculate actual received amount from tranches
+  const actualReceivedAmount = investor.tranches?.reduce((sum, t) => sum + (t.receivedAmount || 0), 0) || 0;
+  const totalCommitted = investor.totalCommittedAmount || 0;
+  const commitmentProgress = totalCommitted > 0 ? (actualReceivedAmount / totalCommitted) * 100 : 0;
+  
+  // Get round information
+  const getRoundInfo = (roundId) => {
+    if (typeof roundId === 'object' && roundId._id) {
+      return roundId; // Already populated
+    }
+    return rounds.find(r => r._id === roundId);
+  };
+  
+  const roundInfo = getRoundInfo(investor.roundId);
+  const pricePerShare = roundInfo?.pricePerShare || 0;
+  
+  // ✅ FIX: Calculate shares based on actual received amount
+  const actualShares = pricePerShare > 0 ? Math.round(actualReceivedAmount / pricePerShare) : 0;
+  const allocatedShares = investor.sharesAllocated || 0;
+  
+  const formatCurrency = (amount) => {
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)}Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    return `₹${amount.toLocaleString()}`;
+  };
+  
+  return (
+    <StyledInvestorCard elevation={1}>
+      <CardContent sx={{ p: 3 }}>
+        {/* Header with investor name and status */}
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2 }}>
+          <Box>
+            <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>
+              {investor.name}
+            </Typography>
+            <StatusChip 
+              label={investor.status} 
+              status={investor.status}
+              icon={getStatusIcon(investor.status)}
+            />
+            {investor.entityName && (
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                {investor.entityName}
+              </Typography>
+            )}
+          </Box>
+          
+          <Stack direction="row" spacing={1}>
+            <Tooltip title="View Details">
+              <IconButton size="small" onClick={() => onToggleExpand(investor._id)}>
+                <VisibilityIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit Investor">
+              <IconButton size="small" onClick={() => onEdit(investor)}>
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete Investor">
+              <IconButton size="small" onClick={() => onDelete(investor._id, investor.name)}>
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        </Stack>
+
+        {/* Key metrics */}
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid item xs={6}>
+            <MetricItem>
+              <Typography variant="caption" color="text.secondary">EQUITY ALLOCATED</Typography>
+              <Typography variant="h6" color="primary.main" fontWeight={700}>
+                {investor.equityPercentageAllocated?.toFixed(3) || '0.000'}%
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                @ ₹{pricePerShare.toLocaleString()}/share
+              </Typography>
+            </MetricItem>
+          </Grid>
+          <Grid item xs={6}>
+            <MetricItem>
+              <Typography variant="caption" color="text.secondary">SHARES</Typography>
+              <Typography variant="h6" fontWeight={700}>
+                {actualShares.toLocaleString()}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {allocatedShares > actualShares && `of ${allocatedShares.toLocaleString()} allocated`}
+              </Typography>
+            </MetricItem>
+          </Grid>
+        </Grid>
+
+        {/* ✅ FIX: Enhanced commitment progress */}
+        <Box sx={{ mb: 2 }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+            <Typography variant="caption" color="text.secondary">
+              Commitment Progress
+            </Typography>
+            <Typography variant="caption" fontWeight={600} color={commitmentProgress >= 100 ? 'success.main' : 'warning.main'}>
+              {commitmentProgress.toFixed(0)}%
+            </Typography>
+          </Stack>
+          <LinearProgress 
+            variant="determinate" 
+            value={Math.min(commitmentProgress, 100)}
+            sx={{ 
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: alpha(theme.palette.primary.main, 0.1),
+              '& .MuiLinearProgress-bar': {
+                borderRadius: 4,
+                background: commitmentProgress >= 100 ? 
+                  'linear-gradient(45deg, #4caf50, #66bb6a)' :
+                  'linear-gradient(45deg, #ff9800, #ffb74d)'
+              }
+            }}
+          />
+        </Box>
+
+        {/* ✅ FIX: Enhanced financial summary */}
+        <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+          <Box>
+            <Typography variant="caption" color="text.secondary">Committed</Typography>
+            <Typography variant="body2" fontWeight={600}>
+              {formatCurrency(totalCommitted)}
+            </Typography>
+          </Box>
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography variant="caption" color="text.secondary">Received</Typography>
+            <Typography variant="body2" fontWeight={600} color="success.main">
+              {formatCurrency(actualReceivedAmount)}
+            </Typography>
+          </Box>
+        </Stack>
+
+        {/* ✅ FIX: Enhanced tranches summary */}
+        {investor.tranches && investor.tranches.length > 0 && (
+          <Box>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Typography variant="caption" color="text.secondary">
+                Tranches: {investor.tranches.length} total
+                {investor.tranches.filter(t => t.status === 'Fully Received').length > 0 && 
+                  ` • ${investor.tranches.filter(t => t.status === 'Fully Received').length} received`}
+              </Typography>
+              <Button 
+                size="small" 
+                onClick={() => onToggleExpand(investor._id)}
+                endIcon={isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                sx={{ minWidth: 'auto' }}
+              >
+                {isExpanded ? 'Hide' : 'Show'}
+              </Button>
+            </Stack>
+            
+            {/* Expanded tranche details */}
+            <Collapse in={isExpanded}>
+              <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+                {investor.tranches.map((tranche, index) => (
+                  <TrancheRow 
+                    key={tranche._id || index} 
+                    tranche={tranche} 
+                    index={index} 
+                    pricePerShare={pricePerShare} 
+                  />
+                ))}
+                
+                {/* Summary for multiple tranches */}
+                {investor.tranches.length > 1 && (
+                  <Box sx={{ 
+                    mt: 2, 
+                    p: 2, 
+                    backgroundColor: alpha(theme.palette.success.main, 0.1), 
+                    borderRadius: 1,
+                    border: `1px solid ${alpha(theme.palette.success.main, 0.2)}`
+                  }}>
+                    <Typography variant="subtitle2" fontWeight={600} color="success.main" sx={{ mb: 1 }}>
+                      Total Summary
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={4}>
+                        <Typography variant="caption" color="text.secondary">Total Committed</Typography>
+                        <Typography variant="body2" fontWeight={600}>
+                          {formatCurrency(investor.tranches.reduce((sum, t) => sum + (t.agreedAmount || 0), 0))}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="caption" color="text.secondary">Total Received</Typography>
+                        <Typography variant="body2" fontWeight={600} color="success.main">
+                          {formatCurrency(actualReceivedAmount)}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="caption" color="text.secondary">Total Shares</Typography>
+                        <Typography variant="body2" fontWeight={600}>
+                          {actualShares.toLocaleString()}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                )}
+              </Box>
+            </Collapse>
+          </Box>
+        )}
+      </CardContent>
+    </StyledInvestorCard>
+  );
+};
+
+/**
+ * Enhanced InvestorsSection Component with Corrected Data Display
+ */
 const InvestorsSection = () => {
   const theme = useTheme();
   const [investors, setInvestors] = useState([]);
@@ -152,7 +428,9 @@ const InvestorsSection = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [showFormDialog, setShowFormDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null, name: '' });
+  const [expandedInvestorId, setExpandedInvestorId] = useState(null);
 
+  // ✅ FIX: Enhanced data fetching with proper error handling
   const fetchInvestorsAndRounds = useCallback(async () => {
     setLoading(true);
     try {
@@ -160,10 +438,35 @@ const InvestorsSection = () => {
         getInvestors(selectedRoundFilter ? { roundId: selectedRoundFilter } : {}),
         getRounds()
       ]);
-      setInvestors(investorsRes.data || []);
-      setRounds(roundsRes.data || []);
+      
+      // ✅ FIX: Handle different API response structures
+      const investorsData = Array.isArray(investorsRes.data) ? investorsRes.data : 
+                           investorsRes.data?.investors || [];
+      const roundsData = Array.isArray(roundsRes.data) ? roundsRes.data : 
+                        roundsRes.data?.rounds || [];
+      
+      console.log('🔍 Investors loaded:', investorsData.length);
+      console.log('🔍 Sample investor:', investorsData[0]);
+      
+      // ✅ FIX: Ensure tranches data is properly structured and recalculate totals
+      const processedInvestors = investorsData.map(investor => {
+        const tranches = Array.isArray(investor.tranches) ? investor.tranches : [];
+        const totalReceivedFromTranches = tranches.reduce((sum, t) => sum + (t.receivedAmount || 0), 0);
+        
+        return {
+          ...investor,
+          tranches: tranches,
+          // Ensure received amount is calculated from tranches
+          totalReceivedAmount: totalReceivedFromTranches,
+          actualReceivedAmount: totalReceivedFromTranches // Add this for clarity
+        };
+      });
+      
+      setInvestors(processedInvestors);
+      setRounds(roundsData);
+      
     } catch (error) {
-      console.error("Error fetching investors/rounds:", error);
+      console.error("❌ Error fetching investors/rounds:", error);
       setMessage({ type: 'error', text: 'Could not load investor data.' });
     } finally {
       setLoading(false);
@@ -174,25 +477,70 @@ const InvestorsSection = () => {
     fetchInvestorsAndRounds();
   }, [fetchInvestorsAndRounds]);
 
-  // Filter investors based on search
-  const filteredInvestors = investors.filter(investor => {
-    const searchLower = searchQuery.toLowerCase();
-    return investor.name?.toLowerCase().includes(searchLower) ||
-           investor.entityName?.toLowerCase().includes(searchLower) ||
-           investor.contactPerson?.toLowerCase().includes(searchLower);
-  });
+  // ✅ FIX: Enhanced metrics calculation with proper received amounts
+  const calculateEnhancedMetrics = () => {
+    const filteredInvestors = investors.filter(investor => {
+      const matchesSearch = investor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           investor.entityName?.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    });
 
-  // Calculate summary metrics
-  const totalCommitted = investors.reduce((sum, inv) => sum + (inv.totalCommittedAmount || 0), 0);
-  const totalReceived = investors.reduce((sum, inv) => sum + (inv.totalReceivedAmount || 0), 0);
-  const investedCount = investors.filter(inv => inv.status === 'Invested').length;
+    const totalInvestors = filteredInvestors.length;
+    const totalCommitted = filteredInvestors.reduce((sum, inv) => sum + (inv.totalCommittedAmount || 0), 0);
+    
+    // ✅ FIX: Calculate total received from tranches
+    const totalReceived = filteredInvestors.reduce((sum, inv) => {
+      const trancheReceived = inv.tranches?.reduce((trSum, t) => trSum + (t.receivedAmount || 0), 0) || 0;
+      return sum + trancheReceived;
+    }, 0);
+    
+    const totalShares = filteredInvestors.reduce((sum, inv) => {
+      // Calculate shares from received amounts and round price
+      const roundInfo = rounds.find(r => r._id === inv.roundId || r._id === inv.roundId?._id);
+      const pricePerShare = roundInfo?.pricePerShare || 0;
+      const receivedAmount = inv.tranches?.reduce((trSum, t) => trSum + (t.receivedAmount || 0), 0) || 0;
+      const shares = pricePerShare > 0 ? Math.round(receivedAmount / pricePerShare) : 0;
+      return sum + shares;
+    }, 0);
+    
+    const investedCount = filteredInvestors.filter(inv => {
+      const received = inv.tranches?.reduce((sum, t) => sum + (t.receivedAmount || 0), 0) || 0;
+      return received > 0;
+    }).length;
+
+    return {
+      totalInvestors,
+      totalShares,
+      totalCommitted,
+      totalReceived,
+      avgCommitment: totalInvestors > 0 ? totalCommitted / totalInvestors : 0,
+      conversionRate: totalInvestors > 0 ? (investedCount / totalInvestors) * 100 : 0,
+      collectionRate: totalCommitted > 0 ? (totalReceived / totalCommitted) * 100 : 0
+    };
+  };
+
+  const metrics = calculateEnhancedMetrics();
+
+  // Helper function to format currency
+  const formatCurrency = (amount) => {
+    if (amount >= 10000000) { // 1 Crore
+      return `₹${(amount / 10000000).toFixed(2)}Cr`;
+    } else if (amount >= 100000) { // 1 Lakh
+      return `₹${(amount / 100000).toFixed(1)}L`;
+    } else {
+      return `₹${amount.toLocaleString()}`;
+    }
+  };
 
   const handleInvestorSaved = (savedInvestor) => {
     fetchInvestorsAndRounds();
     setInvestorToEdit(null);
     setShowFormDialog(false);
-    setMessage({ type: 'success', text: `Investor "${savedInvestor.name}" saved successfully.` });
-    setTimeout(() => setMessage({ type: '', text: '' }), 4000);
+    setMessage({ 
+      type: 'success', 
+      text: `Investor "${savedInvestor.name}" saved successfully. Equity allocation: ${savedInvestor.equityPercentageAllocated || 0}%` 
+    });
+    setTimeout(() => setMessage({ type: '', text: '' }), 5000);
   };
 
   const handleEditInvestor = (investor) => {
@@ -212,7 +560,7 @@ const InvestorsSection = () => {
     if (!deleteDialog.id) return;
     try {
       await deleteInvestor(deleteDialog.id);
-      setMessage({ type: 'success', text: `Investor "${deleteDialog.name}" deleted.` });
+      setMessage({ type: 'success', text: `Investor "${deleteDialog.name}" deleted successfully.` });
       fetchInvestorsAndRounds();
     } catch (error) {
       console.error("Error deleting investor:", error);
@@ -221,6 +569,17 @@ const InvestorsSection = () => {
       handleCloseDeleteDialog();
     }
   };
+
+  const toggleInvestorExpansion = (investorId) => {
+    setExpandedInvestorId(expandedInvestorId === investorId ? null : investorId);
+  };
+
+  // Filter investors based on search and round
+  const filteredInvestors = investors.filter(investor => {
+    const matchesSearch = investor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         investor.entityName?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
+  });
 
   return (
     <Box>
@@ -232,12 +591,12 @@ const InvestorsSection = () => {
               Investor Network
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Manage relationships and track commitments
+              Manage relationships, track equity allocations & commitments
             </Typography>
           </Box>
           <Button
             variant="contained"
-            startIcon={<PersonAddIcon />}
+            startIcon={<AddIcon />}
             onClick={() => {
               setInvestorToEdit(null);
               setShowFormDialog(true);
@@ -258,101 +617,124 @@ const InvestorsSection = () => {
           </Button>
         </Stack>
 
-        {/* Summary Cards */}
+        {/* ✅ FIX: Enhanced Summary Metrics */}
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
-            <MetricBox>
-              <Stack spacing={1}>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), width: 32, height: 32 }}>
-                    <PeopleIcon sx={{ fontSize: 18, color: 'primary.main' }} />
-                  </Avatar>
-                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    TOTAL INVESTORS
-                  </Typography>
-                </Stack>
+          <Grid item xs={6} md={3}>
+            <MetricCard elevation={0}>
+              <Stack spacing={1} alignItems="center">
+                <Avatar sx={{ 
+                  bgcolor: alpha(theme.palette.primary.main, 0.1), 
+                  color: 'primary.main',
+                  width: 48,
+                  height: 48
+                }}>
+                  <PeopleIcon />
+                </Avatar>
                 <Typography variant="h4" fontWeight={700}>
-                  {investors.length}
+                  {metrics.totalInvestors}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                  TOTAL INVESTORS
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {metrics.conversionRate.toFixed(1)}% conversion rate
                 </Typography>
               </Stack>
-            </MetricBox>
+            </MetricCard>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <MetricBox>
-              <Stack spacing={1}>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), width: 32, height: 32 }}>
-                    <CheckCircleIcon sx={{ fontSize: 18, color: 'success.main' }} />
-                  </Avatar>
-                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    INVESTED
-                  </Typography>
-                </Stack>
-                <Typography variant="h4" fontWeight={700} color="success.main">
-                  {investedCount}
+          <Grid item xs={6} md={3}>
+            <MetricCard elevation={0}>
+              <Stack spacing={1} alignItems="center">
+                <Avatar sx={{ 
+                  bgcolor: alpha(theme.palette.success.main, 0.1), 
+                  color: 'success.main',
+                  width: 48,
+                  height: 48
+                }}>
+                  <TrendingUpIcon />
+                </Avatar>
+                <Typography variant="h4" fontWeight={700}>
+                  {metrics.totalShares > 1000 ? `${(metrics.totalShares/1000).toFixed(0)}K` : metrics.totalShares}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                  EQUITY ALLOCATED
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {metrics.totalShares} shares
                 </Typography>
               </Stack>
-            </MetricBox>
+            </MetricCard>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <MetricBox>
-              <Stack spacing={1}>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.1), width: 32, height: 32 }}>
-                    <HandshakeIcon sx={{ fontSize: 18, color: 'info.main' }} />
-                  </Avatar>
-                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    COMMITTED
-                  </Typography>
-                </Stack>
-                <Typography variant="h4" fontWeight={700} color="info.main">
-                  ₹{totalCommitted > 10000000 ? `${(totalCommitted / 10000000).toFixed(1)}Cr` : `${(totalCommitted / 100000).toFixed(1)}L`}
+          <Grid item xs={6} md={3}>
+            <MetricCard elevation={0}>
+              <Stack spacing={1} alignItems="center">
+                <Avatar sx={{ 
+                  bgcolor: alpha(theme.palette.info.main, 0.1), 
+                  color: 'info.main',
+                  width: 48,
+                  height: 48
+                }}>
+                  <AccountBalanceIcon />
+                </Avatar>
+                <Typography variant="h4" fontWeight={700}>
+                  {formatCurrency(metrics.totalCommitted)}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                  COMMITTED
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Avg: {formatCurrency(metrics.avgCommitment)}
                 </Typography>
               </Stack>
-            </MetricBox>
+            </MetricCard>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <MetricBox>
-              <Stack spacing={1}>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), width: 32, height: 32 }}>
-                    <AccountBalanceWalletIcon sx={{ fontSize: 18, color: 'success.main' }} />
-                  </Avatar>
-                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    RECEIVED
-                  </Typography>
-                </Stack>
-                <Typography variant="h4" fontWeight={700} color="success.main">
-                  ₹{totalReceived > 10000000 ? `${(totalReceived / 10000000).toFixed(1)}Cr` : `${(totalReceived / 100000).toFixed(1)}L`}
+          <Grid item xs={6} md={3}>
+            <MetricCard elevation={0}>
+              <Stack spacing={1} alignItems="center">
+                <Avatar sx={{ 
+                  bgcolor: alpha(theme.palette.secondary.main, 0.1), 
+                  color: 'secondary.main',
+                  width: 48,
+                  height: 48
+                }}>
+                  <MonetizationOnIcon />
+                </Avatar>
+                <Typography variant="h4" fontWeight={700}>
+                  {formatCurrency(metrics.totalReceived)}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                  RECEIVED
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {metrics.collectionRate.toFixed(1)}% collected
                 </Typography>
               </Stack>
-            </MetricBox>
+            </MetricCard>
           </Grid>
         </Grid>
 
-        {/* Filters */}
+        {/* Search and Filter Controls */}
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-          <SearchBar
+          <TextField
             placeholder="Search investors..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            size="small"
-            sx={{ flex: 1, maxWidth: { sm: 400 } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon />
+                  <SearchIcon sx={{ color: 'text.secondary' }} />
                 </InputAdornment>
               ),
             }}
+            sx={{ flex: 1 }}
           />
-          <FormControl size="small" sx={{ minWidth: 200 }}>
+          <FormControl sx={{ minWidth: 200 }}>
             <InputLabel>Filter by Round</InputLabel>
             <Select
               value={selectedRoundFilter}
               label="Filter by Round"
               onChange={(e) => setSelectedRoundFilter(e.target.value)}
-              sx={{ borderRadius: 2 }}
+              startAdornment={<FilterListIcon sx={{ mr: 1, color: 'text.secondary' }} />}
             >
               <MenuItem value="">All Rounds</MenuItem>
               {rounds.map(round => (
@@ -367,199 +749,76 @@ const InvestorsSection = () => {
 
       {/* Loading State */}
       {loading && (
-        <Grid container spacing={3}>
-          {[1, 2, 3, 4].map((i) => (
-            <Grid item xs={12} sm={6} md={4} key={i}>
-              <Skeleton variant="rectangular" height={300} sx={{ borderRadius: 3 }} />
-            </Grid>
-          ))}
-        </Grid>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
       )}
-      
+
       {/* Empty State */}
       {!loading && filteredInvestors.length === 0 && (
         <Fade in>
           <EmptyStateContainer>
             <Box sx={{ 
-              width: 100, 
-              height: 100, 
+              width: 120, 
+              height: 120, 
               margin: '0 auto 2rem',
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'
             }}>
-              <PeopleIcon sx={{ fontSize: 48, color: 'white' }} />
+              <PeopleIcon sx={{ fontSize: 56, color: 'white' }} />
             </Box>
             <Typography variant="h5" gutterBottom fontWeight={600}>
-              {searchQuery ? 'No investors found' : 'Start Building Your Network'}
+              {searchQuery || selectedRoundFilter ? 'No investors found' : 'Start Building Your Investor Network'}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 400, mx: 'auto' }}>
-              {searchQuery 
-                ? 'Try adjusting your search criteria'
-                : 'Add your first investor to begin tracking commitments and building relationships'
+              {searchQuery || selectedRoundFilter ? 
+                'Try adjusting your search criteria or filters to find investors.' :
+                'Add investors to track commitments, manage tranches, and monitor equity allocations with real-time calculations.'
               }
             </Typography>
-            {!searchQuery && (
-              <Button
-                variant="contained"
-                size="large"
-                startIcon={<PersonAddIcon />}
-                onClick={() => setShowFormDialog(true)}
-                sx={{ 
-                  borderRadius: 2,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                }}
-              >
-                Add Your First Investor
-              </Button>
-            )}
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={<AddIcon />}
+              onClick={() => setShowFormDialog(true)}
+              sx={{ 
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              }}
+            >
+              Add First Investor
+            </Button>
           </EmptyStateContainer>
         </Fade>
       )}
 
-      {/* Investor Cards */}
+      {/* Investors Grid */}
       {!loading && filteredInvestors.length > 0 && (
         <Grid container spacing={3}>
           {filteredInvestors.map((investor, index) => (
-            <Grid item xs={12} sm={6} md={4} key={investor._id}>
-              <Grow in timeout={200 + index * 100}>
-                <StyledInvestorCard>
-                  <CardContent sx={{ p: 3 }}>
-                    {/* Header */}
-                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 3 }}>
-                      <Box sx={{ flex: 1, mr: 2 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }} noWrap>
-                          {investor.name}
-                        </Typography>
-                        <StatusBadge status={investor.status}>
-                          {getStatusIcon(investor.status)}
-                          {investor.status}
-                        </StatusBadge>
-                      </Box>
-                      <Stack direction="row" spacing={0.5}>
-                        <IconButton size="small" onClick={() => handleEditInvestor(investor)}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleOpenDeleteDialog(investor._id, investor.name)}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Stack>
-                    </Stack>
-
-                    {/* Financial Info */}
-                    <Stack spacing={2} sx={{ mb: 3 }}>
-                      <Box>
-                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                          <Typography variant="caption" color="text.secondary">
-                            Commitment Progress
-                          </Typography>
-                          <Typography variant="caption" fontWeight={600}>
-                            {investor.totalCommittedAmount > 0 
-                              ? `${Math.round((investor.totalReceivedAmount / investor.totalCommittedAmount) * 100)}%`
-                              : '0%'
-                            }
-                          </Typography>
-                        </Stack>
-                        <LinearProgress 
-                          variant="determinate" 
-                          value={investor.totalCommittedAmount > 0 ? (investor.totalReceivedAmount / investor.totalCommittedAmount * 100) : 0}
-                          sx={{
-                            height: 8,
-                            borderRadius: 4,
-                            backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                            '& .MuiLinearProgress-bar': {
-                              borderRadius: 4,
-                              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
-                            }
-                          }}
-                        />
-                      </Box>
-                      <Stack direction="row" justifyContent="space-between">
-                        <Box>
-                          <Typography variant="caption" color="text.secondary">
-                            Committed
-                          </Typography>
-                          <Typography variant="body1" fontWeight={600}>
-                            ₹{investor.totalCommittedAmount > 10000000 
-                              ? `${(investor.totalCommittedAmount / 10000000).toFixed(1)}Cr`
-                              : `${(investor.totalCommittedAmount / 100000).toFixed(1)}L`
-                            }
-                          </Typography>
-                        </Box>
-                        <Box textAlign="right">
-                          <Typography variant="caption" color="text.secondary">
-                            Received
-                          </Typography>
-                          <Typography variant="body1" fontWeight={600} color="success.main">
-                            ₹{investor.totalReceivedAmount > 10000000 
-                              ? `${(investor.totalReceivedAmount / 10000000).toFixed(1)}Cr`
-                              : `${(investor.totalReceivedAmount / 100000).toFixed(1)}L`
-                            }
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </Stack>
-
-                    <Divider sx={{ mb: 2 }} />
-
-                    {/* Details */}
-                    <Stack spacing={1.5}>
-                      {investor.roundId?.name && (
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <GroupWorkIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {investor.roundId.name}
-                          </Typography>
-                        </Stack>
-                      )}
-                      {investor.contactPerson && (
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <AssignmentIndIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                          <Typography variant="body2" color="text.secondary" noWrap>
-                            {investor.contactPerson}
-                          </Typography>
-                        </Stack>
-                      )}
-                      {investor.entityName && (
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <BusinessIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                          <Typography variant="body2" color="text.secondary" noWrap>
-                            {investor.entityName}
-                          </Typography>
-                        </Stack>
-                      )}
-                      {investor.investmentVehicle && (
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <InfoIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {investor.investmentVehicle}
-                          </Typography>
-                        </Stack>
-                      )}
-                      {investor.notes && (
-                        <Box sx={{ 
-                          p: 1.5, 
-                          borderRadius: 2, 
-                          bgcolor: alpha(theme.palette.grey[100], 0.5),
-                          border: `1px solid ${alpha(theme.palette.divider, 0.08)}`
-                        }}>
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.5 }}>
-                            {investor.notes.length > 80 ? `${investor.notes.substring(0, 80)}...` : investor.notes}
-                          </Typography>
-                        </Box>
-                      )}
-                    </Stack>
-                  </CardContent>
-                </StyledInvestorCard>
+            <Grid item xs={12} md={6} lg={4} key={investor._id}>
+              <Grow in timeout={300 + index * 100}>
+                <div>
+                  <InvestorCard
+                    investor={investor}
+                    onEdit={handleEditInvestor}
+                    onDelete={handleOpenDeleteDialog}
+                    onToggleExpand={toggleInvestorExpansion}
+                    isExpanded={expandedInvestorId === investor._id}
+                    rounds={rounds}
+                  />
+                </div>
               </Grow>
             </Grid>
           ))}
         </Grid>
       )}
 
-      {/* Investor Form Dialog */}
+      {/* Form Dialog */}
       <Dialog
         open={showFormDialog}
         onClose={() => { setShowFormDialog(false); setInvestorToEdit(null); }}
@@ -591,7 +850,7 @@ const InvestorsSection = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Dialog */}
       <Dialog
         open={deleteDialog.open}
         onClose={handleCloseDeleteDialog}
@@ -600,8 +859,8 @@ const InvestorsSection = () => {
         <DialogTitle sx={{ fontWeight: 700 }}>Confirm Deletion</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete the investor "<strong>{deleteDialog.name}</strong>"? 
-            This action cannot be undone.
+            Are you sure you want to delete investor "<strong>{deleteDialog.name}</strong>"? 
+            This will also remove all their tranches, cap table entries, and cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
