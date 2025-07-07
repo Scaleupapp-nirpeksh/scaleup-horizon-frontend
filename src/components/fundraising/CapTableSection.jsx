@@ -1,4 +1,4 @@
-// src/components/fundraising/CapTableSection.jsx
+// src/components/fundraising/CapTableSection.jsx - COMPLETE FIXED VERSION WITH NULL SAFETY
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Button, Grid, Paper, IconButton, Tooltip, CircularProgress, 
@@ -30,6 +30,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTo
 import CapTableForm from './CapTableForm';
 import { getCapTableSummary, deleteCapTableEntry, getRounds } from '../../services/api';
 import AlertMessage from '../common/AlertMessage';
+
+// ✅ FIX: Helper function for safe array operations
+const safeArray = (arr) => Array.isArray(arr) ? arr : [];
 
 // Enhanced styled components
 const StyledCapTableCard = styled(Card)(({ theme }) => ({
@@ -158,7 +161,7 @@ const renderActiveShape = (props) => {
 };
 
 /**
- * Enhanced CapTableSection Component with Corrected Valuation Integration
+ * Enhanced CapTableSection Component with Corrected Valuation Integration AND NULL SAFETY
  * 
  * Key Features:
  * - Displays share values using current round pricing
@@ -166,6 +169,7 @@ const renderActiveShape = (props) => {
  * - Integrates with corrected fundraising calculation system
  * - Real-time valuation updates based on active rounds
  * - Enhanced metrics with financial context
+ * - Comprehensive null safety throughout
  */
 const CapTableSection = () => {
   const theme = useTheme();
@@ -188,20 +192,20 @@ const CapTableSection = () => {
         getRounds()
       ]);
       
-      console.log('🔍 Cap Table API Response:', capTableRes.data);
+      console.log('🔍 Cap Table API Response:', capTableRes?.data);
       
-      // FIX: Correctly access the entries from the API response structure
-      const responseData = capTableRes.data || {};
+      // ✅ FIX: Correctly access the entries from the API response structure WITH NULL SAFETY
+      const responseData = capTableRes?.data || {};
       
       // The API returns { entries: [...], summary: {...} }
       // But we were accessing it as if it returned the entries directly
-      if (responseData.entries) {
-        setCapTableEntries(responseData.entries);
-        setCapTableSummary(responseData.summary);
+      if (responseData.entries && Array.isArray(responseData.entries)) {
+        setCapTableEntries(safeArray(responseData.entries));
+        setCapTableSummary(responseData.summary || null);
         console.log('✅ Cap Table Entries loaded:', responseData.entries.length);
       } else if (Array.isArray(responseData)) {
         // Fallback for older API response format
-        setCapTableEntries(responseData);
+        setCapTableEntries(safeArray(responseData));
         console.log('✅ Cap Table Entries (fallback):', responseData.length);
       } else {
         console.warn('⚠️  Unexpected cap table response format:', responseData);
@@ -209,12 +213,13 @@ const CapTableSection = () => {
         setCapTableSummary(null);
       }
       
-      setRounds(roundsRes.data || []);
+      setRounds(safeArray(roundsRes?.data || []));
       
       // Auto-select the most recent active round for valuation
-      const activeRounds = roundsRes.data?.filter(r => r.status === 'Open' && r.pricePerShare) || [];
+      const roundsData = safeArray(roundsRes?.data);
+      const activeRounds = roundsData.filter(r => r?.status === 'Open' && r?.pricePerShare) || [];
       if (activeRounds.length > 0 && !selectedRound) {
-        setSelectedRound(activeRounds[0]._id);
+        setSelectedRound(activeRounds[0]?._id || '');
       }
     } catch (error) {
       console.error("❌ Error fetching cap table:", error);
@@ -232,6 +237,7 @@ const CapTableSection = () => {
 
   // Helper function to format currency
   const formatCurrency = (amount) => {
+    if (!amount || amount <= 0) return '₹0';
     if (amount >= 10000000) { // 1 Crore
       return `₹${(amount / 10000000).toFixed(2)}Cr`;
     } else if (amount >= 100000) { // 1 Lakh
@@ -244,24 +250,25 @@ const CapTableSection = () => {
   // Get current round for valuation calculations
   const getCurrentRound = () => {
     if (!selectedRound) return null;
-    return rounds.find(r => r._id === selectedRound);
+    return safeArray(rounds).find(r => r?._id === selectedRound) || null;
   };
 
-  // Calculate enhanced metrics with valuation
+  // ✅ FIX: Calculate enhanced metrics with valuation AND NULL SAFETY
   const calculateEnhancedMetrics = () => {
-    // Ensure capTableEntries is an array before processing
-    const entries = Array.isArray(capTableEntries) ? capTableEntries : [];
+    // Ensure capTableEntries is an array before processing WITH NULL SAFETY
+    const entries = safeArray(capTableEntries).filter(Boolean); // Remove null/undefined entries
     const currentRound = getCurrentRound();
     const currentSharePrice = currentRound?.pricePerShare || 0;
     
     console.log('📊 Calculating metrics for', entries.length, 'entries');
     
-    const totalShares = entries.reduce((sum, entry) => sum + (entry.numberOfShares || 0), 0);
+    const totalShares = entries.reduce((sum, entry) => sum + (entry?.numberOfShares || 0), 0);
     const totalValue = totalShares * currentSharePrice;
-    const uniqueShareholders = new Set(entries.map(entry => entry.shareholderName)).size;
+    const uniqueShareholders = new Set(entries.map(entry => entry?.shareholderName).filter(Boolean)).size;
     
-    // Category breakdown
+    // Category breakdown WITH NULL SAFETY
     const categorizeEntry = (entry) => {
+      if (!entry || !entry.shareholderType) return 'others';
       switch(entry.shareholderType) {
         case 'Founder': return 'founders';
         case 'Investor': return 'investors';
@@ -272,6 +279,7 @@ const CapTableSection = () => {
     };
 
     const categoryMetrics = entries.reduce((acc, entry) => {
+      if (!entry) return acc;
       const category = categorizeEntry(entry);
       acc[category] = acc[category] || { count: 0, shares: 0, value: 0 };
       acc[category].count++;
@@ -307,10 +315,10 @@ const CapTableSection = () => {
     fetchCapTableAndRounds();
     setEntryToEdit(null);
     setShowFormDialog(false);
-    const entryValue = savedEntry.numberOfShares * (currentRound?.pricePerShare || 0);
+    const entryValue = (savedEntry?.numberOfShares || 0) * (currentRound?.pricePerShare || 0);
     setMessage({ 
       type: 'success', 
-      text: `Cap table entry for "${savedEntry.shareholderName}" saved. ${savedEntry.numberOfShares?.toLocaleString()} shares${entryValue > 0 ? ` (${formatCurrency(entryValue)})` : ''}.` 
+      text: `Cap table entry for "${savedEntry?.shareholderName || 'Unknown'}" saved. ${(savedEntry?.numberOfShares || 0).toLocaleString()} shares${entryValue > 0 ? ` (${formatCurrency(entryValue)})` : ''}.` 
     });
     setTimeout(() => setMessage({ type: '', text: '' }), 5000);
   };
@@ -321,7 +329,7 @@ const CapTableSection = () => {
   };
   
   const handleOpenDeleteDialog = (id, name) => {
-    setDeleteDialog({ open: true, id, name });
+    setDeleteDialog({ open: true, id, name: name || 'Unknown Entry' });
   };
 
   const handleCloseDeleteDialog = () => {
@@ -342,26 +350,24 @@ const CapTableSection = () => {
     }
   };
   
-  // Enhanced chart data with monetary values
-  const chartData = Array.isArray(capTableEntries) 
-    ? capTableEntries
-        .filter(entry => entry.numberOfShares > 0)
-        .map((entry, index) => {
-            const shares = entry.numberOfShares || 0;
-            const value = shares * (currentRound?.pricePerShare || 0);
-            const percentage = metrics.totalShares > 0 ? ((shares / metrics.totalShares) * 100).toFixed(2) : 0;
-            
-            return {
-                name: entry.shareholderName,
-                value: shares,
-                monetaryValue: value,
-                percentage: percentage,
-                fill: CHART_COLORS[index % CHART_COLORS.length],
-                type: entry.shareholderType,
-                securityType: entry.securityType
-            };
-        })
-    : [];
+  // ✅ FIX: Enhanced chart data with monetary values AND NULL SAFETY
+  const chartData = safeArray(capTableEntries)
+    .filter(entry => entry && (entry.numberOfShares || 0) > 0) // Filter out null entries and zero shares
+    .map((entry, index) => {
+        const shares = entry?.numberOfShares || 0;
+        const value = shares * (currentRound?.pricePerShare || 0);
+        const percentage = metrics.totalShares > 0 ? ((shares / metrics.totalShares) * 100).toFixed(2) : 0;
+        
+        return {
+            name: entry?.shareholderName || 'Unknown',
+            value: shares,
+            monetaryValue: value,
+            percentage: percentage,
+            fill: CHART_COLORS[index % CHART_COLORS.length],
+            type: entry?.shareholderType || 'Unknown',
+            securityType: entry?.securityType || 'Unknown'
+        };
+    });
 
   const onPieEnter = (_, index) => {
     setActiveIndex(index);
@@ -392,14 +398,14 @@ const CapTableSection = () => {
                 <MenuItem value="">
                   <em>No Round Selected</em>
                 </MenuItem>
-                {rounds
-                  .filter(r => r.pricePerShare > 0)
+                {safeArray(rounds)
+                  .filter(r => r && (r.pricePerShare || 0) > 0)
                   .map(round => (
-                    <MenuItem key={round._id} value={round._id}>
+                    <MenuItem key={round?._id || 'unknown'} value={round?._id || ''}>
                       <Box>
-                        <Typography variant="body2">{round.name}</Typography>
+                        <Typography variant="body2">{round?.name || 'Unknown Round'}</Typography>
                         <Typography variant="caption" color="text.secondary">
-                          ₹{round.pricePerShare?.toLocaleString()}/share
+                          ₹{(round?.pricePerShare || 0).toLocaleString()}/share
                         </Typography>
                       </Box>
                     </MenuItem>
@@ -441,13 +447,13 @@ const CapTableSection = () => {
             }}
           >
             <Typography variant="body2">
-              <strong>Valuation Context:</strong> Using {currentRound.name} pricing (₹{currentRound.pricePerShare?.toLocaleString()}/share) 
+              <strong>Valuation Context:</strong> Using {currentRound.name} pricing (₹{(currentRound.pricePerShare || 0).toLocaleString()}/share) 
               for monetary value calculations. Total company value: {formatCurrency(metrics.totalValue)}
             </Typography>
           </Alert>
         )}
 
-        {/* Enhanced Summary Metrics */}
+        {/* ✅ FIX: Enhanced Summary Metrics WITH NULL SAFETY */}
         <Grid container spacing={2}>
           <Grid item xs={6} md={3}>
             <MetricCard elevation={0}>
@@ -461,13 +467,13 @@ const CapTableSection = () => {
                   <GroupsIcon />
                 </Avatar>
                 <Typography variant="h4" fontWeight={700}>
-                  {metrics.uniqueShareholders}
+                  {metrics.uniqueShareholders || 0}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   SHAREHOLDERS
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {metrics.foundersCount}F • {metrics.investorsCount}I • {metrics.employeesCount}E
+                  {metrics.foundersCount || 0}F • {metrics.investorsCount || 0}I • {metrics.employeesCount || 0}E
                 </Typography>
               </Stack>
             </MetricCard>
@@ -484,14 +490,14 @@ const CapTableSection = () => {
                   <DonutLargeIcon />
                 </Avatar>
                 <Typography variant="h4" fontWeight={700}>
-                  {metrics.totalShares.toLocaleString()}
+                  {(metrics.totalShares || 0).toLocaleString()}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   TOTAL SHARES
                 </Typography>
                 {currentRound && (
                   <Typography variant="caption" color="success.main" fontWeight={600}>
-                    @ ₹{currentRound.pricePerShare.toLocaleString()}/share
+                    @ ₹{(currentRound.pricePerShare || 0).toLocaleString()}/share
                   </Typography>
                 )}
               </Stack>
@@ -509,14 +515,14 @@ const CapTableSection = () => {
                   <PersonIcon />
                 </Avatar>
                 <Typography variant="h4" fontWeight={700}>
-                  {metrics.foundersShares.toLocaleString()}
+                  {(metrics.foundersShares || 0).toLocaleString()}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   FOUNDER SHARES
                 </Typography>
                 {metrics.totalShares > 0 && (
                   <Typography variant="caption" color="info.main" fontWeight={600}>
-                    {((metrics.foundersShares / metrics.totalShares) * 100).toFixed(1)}% ownership
+                    {(((metrics.foundersShares || 0) / metrics.totalShares) * 100).toFixed(1)}% ownership
                   </Typography>
                 )}
               </Stack>
@@ -534,7 +540,7 @@ const CapTableSection = () => {
                   <MonetizationOnIcon />
                 </Avatar>
                 <Typography variant="h4" fontWeight={700}>
-                  {formatCurrency(metrics.totalValue)}
+                  {formatCurrency(metrics.totalValue || 0)}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   TOTAL VALUE
@@ -550,7 +556,7 @@ const CapTableSection = () => {
         </Grid>
 
         {/* Value Breakdown Cards */}
-        {currentRound && (metrics.foundersValue > 0 || metrics.investorsValue > 0) && (
+        {currentRound && ((metrics.foundersValue || 0) > 0 || (metrics.investorsValue || 0) > 0) && (
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <ValueCard>
@@ -560,7 +566,7 @@ const CapTableSection = () => {
                       FOUNDER VALUE
                     </Typography>
                     <Typography variant="h6" fontWeight={700} color="info.main">
-                      {formatCurrency(metrics.foundersValue)}
+                      {formatCurrency(metrics.foundersValue || 0)}
                     </Typography>
                   </Box>
                   <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.1), color: 'info.main' }}>
@@ -568,7 +574,7 @@ const CapTableSection = () => {
                   </Avatar>
                 </Stack>
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                  {metrics.foundersShares.toLocaleString()} shares • {((metrics.foundersShares / metrics.totalShares) * 100).toFixed(1)}% ownership
+                  {(metrics.foundersShares || 0).toLocaleString()} shares • {(((metrics.foundersShares || 0) / (metrics.totalShares || 1)) * 100).toFixed(1)}% ownership
                 </Typography>
               </ValueCard>
             </Grid>
@@ -580,7 +586,7 @@ const CapTableSection = () => {
                       INVESTOR VALUE
                     </Typography>
                     <Typography variant="h6" fontWeight={700} color="secondary.main">
-                      {formatCurrency(metrics.investorsValue)}
+                      {formatCurrency(metrics.investorsValue || 0)}
                     </Typography>
                   </Box>
                   <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.1), color: 'secondary.main' }}>
@@ -588,7 +594,7 @@ const CapTableSection = () => {
                   </Avatar>
                 </Stack>
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                  {metrics.investorsShares.toLocaleString()} shares • {((metrics.investorsShares / metrics.totalShares) * 100).toFixed(1)}% ownership
+                  {(metrics.investorsShares || 0).toLocaleString()} shares • {(((metrics.investorsShares || 0) / (metrics.totalShares || 1)) * 100).toFixed(1)}% ownership
                 </Typography>
               </ValueCard>
             </Grid>
@@ -648,8 +654,6 @@ const CapTableSection = () => {
           </EmptyStateContainer>
         </Fade>
       )}
-
-      
 
       {/* Main Content */}
       {!loading && Array.isArray(capTableEntries) && capTableEntries.length > 0 && (
@@ -758,7 +762,7 @@ const CapTableSection = () => {
             </Grow>
           </Grid>
 
-          {/* Enhanced Table Section */}
+          {/* ✅ FIX: Enhanced Table Section WITH NULL SAFETY */}
           <Grid item xs={12} lg={7}>
             <Grow in timeout={500}>
               <StyledCapTableCard>
@@ -820,15 +824,17 @@ const CapTableSection = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {Array.isArray(capTableEntries) && capTableEntries.map((entry, index) => {
+                        {safeArray(capTableEntries).map((entry, index) => {
+                          if (!entry) return null; // Skip null entries
+                          
                           const shares = entry.numberOfShares || 0;
                           const ownershipPercent = metrics.totalShares > 0 && shares 
                             ? ((shares / metrics.totalShares) * 100).toFixed(2) 
                             : '0.00';
-                          const monetaryValue = currentRound ? shares * currentRound.pricePerShare : 0;
+                          const monetaryValue = currentRound ? shares * (currentRound.pricePerShare || 0) : 0;
                           
                           return (
-                            <StyledTableRow key={entry._id}>
+                            <StyledTableRow key={entry._id || `entry-${index}`}>
                               <TableCell>
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                   <Avatar sx={{ 
@@ -837,11 +843,11 @@ const CapTableSection = () => {
                                     bgcolor: CHART_COLORS[index % CHART_COLORS.length],
                                     fontSize: '0.875rem'
                                   }}>
-                                    {entry.shareholderName.charAt(0).toUpperCase()}
+                                    {(entry.shareholderName || 'U').charAt(0).toUpperCase()}
                                   </Avatar>
                                   <Box>
                                     <Typography variant="body2" fontWeight={600}>
-                                      {entry.shareholderName}
+                                      {entry.shareholderName || 'Unknown Shareholder'}
                                     </Typography>
                                     {entry.linkedInvestorId && (
                                       <Typography variant="caption" color="primary.main">
@@ -853,7 +859,7 @@ const CapTableSection = () => {
                               </TableCell>
                               <TableCell>
                                 <StatusChip 
-                                  label={entry.shareholderType} 
+                                  label={entry.shareholderType || 'Unknown'} 
                                   size="small" 
                                   color={entry.shareholderType === 'Founder' ? 'primary' : entry.shareholderType === 'Investor' ? 'secondary' : 'default'}
                                   variant={entry.shareholderType === 'Founder' ? 'filled' : 'outlined'}
@@ -861,7 +867,7 @@ const CapTableSection = () => {
                               </TableCell>
                               <TableCell>
                                 <StatusChip 
-                                  label={entry.securityType} 
+                                  label={entry.securityType || 'Unknown'} 
                                   size="small" 
                                   color="info"
                                   variant="outlined"

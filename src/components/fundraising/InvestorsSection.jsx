@@ -1,4 +1,4 @@
-// src/components/fundraising/InvestorsSection.jsx - COMPLETE FIXED VERSION
+// src/components/fundraising/InvestorsSection.jsx - COMPLETE FIXED VERSION WITH NULL SAFETY
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Button, Grid, Paper, IconButton, Tooltip, CircularProgress,
@@ -28,6 +28,12 @@ import ShareIcon from '@mui/icons-material/Share';
 import InvestorForm from './InvestorForm';
 import { getInvestors, deleteInvestor, getRounds } from '../../services/api';
 import AlertMessage from '../common/AlertMessage';
+
+// ✅ FIX: Helper function for safe array operations
+const safeArray = (arr) => Array.isArray(arr) ? arr : [];
+
+// ✅ FIX: Helper function for safe tranches operations
+const safeTranches = (tranches) => Array.isArray(tranches) ? tranches : [];
 
 // Enhanced styled components
 const StyledInvestorCard = styled(Card)(({ theme }) => ({
@@ -131,12 +137,14 @@ const getStatusIcon = (status) => {
 };
 
 /**
- * Enhanced Tranche Row Component
+ * Enhanced Tranche Row Component WITH NULL SAFETY
  */
 const TrancheRow = ({ tranche, index, pricePerShare }) => {
   const theme = useTheme();
-  const receivedAmount = tranche.receivedAmount || 0;
-  const agreedAmount = tranche.agreedAmount || 0;
+  
+  // ✅ FIX: Add null safety for tranche properties
+  const receivedAmount = tranche?.receivedAmount || 0;
+  const agreedAmount = tranche?.agreedAmount || 0;
   const progress = agreedAmount > 0 ? (receivedAmount / agreedAmount) * 100 : 0;
   const calculatedShares = pricePerShare > 0 ? Math.round(receivedAmount / pricePerShare) : 0;
   
@@ -146,13 +154,17 @@ const TrancheRow = ({ tranche, index, pricePerShare }) => {
     return `₹${amount.toLocaleString()}`;
   };
   
+  if (!tranche) {
+    return null; // ✅ FIX: Return null if tranche is not valid
+  }
+  
   return (
     <Box sx={{ p: 2, mb: 1, backgroundColor: alpha(theme.palette.primary.main, 0.03), borderRadius: 1 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
         <Typography variant="subtitle2" fontWeight={600}>
-          Tranche {tranche.trancheNumber}
+          Tranche {tranche.trancheNumber || index + 1}
         </Typography>
-        <TrancheStatusChip label={tranche.status} status={tranche.status} size="small" />
+        <TrancheStatusChip label={tranche.status || 'Unknown'} status={tranche.status} size="small" />
       </Stack>
       
       <Grid container spacing={2} sx={{ mb: 1 }}>
@@ -200,32 +212,40 @@ const TrancheRow = ({ tranche, index, pricePerShare }) => {
 };
 
 /**
- * Enhanced Investor Card Component
+ * Enhanced Investor Card Component WITH NULL SAFETY
  */
 const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, rounds }) => {
   const theme = useTheme();
   
-  // ✅ FIX: Calculate actual received amount from tranches
-  const actualReceivedAmount = investor.tranches?.reduce((sum, t) => sum + (t.receivedAmount || 0), 0) || 0;
+  // ✅ FIX: Add comprehensive null safety for investor properties
+  if (!investor) {
+    return null;
+  }
+  
+  // ✅ FIX: Safe access to investor properties with fallbacks
+  const investorTranches = safeTranches(investor.tranches);
+  const actualReceivedAmount = investorTranches.reduce((sum, t) => sum + (t?.receivedAmount || 0), 0);
   const totalCommitted = investor.totalCommittedAmount || 0;
   const commitmentProgress = totalCommitted > 0 ? (actualReceivedAmount / totalCommitted) * 100 : 0;
   
   // Get round information
   const getRoundInfo = (roundId) => {
+    if (!roundId) return null;
     if (typeof roundId === 'object' && roundId._id) {
       return roundId; // Already populated
     }
-    return rounds.find(r => r._id === roundId);
+    return safeArray(rounds).find(r => r._id === roundId) || null;
   };
   
   const roundInfo = getRoundInfo(investor.roundId);
   const pricePerShare = roundInfo?.pricePerShare || 0;
   
-  // ✅ FIX: Calculate shares based on actual received amount
+  // ✅ FIX: Calculate shares based on actual received amount with null safety
   const actualShares = pricePerShare > 0 ? Math.round(actualReceivedAmount / pricePerShare) : 0;
   const allocatedShares = investor.sharesAllocated || 0;
   
   const formatCurrency = (amount) => {
+    if (!amount || amount <= 0) return '₹0';
     if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)}Cr`;
     if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
     return `₹${amount.toLocaleString()}`;
@@ -238,10 +258,10 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
         <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2 }}>
           <Box>
             <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>
-              {investor.name}
+              {investor.name || 'Unknown Investor'}
             </Typography>
             <StatusChip 
-              label={investor.status} 
+              label={investor.status || 'Unknown'} 
               status={investor.status}
               icon={getStatusIcon(investor.status)}
             />
@@ -277,10 +297,10 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
             <MetricItem>
               <Typography variant="caption" color="text.secondary">EQUITY ALLOCATED</Typography>
               <Typography variant="h6" color="primary.main" fontWeight={700}>
-                {investor.equityPercentageAllocated?.toFixed(3) || '0.000'}%
+                {(investor.equityPercentageAllocated || 0).toFixed(3)}%
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                @ ₹{pricePerShare.toLocaleString()}/share
+                @ ₹{(pricePerShare || 0).toLocaleString()}/share
               </Typography>
             </MetricItem>
           </Grid>
@@ -297,7 +317,7 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
           </Grid>
         </Grid>
 
-        {/* ✅ FIX: Enhanced commitment progress */}
+        {/* ✅ FIX: Enhanced commitment progress with null safety */}
         <Box sx={{ mb: 2 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
             <Typography variant="caption" color="text.secondary">
@@ -324,7 +344,7 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
           />
         </Box>
 
-        {/* ✅ FIX: Enhanced financial summary */}
+        {/* ✅ FIX: Enhanced financial summary with null safety */}
         <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
           <Box>
             <Typography variant="caption" color="text.secondary">Committed</Typography>
@@ -340,14 +360,14 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
           </Box>
         </Stack>
 
-        {/* ✅ FIX: Enhanced tranches summary */}
-        {investor.tranches && investor.tranches.length > 0 && (
+        {/* ✅ FIX: Enhanced tranches summary with null safety */}
+        {investorTranches.length > 0 && (
           <Box>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Typography variant="caption" color="text.secondary">
-                Tranches: {investor.tranches.length} total
-                {investor.tranches.filter(t => t.status === 'Fully Received').length > 0 && 
-                  ` • ${investor.tranches.filter(t => t.status === 'Fully Received').length} received`}
+                Tranches: {investorTranches.length} total
+                {investorTranches.filter(t => t?.status === 'Fully Received').length > 0 && 
+                  ` • ${investorTranches.filter(t => t?.status === 'Fully Received').length} received`}
               </Typography>
               <Button 
                 size="small" 
@@ -362,9 +382,9 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
             {/* Expanded tranche details */}
             <Collapse in={isExpanded}>
               <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-                {investor.tranches.map((tranche, index) => (
+                {investorTranches.map((tranche, index) => (
                   <TrancheRow 
-                    key={tranche._id || index} 
+                    key={tranche?._id || `tranche-${index}`} 
                     tranche={tranche} 
                     index={index} 
                     pricePerShare={pricePerShare} 
@@ -372,7 +392,7 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
                 ))}
                 
                 {/* Summary for multiple tranches */}
-                {investor.tranches.length > 1 && (
+                {investorTranches.length > 1 && (
                   <Box sx={{ 
                     mt: 2, 
                     p: 2, 
@@ -387,7 +407,7 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
                       <Grid item xs={4}>
                         <Typography variant="caption" color="text.secondary">Total Committed</Typography>
                         <Typography variant="body2" fontWeight={600}>
-                          {formatCurrency(investor.tranches.reduce((sum, t) => sum + (t.agreedAmount || 0), 0))}
+                          {formatCurrency(investorTranches.reduce((sum, t) => sum + (t?.agreedAmount || 0), 0))}
                         </Typography>
                       </Grid>
                       <Grid item xs={4}>
@@ -415,7 +435,7 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
 };
 
 /**
- * Enhanced InvestorsSection Component with Corrected Data Display
+ * Enhanced InvestorsSection Component with Corrected Data Display AND NULL SAFETY
  */
 const InvestorsSection = () => {
   const theme = useTheme();
@@ -430,7 +450,7 @@ const InvestorsSection = () => {
   const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null, name: '' });
   const [expandedInvestorId, setExpandedInvestorId] = useState(null);
 
-  // ✅ FIX: Enhanced data fetching with proper error handling
+  // ✅ FIX: Enhanced data fetching with proper error handling AND NULL SAFETY
   const fetchInvestorsAndRounds = useCallback(async () => {
     setLoading(true);
     try {
@@ -439,35 +459,45 @@ const InvestorsSection = () => {
         getRounds()
       ]);
       
-      // ✅ FIX: Handle different API response structures
-      const investorsData = Array.isArray(investorsRes.data) ? investorsRes.data : 
-                           investorsRes.data?.investors || [];
-      const roundsData = Array.isArray(roundsRes.data) ? roundsRes.data : 
-                        roundsRes.data?.rounds || [];
+      // ✅ FIX: Handle different API response structures with null safety
+      const investorsData = Array.isArray(investorsRes?.data) ? investorsRes.data : 
+                           Array.isArray(investorsRes?.data?.investors) ? investorsRes.data.investors : [];
+      const roundsData = Array.isArray(roundsRes?.data) ? roundsRes.data : 
+                        Array.isArray(roundsRes?.data?.rounds) ? roundsRes.data.rounds : [];
       
       console.log('🔍 Investors loaded:', investorsData.length);
       console.log('🔍 Sample investor:', investorsData[0]);
       
-      // ✅ FIX: Ensure tranches data is properly structured and recalculate totals
-      const processedInvestors = investorsData.map(investor => {
-        const tranches = Array.isArray(investor.tranches) ? investor.tranches : [];
-        const totalReceivedFromTranches = tranches.reduce((sum, t) => sum + (t.receivedAmount || 0), 0);
+      // ✅ FIX: Ensure tranches data is properly structured and recalculate totals WITH NULL SAFETY
+      const processedInvestors = safeArray(investorsData).map(investor => {
+        if (!investor) return null;
+        
+        const tranches = safeTranches(investor.tranches);
+        const totalReceivedFromTranches = tranches.reduce((sum, t) => sum + (t?.receivedAmount || 0), 0);
         
         return {
           ...investor,
           tranches: tranches,
           // Ensure received amount is calculated from tranches
           totalReceivedAmount: totalReceivedFromTranches,
-          actualReceivedAmount: totalReceivedFromTranches // Add this for clarity
+          actualReceivedAmount: totalReceivedFromTranches, // Add this for clarity
+          // Add safety for other fields
+          name: investor.name || 'Unknown Investor',
+          status: investor.status || 'Unknown',
+          totalCommittedAmount: investor.totalCommittedAmount || 0,
+          equityPercentageAllocated: investor.equityPercentageAllocated || 0,
+          sharesAllocated: investor.sharesAllocated || 0
         };
-      });
+      }).filter(Boolean); // Remove null entries
       
       setInvestors(processedInvestors);
-      setRounds(roundsData);
+      setRounds(safeArray(roundsData));
       
     } catch (error) {
       console.error("❌ Error fetching investors/rounds:", error);
       setMessage({ type: 'error', text: 'Could not load investor data.' });
+      setInvestors([]);
+      setRounds([]);
     } finally {
       setLoading(false);
     }
@@ -477,34 +507,38 @@ const InvestorsSection = () => {
     fetchInvestorsAndRounds();
   }, [fetchInvestorsAndRounds]);
 
-  // ✅ FIX: Enhanced metrics calculation with proper received amounts
+  // ✅ FIX: Enhanced metrics calculation with proper received amounts AND NULL SAFETY
   const calculateEnhancedMetrics = () => {
-    const filteredInvestors = investors.filter(investor => {
-      const matchesSearch = investor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           investor.entityName?.toLowerCase().includes(searchQuery.toLowerCase());
+    const filteredInvestors = safeArray(investors).filter(investor => {
+      if (!investor) return false;
+      const matchesSearch = (investor.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           (investor.entityName || '').toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSearch;
     });
 
     const totalInvestors = filteredInvestors.length;
-    const totalCommitted = filteredInvestors.reduce((sum, inv) => sum + (inv.totalCommittedAmount || 0), 0);
+    const totalCommitted = filteredInvestors.reduce((sum, inv) => sum + (inv?.totalCommittedAmount || 0), 0);
     
-    // ✅ FIX: Calculate total received from tranches
+    // ✅ FIX: Calculate total received from tranches with null safety
     const totalReceived = filteredInvestors.reduce((sum, inv) => {
-      const trancheReceived = inv.tranches?.reduce((trSum, t) => trSum + (t.receivedAmount || 0), 0) || 0;
+      if (!inv) return sum;
+      const trancheReceived = safeTranches(inv.tranches).reduce((trSum, t) => trSum + (t?.receivedAmount || 0), 0);
       return sum + trancheReceived;
     }, 0);
     
     const totalShares = filteredInvestors.reduce((sum, inv) => {
+      if (!inv) return sum;
       // Calculate shares from received amounts and round price
-      const roundInfo = rounds.find(r => r._id === inv.roundId || r._id === inv.roundId?._id);
+      const roundInfo = safeArray(rounds).find(r => r?._id === inv?.roundId || r?._id === inv?.roundId?._id);
       const pricePerShare = roundInfo?.pricePerShare || 0;
-      const receivedAmount = inv.tranches?.reduce((trSum, t) => trSum + (t.receivedAmount || 0), 0) || 0;
+      const receivedAmount = safeTranches(inv.tranches).reduce((trSum, t) => trSum + (t?.receivedAmount || 0), 0);
       const shares = pricePerShare > 0 ? Math.round(receivedAmount / pricePerShare) : 0;
       return sum + shares;
     }, 0);
     
     const investedCount = filteredInvestors.filter(inv => {
-      const received = inv.tranches?.reduce((sum, t) => sum + (t.receivedAmount || 0), 0) || 0;
+      if (!inv) return false;
+      const received = safeTranches(inv.tranches).reduce((sum, t) => sum + (t?.receivedAmount || 0), 0);
       return received > 0;
     }).length;
 
@@ -523,6 +557,7 @@ const InvestorsSection = () => {
 
   // Helper function to format currency
   const formatCurrency = (amount) => {
+    if (!amount || amount <= 0) return '₹0';
     if (amount >= 10000000) { // 1 Crore
       return `₹${(amount / 10000000).toFixed(2)}Cr`;
     } else if (amount >= 100000) { // 1 Lakh
@@ -538,7 +573,7 @@ const InvestorsSection = () => {
     setShowFormDialog(false);
     setMessage({ 
       type: 'success', 
-      text: `Investor "${savedInvestor.name}" saved successfully. Equity allocation: ${savedInvestor.equityPercentageAllocated || 0}%` 
+      text: `Investor "${savedInvestor?.name || 'Unknown'}" saved successfully. Equity allocation: ${savedInvestor?.equityPercentageAllocated || 0}%` 
     });
     setTimeout(() => setMessage({ type: '', text: '' }), 5000);
   };
@@ -549,7 +584,7 @@ const InvestorsSection = () => {
   };
   
   const handleOpenDeleteDialog = (id, name) => {
-    setDeleteDialog({ open: true, id, name });
+    setDeleteDialog({ open: true, id, name: name || 'Unknown Investor' });
   };
 
   const handleCloseDeleteDialog = () => {
@@ -574,10 +609,11 @@ const InvestorsSection = () => {
     setExpandedInvestorId(expandedInvestorId === investorId ? null : investorId);
   };
 
-  // Filter investors based on search and round
-  const filteredInvestors = investors.filter(investor => {
-    const matchesSearch = investor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         investor.entityName?.toLowerCase().includes(searchQuery.toLowerCase());
+  // Filter investors based on search and round WITH NULL SAFETY
+  const filteredInvestors = safeArray(investors).filter(investor => {
+    if (!investor) return false;
+    const matchesSearch = (investor.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (investor.entityName || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
   });
 
@@ -617,7 +653,7 @@ const InvestorsSection = () => {
           </Button>
         </Stack>
 
-        {/* ✅ FIX: Enhanced Summary Metrics */}
+        {/* ✅ FIX: Enhanced Summary Metrics with null safety */}
         <Grid container spacing={2}>
           <Grid item xs={6} md={3}>
             <MetricCard elevation={0}>
@@ -631,13 +667,13 @@ const InvestorsSection = () => {
                   <PeopleIcon />
                 </Avatar>
                 <Typography variant="h4" fontWeight={700}>
-                  {metrics.totalInvestors}
+                  {metrics.totalInvestors || 0}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   TOTAL INVESTORS
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {metrics.conversionRate.toFixed(1)}% conversion rate
+                  {(metrics.conversionRate || 0).toFixed(1)}% conversion rate
                 </Typography>
               </Stack>
             </MetricCard>
@@ -654,13 +690,13 @@ const InvestorsSection = () => {
                   <TrendingUpIcon />
                 </Avatar>
                 <Typography variant="h4" fontWeight={700}>
-                  {metrics.totalShares > 1000 ? `${(metrics.totalShares/1000).toFixed(0)}K` : metrics.totalShares}
+                  {(metrics.totalShares || 0) > 1000 ? `${((metrics.totalShares || 0)/1000).toFixed(0)}K` : (metrics.totalShares || 0)}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   EQUITY ALLOCATED
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {metrics.totalShares} shares
+                  {(metrics.totalShares || 0)} shares
                 </Typography>
               </Stack>
             </MetricCard>
@@ -677,13 +713,13 @@ const InvestorsSection = () => {
                   <AccountBalanceIcon />
                 </Avatar>
                 <Typography variant="h4" fontWeight={700}>
-                  {formatCurrency(metrics.totalCommitted)}
+                  {formatCurrency(metrics.totalCommitted || 0)}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   COMMITTED
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Avg: {formatCurrency(metrics.avgCommitment)}
+                  Avg: {formatCurrency(metrics.avgCommitment || 0)}
                 </Typography>
               </Stack>
             </MetricCard>
@@ -700,13 +736,13 @@ const InvestorsSection = () => {
                   <MonetizationOnIcon />
                 </Avatar>
                 <Typography variant="h4" fontWeight={700}>
-                  {formatCurrency(metrics.totalReceived)}
+                  {formatCurrency(metrics.totalReceived || 0)}
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   RECEIVED
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {metrics.collectionRate.toFixed(1)}% collected
+                  {(metrics.collectionRate || 0).toFixed(1)}% collected
                 </Typography>
               </Stack>
             </MetricCard>
@@ -737,8 +773,10 @@ const InvestorsSection = () => {
               startAdornment={<FilterListIcon sx={{ mr: 1, color: 'text.secondary' }} />}
             >
               <MenuItem value="">All Rounds</MenuItem>
-              {rounds.map(round => (
-                <MenuItem key={round._id} value={round._id}>{round.name}</MenuItem>
+              {safeArray(rounds).map(round => (
+                <MenuItem key={round?._id || 'unknown'} value={round?._id || ''}>
+                  {round?.name || 'Unknown Round'}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -800,7 +838,7 @@ const InvestorsSection = () => {
       {!loading && filteredInvestors.length > 0 && (
         <Grid container spacing={3}>
           {filteredInvestors.map((investor, index) => (
-            <Grid item xs={12} md={6} lg={4} key={investor._id}>
+            <Grid item xs={12} md={6} lg={4} key={investor?._id || `investor-${index}`}>
               <Grow in timeout={300 + index * 100}>
                 <div>
                   <InvestorCard
@@ -808,7 +846,7 @@ const InvestorsSection = () => {
                     onEdit={handleEditInvestor}
                     onDelete={handleOpenDeleteDialog}
                     onToggleExpand={toggleInvestorExpansion}
-                    isExpanded={expandedInvestorId === investor._id}
+                    isExpanded={expandedInvestorId === investor?._id}
                     rounds={rounds}
                   />
                 </div>
