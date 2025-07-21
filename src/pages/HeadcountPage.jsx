@@ -60,6 +60,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
+
 // API (ensure these are correctly defined in your api.js)
 import {
   getHeadcounts,
@@ -70,6 +71,14 @@ import {
   getHeadcountById,
 } from '../services/api';
 import AlertMessage from '../components/common/AlertMessage';
+
+const calculateTotalAnnualCost = (compensation) => {
+  const baseSalary = compensation?.baseSalary || 0;
+  const variableCompensation = compensation?.variableCompensation || 0;
+  const monthlyBenefits = compensation?.benefits || 0;
+  
+  return baseSalary + variableCompensation + (monthlyBenefits * 12);
+};
 
 // Helper to format ISO dates into "DD Mon YYYY"
 const formatDate = (isoString) => {
@@ -685,7 +694,7 @@ const HeadcountPage = () => {
   const handleFormInputChange = (event, path) => {
     const { name, value, type, checked } = event.target;
     const val = type === 'checkbox' ? checked : value;
-
+  
     setCurrentFormData(prev => {
       const newState = JSON.parse(JSON.stringify(prev)); // Deep copy
       let currentLevel = newState;
@@ -695,6 +704,17 @@ const HeadcountPage = () => {
           currentLevel = currentLevel[keys[i]];
         }
         currentLevel[keys[keys.length - 1]] = val;
+        
+        // If compensation field was updated, recalculate totalAnnualCost
+        if (path.startsWith('compensation.')) {
+          newState.compensation.totalAnnualCost = calculateTotalAnnualCost(newState.compensation);
+          
+          // Update budget variance if applicable
+          if (newState.budgetTracking?.budgetedAnnualCost != null) {
+            newState.budgetTracking.actualVsBudgetVariance = 
+              newState.budgetTracking.budgetedAnnualCost - newState.compensation.totalAnnualCost;
+          }
+        }
       } else {
         newState[name] = val;
       }
@@ -774,12 +794,31 @@ const HeadcountPage = () => {
     setIsSubmitting(true);
     try {
       const payload = { ...currentFormData };
+      
+      // ========== ADDED CODE START ==========
+      // Calculate totalAnnualCost before sending to backend
+      if (payload.compensation) {
+        const baseSalary = payload.compensation.baseSalary || 0;
+        const variableCompensation = payload.compensation.variableCompensation || 0;
+        const monthlyBenefits = payload.compensation.benefits || 0;
+        
+        // Calculate total annual cost
+        payload.compensation.totalAnnualCost = baseSalary + variableCompensation + (monthlyBenefits * 12);
+        
+        // Also calculate budget variance if applicable
+        if (payload.budgetTracking && payload.budgetTracking.budgetedAnnualCost != null) {
+          payload.budgetTracking.actualVsBudgetVariance = 
+            payload.budgetTracking.budgetedAnnualCost - payload.compensation.totalAnnualCost;
+        }
+      }
+      // ========== ADDED CODE END ==========
+      
       // Ensure dates are correctly formatted if not already ISO strings
       if (payload.startDate) payload.startDate = new Date(payload.startDate).toISOString();
       if (payload.endDate) payload.endDate = new Date(payload.endDate).toISOString();
       if (payload.requisitionOpenDate) payload.requisitionOpenDate = new Date(payload.requisitionOpenDate).toISOString();
       if (payload.targetHireDate) payload.targetHireDate = new Date(payload.targetHireDate).toISOString();
-
+  
       if (editingHeadcount) {
         await updateHeadcount(editingHeadcount._id, payload);
         setSuccess(`${payload.name} has been updated successfully.`);
@@ -1983,111 +2022,172 @@ const HeadcountPage = () => {
             </Box>
             
             <Box sx={{ display: formStep === 2 ? 'block' : 'none' }}>
-              {/* Compensation */}
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField 
-                    name="baseSalary" 
-                    label="Base Salary (Annual)" 
-                    type="number" 
-                    fullWidth 
-                    value={currentFormData.compensation.baseSalary} 
-                    onChange={(e) => handleFormInputChange(e, 'compensation.baseSalary')} 
-                    error={!!formErrors.baseSalary} 
-                    helperText={formErrors.baseSalary} 
-                    size="small"
-                    InputProps={{
-                      startAdornment: <InputAdornment position="start"><AttachMoneyIcon fontSize="small" /></InputAdornment>,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={2}>
-                  <FormControl fullWidth size="small" error={!!formErrors.currency}>
-                    <InputLabel>Currency</InputLabel>
-                    <Select
-                      name="currency"
-                      value={currentFormData.compensation.currency}
-                      label="Currency"
-                      onChange={(e) => handleFormInputChange(e, 'compensation.currency')}
-                    >
-                      {currencyOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-                    </Select>
-                    <FormHelperText>{formErrors.currency}</FormHelperText>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField 
-                    name="variableCompensation" 
-                    label="Variable (Annual)" 
-                    type="number" 
-                    fullWidth 
-                    value={currentFormData.compensation.variableCompensation} 
-                    onChange={(e) => handleFormInputChange(e, 'compensation.variableCompensation')} 
-                    size="small"
-                    InputProps={{
-                      startAdornment: <InputAdornment position="start"><LocalAtmIcon fontSize="small" /></InputAdornment>,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Variable Freq.</InputLabel>
-                    <Select
-                      name="variableFrequency"
-                      value={currentFormData.compensation.variableFrequency}
-                      label="Variable Freq."
-                      onChange={(e) => handleFormInputChange(e, 'compensation.variableFrequency')}
-                    >
-                      {variableFrequencyOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField 
-                    name="equityPercentage" 
-                    label="Equity (%)" 
-                    type="number" 
-                    fullWidth 
-                    value={currentFormData.compensation.equityPercentage} 
-                    onChange={(e) => handleFormInputChange(e, 'compensation.equityPercentage')} 
-                    size="small"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={6}>
-                  <TextField 
-                    name="equityVestingSchedule" 
-                    label="Vesting Schedule" 
-                    fullWidth 
-                    value={currentFormData.compensation.equityVestingSchedule} 
-                    onChange={(e) => handleFormInputChange(e, 'compensation.equityVestingSchedule')} 
-                    size="small"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField 
-                    name="benefits" 
-                    label="Benefits (Monthly Cost)" 
-                    type="number" 
-                    fullWidth 
-                    value={currentFormData.compensation.benefits} 
-                    onChange={(e) => handleFormInputChange(e, 'compensation.benefits')} 
-                    size="small"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField 
-                    name="notes" 
-                    label="Compensation Notes" 
-                    fullWidth 
-                    multiline 
-                    rows={2} 
-                    value={currentFormData.compensation.notes} 
-                    onChange={(e) => handleFormInputChange(e, 'compensation.notes')} 
-                    size="small"
-                  />
-                </Grid>
-              </Grid>
-            </Box>
+  {/* Compensation */}
+  <Grid container spacing={2}>
+    <Grid item xs={12} sm={6} md={4}>
+      <TextField 
+        name="baseSalary" 
+        label="Base Salary (Annual)" 
+        type="number" 
+        fullWidth 
+        value={currentFormData.compensation.baseSalary} 
+        onChange={(e) => handleFormInputChange(e, 'compensation.baseSalary')} 
+        error={!!formErrors.baseSalary} 
+        helperText={formErrors.baseSalary} 
+        size="small"
+        InputProps={{
+          startAdornment: <InputAdornment position="start"><AttachMoneyIcon fontSize="small" /></InputAdornment>,
+        }}
+      />
+    </Grid>
+    <Grid item xs={12} sm={6} md={2}>
+      <FormControl fullWidth size="small" error={!!formErrors.currency}>
+        <InputLabel>Currency</InputLabel>
+        <Select
+          name="currency"
+          value={currentFormData.compensation.currency}
+          label="Currency"
+          onChange={(e) => handleFormInputChange(e, 'compensation.currency')}
+        >
+          {currencyOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+        </Select>
+        <FormHelperText>{formErrors.currency}</FormHelperText>
+      </FormControl>
+    </Grid>
+    <Grid item xs={12} sm={6} md={3}>
+      <TextField 
+        name="variableCompensation" 
+        label="Variable (Annual)" 
+        type="number" 
+        fullWidth 
+        value={currentFormData.compensation.variableCompensation} 
+        onChange={(e) => handleFormInputChange(e, 'compensation.variableCompensation')} 
+        size="small"
+        InputProps={{
+          startAdornment: <InputAdornment position="start"><LocalAtmIcon fontSize="small" /></InputAdornment>,
+        }}
+      />
+    </Grid>
+    <Grid item xs={12} sm={6} md={3}>
+      <FormControl fullWidth size="small">
+        <InputLabel>Variable Freq.</InputLabel>
+        <Select
+          name="variableFrequency"
+          value={currentFormData.compensation.variableFrequency}
+          label="Variable Freq."
+          onChange={(e) => handleFormInputChange(e, 'compensation.variableFrequency')}
+        >
+          {variableFrequencyOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+        </Select>
+      </FormControl>
+    </Grid>
+    <Grid item xs={12} sm={6} md={3}>
+      <TextField 
+        name="equityPercentage" 
+        label="Equity (%)" 
+        type="number" 
+        fullWidth 
+        value={currentFormData.compensation.equityPercentage} 
+        onChange={(e) => handleFormInputChange(e, 'compensation.equityPercentage')} 
+        size="small"
+      />
+    </Grid>
+    <Grid item xs={12} sm={6} md={6}>
+      <TextField 
+        name="equityVestingSchedule" 
+        label="Vesting Schedule" 
+        fullWidth 
+        value={currentFormData.compensation.equityVestingSchedule} 
+        onChange={(e) => handleFormInputChange(e, 'compensation.equityVestingSchedule')} 
+        size="small"
+      />
+    </Grid>
+    <Grid item xs={12} sm={6} md={3}>
+      <TextField 
+        name="benefits" 
+        label="Benefits (Monthly Cost)" 
+        type="number" 
+        fullWidth 
+        value={currentFormData.compensation.benefits} 
+        onChange={(e) => handleFormInputChange(e, 'compensation.benefits')} 
+        size="small"
+      />
+    </Grid>
+    <Grid item xs={12}>
+      <TextField 
+        name="notes" 
+        label="Compensation Notes" 
+        fullWidth 
+        multiline 
+        rows={2} 
+        value={currentFormData.compensation.notes} 
+        onChange={(e) => handleFormInputChange(e, 'compensation.notes')} 
+        size="small"
+      />
+    </Grid>
+    
+    {/* ========== ADD THIS NEW SECTION ========== */}
+    <Grid item xs={12}>
+      <Divider sx={{ my: 2 }} />
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: 2.5, 
+          bgcolor: alpha(theme.palette.primary.main, 0.04),
+          border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+          borderRadius: 2,
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            bgcolor: theme.palette.primary.main,
+            opacity: 0.8
+          }
+        }}
+      >
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" spacing={2}>
+          <Box>
+            <Typography variant="subtitle2" color="primary" fontWeight={600} gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+              <EqualizerIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
+              Calculated Total Annual Cost
+            </Typography>
+            <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 1 }}>
+              {currentFormData.compensation?.currency || 'INR'} {((currentFormData.compensation?.baseSalary || 0) + (currentFormData.compensation?.variableCompensation || 0) + ((currentFormData.compensation?.benefits || 0) * 12)).toLocaleString('en-IN')}
+            </Typography>
+            <Stack direction="row" spacing={3} flexWrap="wrap">
+              <Typography variant="caption" color="text.secondary">
+                <strong>Base:</strong> {(currentFormData.compensation?.baseSalary || 0).toLocaleString('en-IN')}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                <strong>Variable:</strong> {(currentFormData.compensation?.variableCompensation || 0).toLocaleString('en-IN')}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                <strong>Benefits (Annual):</strong> {((currentFormData.compensation?.benefits || 0) * 12).toLocaleString('en-IN')}
+              </Typography>
+            </Stack>
+          </Box>
+          
+          {/* Monthly breakdown */}
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography variant="caption" color="text.secondary" display="block">
+              Monthly Equivalent
+            </Typography>
+            <Typography variant="h6" fontWeight={600} color="text.primary">
+              {currentFormData.compensation?.currency || 'INR'} {Math.round(((currentFormData.compensation?.baseSalary || 0) + (currentFormData.compensation?.variableCompensation || 0) + ((currentFormData.compensation?.benefits || 0) * 12)) / 12).toLocaleString('en-IN')}
+            </Typography>
+          </Box>
+        </Stack>
+      </Paper>
+    </Grid>
+    {/* ========== END OF NEW SECTION ========== */}
+    
+  </Grid>
+</Box>
             
             <Box sx={{ display: formStep === 3 ? 'block' : 'none' }}>
               {/* Additional Details */}
