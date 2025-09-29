@@ -252,7 +252,7 @@ const MetricDisplay = ({ title, value, icon, color, loading, trend }) => {
             <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette[color].dark }}>
               ₹{value.toLocaleString()}
             </Typography>
-            {trend !== undefined && (
+            {trend !== undefined && trend !== 0 && (
               <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 1 }}>
                 {trend > 0 ? 
                   <ArrowUpwardIcon sx={{ fontSize: 16, color: trend > 0 ? 'success.main' : 'error.main' }} /> :
@@ -388,6 +388,7 @@ const FinancialsPage = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedSources, setSelectedSources] = useState([]);
   const [activePieIndex, setActivePieIndex] = useState(0);
+  const [trendGranularity, setTrendGranularity] = useState('monthly');
 
   const fetchAll = useCallback(async () => {
     setLoading({ expenses: true, revenue: true, bankAccounts: true, recurring: true });
@@ -508,7 +509,7 @@ const FinancialsPage = () => {
     return allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [transactionType, expenses, revenues]);
 
-  // Enhanced Analytics with filtering
+  // Enhanced Analytics with filtering and granularity
   const calculateAnalytics = useMemo(() => {
     // Filter data based on analytics filters
     let filteredExpenses = expenses;
@@ -547,35 +548,122 @@ const FinancialsPage = () => {
     const filteredTotalExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.amount, 0);
     const filteredTotalRevenue = filteredRevenues.reduce((sum, rev) => sum + rev.amount, 0);
 
-    // Monthly trend data
-    const monthlyData = {};
+    // Trend data based on granularity
+    let trendData = [];
     
-    filteredExpenses.forEach(exp => {
-      const date = new Date(exp.date);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = { month: monthKey, expenses: 0, revenue: 0 };
+    if (trendGranularity === 'daily') {
+      // Daily trend for last 30 days
+      const dailyData = {};
+      const last30Days = new Date();
+      last30Days.setDate(last30Days.getDate() - 30);
+      
+      // Generate all days to ensure continuity
+      for (let d = new Date(last30Days); d <= new Date(); d.setDate(d.getDate() + 1)) {
+        const dayKey = d.toISOString().split('T')[0];
+        dailyData[dayKey] = { period: dayKey, expenses: 0, revenue: 0 };
       }
-      monthlyData[monthKey].expenses += exp.amount;
-    });
+      
+      filteredExpenses.forEach(exp => {
+        const date = new Date(exp.date);
+        if (date >= last30Days) {
+          const dayKey = date.toISOString().split('T')[0];
+          if (dailyData[dayKey]) {
+            dailyData[dayKey].expenses += exp.amount;
+          }
+        }
+      });
 
-    filteredRevenues.forEach(rev => {
-      const date = new Date(rev.date);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = { month: monthKey, expenses: 0, revenue: 0 };
-      }
-      monthlyData[monthKey].revenue += rev.amount;
-    });
+      filteredRevenues.forEach(rev => {
+        const date = new Date(rev.date);
+        if (date >= last30Days) {
+          const dayKey = date.toISOString().split('T')[0];
+          if (dailyData[dayKey]) {
+            dailyData[dayKey].revenue += rev.amount;
+          }
+        }
+      });
 
-    const sortedMonthlyData = Object.values(monthlyData)
-      .sort((a, b) => a.month.localeCompare(b.month))
-      .slice(-12) // Last 12 months
-      .map(item => ({
-        ...item,
-        month: new Date(item.month + '-01').toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
-        profit: item.revenue - item.expenses
-      }));
+      trendData = Object.values(dailyData)
+        .sort((a, b) => a.period.localeCompare(b.period))
+        .map(item => ({
+          ...item,
+          period: new Date(item.period).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          profit: item.revenue - item.expenses
+        }));
+        
+    } else if (trendGranularity === 'weekly') {
+      // Weekly trend for last 12 weeks
+      const weeklyData = {};
+      const last12Weeks = new Date();
+      last12Weeks.setDate(last12Weeks.getDate() - 84);
+      
+      filteredExpenses.forEach(exp => {
+        const date = new Date(exp.date);
+        if (date >= last12Weeks) {
+          const weekStart = new Date(date);
+          weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+          const weekKey = weekStart.toISOString().split('T')[0];
+          
+          if (!weeklyData[weekKey]) {
+            weeklyData[weekKey] = { period: weekKey, expenses: 0, revenue: 0 };
+          }
+          weeklyData[weekKey].expenses += exp.amount;
+        }
+      });
+
+      filteredRevenues.forEach(rev => {
+        const date = new Date(rev.date);
+        if (date >= last12Weeks) {
+          const weekStart = new Date(date);
+          weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+          const weekKey = weekStart.toISOString().split('T')[0];
+          
+          if (!weeklyData[weekKey]) {
+            weeklyData[weekKey] = { period: weekKey, expenses: 0, revenue: 0 };
+          }
+          weeklyData[weekKey].revenue += rev.amount;
+        }
+      });
+
+      trendData = Object.values(weeklyData)
+        .sort((a, b) => a.period.localeCompare(b.period))
+        .map(item => ({
+          ...item,
+          period: `Week of ${new Date(item.period).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+          profit: item.revenue - item.expenses
+        }));
+        
+    } else {
+      // Monthly trend (default)
+      const monthlyData = {};
+      
+      filteredExpenses.forEach(exp => {
+        const date = new Date(exp.date);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = { period: monthKey, expenses: 0, revenue: 0 };
+        }
+        monthlyData[monthKey].expenses += exp.amount;
+      });
+
+      filteredRevenues.forEach(rev => {
+        const date = new Date(rev.date);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = { period: monthKey, expenses: 0, revenue: 0 };
+        }
+        monthlyData[monthKey].revenue += rev.amount;
+      });
+
+      trendData = Object.values(monthlyData)
+        .sort((a, b) => a.period.localeCompare(b.period))
+        .slice(-12) // Last 12 months
+        .map(item => ({
+          ...item,
+          period: new Date(item.period + '-01').toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+          profit: item.revenue - item.expenses
+        }));
+    }
 
     // Category breakdown
     const categoryBreakdown = {};
@@ -632,7 +720,7 @@ const FinancialsPage = () => {
       ((thisMonthExpenses - lastMonthExpenses) / lastMonthExpenses * 100) : 0;
 
     return {
-      monthlyData: sortedMonthlyData,
+      trendData,
       categoryData,
       sourceData,
       filteredTotalExpenses,
@@ -641,7 +729,7 @@ const FinancialsPage = () => {
       expenseChange,
       hasData: filteredExpenses.length > 0 || filteredRevenues.length > 0
     };
-  }, [expenses, revenues, analyticsDateRange, selectedCategories, selectedSources]);
+  }, [expenses, revenues, analyticsDateRange, selectedCategories, selectedSources, trendGranularity]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -1044,17 +1132,35 @@ const FinancialsPage = () => {
 
                         {/* Charts Section */}
                         <Grid container spacing={4}>
-                          {/* Monthly Trend Chart */}
+                          {/* Trend Chart with Granularity Toggle */}
                           <Grid item xs={12}>
                             <AnalyticsCard elevation={0}>
-                              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                                Monthly Cash Flow Trend
-                              </Typography>
-                              {calculateAnalytics.monthlyData.length > 0 ? (
+                              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                  Cash Flow Trend
+                                </Typography>
+                                <ToggleButtonGroup
+                                  value={trendGranularity}
+                                  exclusive
+                                  onChange={(e, v) => v && setTrendGranularity(v)}
+                                  size="small"
+                                >
+                                  <ToggleButton value="daily" sx={{ px: 2 }}>Daily</ToggleButton>
+                                  <ToggleButton value="weekly" sx={{ px: 2 }}>Weekly</ToggleButton>
+                                  <ToggleButton value="monthly" sx={{ px: 2 }}>Monthly</ToggleButton>
+                                </ToggleButtonGroup>
+                              </Stack>
+                              
+                              {calculateAnalytics.trendData.length > 0 ? (
                                 <ResponsiveContainer width="100%" height={350}>
-                                  <ComposedChart data={calculateAnalytics.monthlyData}>
+                                  <ComposedChart data={calculateAnalytics.trendData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.1)} />
-                                    <XAxis dataKey="month" />
+                                    <XAxis 
+                                      dataKey="period" 
+                                      angle={trendGranularity === 'daily' ? -45 : 0}
+                                      textAnchor={trendGranularity === 'daily' ? 'end' : 'middle'}
+                                      height={trendGranularity === 'daily' ? 80 : 40}
+                                    />
                                     <YAxis />
                                     <RechartsTooltip 
                                       formatter={(value) => `₹${value.toLocaleString()}`}
