@@ -8,7 +8,8 @@ import {
   CardHeader, CardContent, Avatar, Stack, useTheme, alpha,
   Fade, Grow, Skeleton, TextField, MenuItem, ToggleButton,
   ToggleButtonGroup, Zoom, Collapse, SwipeableDrawer, Tab, Tabs,
-  LinearProgress, Badge, ButtonGroup
+  LinearProgress, Badge, ButtonGroup, FormControl, Select,
+  FormControlLabel, Switch
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -32,8 +33,20 @@ import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SavingsIcon from '@mui/icons-material/Savings';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import DonutLargeIcon from '@mui/icons-material/DonutLarge';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import InsightsIcon from '@mui/icons-material/Insights';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import AlertMessage from '../components/common/AlertMessage';
+
+// Recharts imports for data visualization
+import {
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
+  Legend, ResponsiveContainer, Area, AreaChart, ComposedChart
+} from 'recharts';
 
 import {
   getExpenses, getRevenue, getBankAccounts, getRecurringTransactions,
@@ -128,6 +141,30 @@ const StyledTab = styled(Tab)(({ theme }) => ({
     color: theme.palette.primary.main,
   }
 }));
+
+const ChartCard = styled(GlassCard)(({ theme }) => ({
+  padding: theme.spacing(2),
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  '& .chart-header': {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing(2),
+  }
+}));
+
+// Chart color constants
+const CHART_COLORS = {
+  primary: '#1976d2',
+  success: '#4caf50',
+  error: '#f44336',
+  warning: '#ff9800',
+  info: '#2196f3',
+  secondary: '#9c27b0',
+  palette: ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1', '#d084d0', '#ffb347', '#67b7dc']
+};
 
 // Components
 const MetricDisplay = ({ title, value, icon, color, loading }) => {
@@ -264,6 +301,11 @@ const FinancialsPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // New state for analytics
+  const [viewMode, setViewMode] = useState('dashboard');
+  const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [comparisonEnabled, setComparisonEnabled] = useState(false);
+
   const fetchAll = useCallback(async () => {
     setLoading({ expenses: true, revenue: true, bankAccounts: true, recurring: true });
     try {
@@ -369,6 +411,121 @@ const FinancialsPage = () => {
     
     return allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [transactionType, expenses, revenues]);
+
+  // Analytics calculations
+  const calculateAnalytics = useMemo(() => {
+    const now = new Date();
+    const periods = {
+      week: 7,
+      month: 30,
+      quarter: 90,
+      year: 365
+    };
+    
+    const daysToShow = periods[selectedPeriod];
+    const startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - daysToShow);
+    
+    // 1. Daily trend data
+    const dailyTrend = [];
+    for (let i = 0; i < daysToShow; i++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const dayExpenses = expenses
+        .filter(e => e.date.startsWith(dateStr))
+        .reduce((sum, e) => sum + e.amount, 0);
+      
+      const dayRevenue = revenues
+        .filter(r => r.date.startsWith(dateStr))
+        .reduce((sum, r) => sum + r.amount, 0);
+      
+      dailyTrend.push({
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        expenses: dayExpenses,
+        revenue: dayRevenue,
+        profit: dayRevenue - dayExpenses
+      });
+    }
+    
+    // 2. Category breakdown for expenses
+    const expenseByCategory = {};
+    expenses.forEach(expense => {
+      const cat = expense.category || 'Other';
+      expenseByCategory[cat] = (expenseByCategory[cat] || 0) + expense.amount;
+    });
+    
+    const categoryData = Object.entries(expenseByCategory)
+      .map(([category, amount]) => ({
+        name: category,
+        value: amount,
+        percentage: totalExpenses > 0 ? (amount / totalExpenses * 100).toFixed(1) : '0'
+      }))
+      .sort((a, b) => b.value - a.value);
+    
+    // 3. Revenue by source
+    const revenueBySource = {};
+    revenues.forEach(revenue => {
+      const src = revenue.source || 'Other';
+      revenueBySource[src] = (revenueBySource[src] || 0) + revenue.amount;
+    });
+    
+    const sourceData = Object.entries(revenueBySource)
+      .map(([source, amount]) => ({
+        name: source,
+        value: amount,
+        percentage: totalRevenue > 0 ? (amount / totalRevenue * 100).toFixed(1) : '0'
+      }))
+      .sort((a, b) => b.value - a.value);
+    
+    // 4. Month-over-month comparison
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    const thisMonthExpenses = expenses
+      .filter(e => {
+        const date = new Date(e.date);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      })
+      .reduce((sum, e) => sum + e.amount, 0);
+    
+    const lastMonthExpenses = expenses
+      .filter(e => {
+        const date = new Date(e.date);
+        const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const year = currentMonth === 0 ? currentYear - 1 : currentYear;
+        return date.getMonth() === lastMonth && date.getFullYear() === year;
+      })
+      .reduce((sum, e) => sum + e.amount, 0);
+    
+    const expenseChange = lastMonthExpenses ? 
+      ((thisMonthExpenses - lastMonthExpenses) / lastMonthExpenses * 100) : 0;
+    
+    // 5. Top expenses
+    const topExpenses = expenses
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5)
+      .map(e => ({
+        name: e.vendor || e.description,
+        amount: e.amount,
+        category: e.category,
+        date: new Date(e.date).toLocaleDateString()
+      }));
+    
+    return {
+      dailyTrend,
+      categoryData,
+      sourceData,
+      expenseChange,
+      thisMonthExpenses,
+      lastMonthExpenses,
+      topExpenses,
+      avgDailyExpense: daysToShow > 0 ? totalExpenses / daysToShow : 0,
+      avgDailyRevenue: daysToShow > 0 ? totalRevenue / daysToShow : 0,
+      profitMargin: totalRevenue ? ((totalRevenue - totalExpenses) / totalRevenue * 100) : 0
+    };
+  }, [expenses, revenues, selectedPeriod, totalExpenses, totalRevenue]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -588,137 +745,437 @@ const FinancialsPage = () => {
                 <StyledTab label="Recurring" icon={<AutorenewIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
               </Tabs>
 
-              {/* Overview Tab */}
+              {/* Enhanced Overview Tab */}
               {activeTab === 0 && (
                 <Fade in>
                   <Box>
-                    {/* Transaction Filters */}
-                    <FilterBar>
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
-                        <ToggleButtonGroup
-                          value={transactionType}
-                          exclusive
-                          onChange={(e, v) => v && setTransactionType(v)}
-                          size="small"
-                        >
-                          <ToggleButton value="all">All Transactions</ToggleButton>
-                          <ToggleButton value="revenue">Revenue Only</ToggleButton>
-                          <ToggleButton value="expense">Expenses Only</ToggleButton>
-                        </ToggleButtonGroup>
-                        <Box sx={{ flexGrow: 1 }} />
-                        <Stack direction="row" spacing={2}>
-                          <DatePicker
-                            label="Start Date"
-                            value={dateRange.start}
-                            onChange={(date) => setDateRange(prev => ({ ...prev, start: date }))}
-                            slotProps={{ textField: { size: 'small' } }}
-                          />
-                          <DatePicker
-                            label="End Date"
-                            value={dateRange.end}
-                            onChange={(date) => setDateRange(prev => ({ ...prev, end: date }))}
-                            slotProps={{ textField: { size: 'small' } }}
-                          />
-                          <Button
-                            size="small"
-                            onClick={() => setDateRange({ start: null, end: null })}
+                    {/* View Mode Toggle */}
+                    <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <ToggleButtonGroup
+                        value={viewMode}
+                        exclusive
+                        onChange={(e, v) => v && setViewMode(v)}
+                        size="small"
+                      >
+                        <ToggleButton value="dashboard">
+                          <InsightsIcon sx={{ mr: 1, fontSize: 20 }} />
+                          Analytics Dashboard
+                        </ToggleButton>
+                        <ToggleButton value="table">
+                          <ReceiptLongIcon sx={{ mr: 1, fontSize: 20 }} />
+                          Transactions Table
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                      
+                      <Stack direction="row" spacing={2}>
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                          <Select
+                            value={selectedPeriod}
+                            onChange={(e) => setSelectedPeriod(e.target.value)}
+                            displayEmpty
                           >
-                            Clear
-                          </Button>
-                        </Stack>
+                            <MenuItem value="week">Last 7 Days</MenuItem>
+                            <MenuItem value="month">Last 30 Days</MenuItem>
+                            <MenuItem value="quarter">Last Quarter</MenuItem>
+                            <MenuItem value="year">Last Year</MenuItem>
+                          </Select>
+                        </FormControl>
+                        
+                        <FormControlLabel
+                          control={
+                            <Switch 
+                              checked={comparisonEnabled} 
+                              onChange={(e) => setComparisonEnabled(e.target.checked)} 
+                              size="small"
+                            />
+                          }
+                          label="Compare Periods"
+                        />
                       </Stack>
-                    </FilterBar>
+                    </Box>
 
-                    {/* Transactions Table */}
-                    <TableContainer sx={{ maxHeight: 500 }}>
-                      <Table stickyHeader size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Date</TableCell>
-                            <TableCell sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Description</TableCell>
-                            <TableCell sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Type</TableCell>
-                            <TableCell sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Category</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Amount</TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Actions</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {loading.expenses || loading.revenue ? (
-                            [...Array(5)].map((_, i) => (
-                              <TableRow key={i}>
-                                {[...Array(6)].map((_, j) => (
-                                  <TableCell key={j}><Skeleton /></TableCell>
-                                ))}
-                              </TableRow>
-                            ))
-                          ) : filteredTransactions.length > 0 ? (
-                            filteredTransactions.map(transaction => (
-                              <StyledTableRow key={transaction._id}>
-                                <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
-                                <TableCell>
-                                  <EditableField
-                                    value={transaction.description}
-                                    onSave={(value) => handleUpdateTransaction(
-                                      transaction._id,
-                                      transaction.type,
-                                      { description: value }
-                                    )}
-                                  />
-                                </TableCell>
-                                <TableCell>
-                                  <AnimatedChip
-                                    label={transaction.type}
-                                    size="small"
-                                    color={transaction.type === 'revenue' ? 'success' : 'error'}
-                                    variant="outlined"
-                                  />
-                                </TableCell>
-                                <TableCell>
-                                  <Chip
-                                    label={transaction.category || transaction.source}
-                                    size="small"
-                                    variant="filled"
-                                    sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1) }}
-                                  />
-                                </TableCell>
-                                <TableCell align="right">
-                                  <EditableField
-                                    value={transaction.amount}
-                                    type="currency"
-                                    onSave={(value) => handleUpdateTransaction(
-                                      transaction._id,
-                                      transaction.type,
-                                      { amount: value }
-                                    )}
-                                  />
-                                </TableCell>
-                                <TableCell align="center">
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => setDeleteDialog({
-                                      open: true,
-                                      id: transaction._id,
-                                      type: transaction.type,
-                                      name: transaction.description
-                                    })}
-                                  >
-                                    <DeleteIcon fontSize="small" />
-                                  </IconButton>
-                                </TableCell>
-                              </StyledTableRow>
-                            ))
-                          ) : (
-                            <TableRow>
-                              <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                                <Typography variant="body2" color="text.secondary">
-                                  No transactions found for the selected filters
+                    {viewMode === 'dashboard' ? (
+                      <Box>
+                        {/* Insights Row */}
+                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                          <Grid item xs={12} md={3}>
+                            <Paper sx={{ p: 2, bgcolor: alpha(theme.palette.info.main, 0.05) }}>
+                              <Typography variant="caption" color="text.secondary">
+                                Avg Daily Expense
+                              </Typography>
+                              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                ₹{calculateAnalytics.avgDailyExpense.toFixed(0)}
+                              </Typography>
+                              <Typography variant="caption" color={calculateAnalytics.expenseChange > 0 ? 'error' : 'success'}>
+                                {calculateAnalytics.expenseChange > 0 ? '↑' : '↓'} 
+                                {Math.abs(calculateAnalytics.expenseChange).toFixed(1)}% vs last month
+                              </Typography>
+                            </Paper>
+                          </Grid>
+                          <Grid item xs={12} md={3}>
+                            <Paper sx={{ p: 2, bgcolor: alpha(theme.palette.success.main, 0.05) }}>
+                              <Typography variant="caption" color="text.secondary">
+                                Avg Daily Revenue
+                              </Typography>
+                              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                ₹{calculateAnalytics.avgDailyRevenue.toFixed(0)}
+                              </Typography>
+                            </Paper>
+                          </Grid>
+                          <Grid item xs={12} md={3}>
+                            <Paper sx={{ p: 2, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+                              <Typography variant="caption" color="text.secondary">
+                                Profit Margin
+                              </Typography>
+                              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                {calculateAnalytics.profitMargin.toFixed(1)}%
+                              </Typography>
+                            </Paper>
+                          </Grid>
+                          <Grid item xs={12} md={3}>
+                            <Paper sx={{ p: 2, bgcolor: alpha(theme.palette.warning.main, 0.05) }}>
+                              <Typography variant="caption" color="text.secondary">
+                                Burn Rate (Monthly)
+                              </Typography>
+                              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                ₹{(calculateAnalytics.thisMonthExpenses).toFixed(0)}
+                              </Typography>
+                            </Paper>
+                          </Grid>
+                        </Grid>
+
+                        {/* Charts Row 1: Trends */}
+                        <Grid container spacing={3} sx={{ mb: 3 }}>
+                          <Grid item xs={12} lg={8}>
+                            <ChartCard>
+                              <div className="chart-header">
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                  <TimelineIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                                  Revenue vs Expenses Trend
                                 </Typography>
-                              </TableCell>
-                            </TableRow>
-                          )}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
+                              </div>
+                              <ResponsiveContainer width="100%" height={300}>
+                                <AreaChart data={calculateAnalytics.dailyTrend}>
+                                  <defs>
+                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor={CHART_COLORS.success} stopOpacity={0.3}/>
+                                      <stop offset="95%" stopColor={CHART_COLORS.success} stopOpacity={0}/>
+                                    </linearGradient>
+                                    <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor={CHART_COLORS.error} stopOpacity={0.3}/>
+                                      <stop offset="95%" stopColor={CHART_COLORS.error} stopOpacity={0}/>
+                                    </linearGradient>
+                                  </defs>
+                                  <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.1)} />
+                                  <XAxis dataKey="date" stroke={theme.palette.text.secondary} />
+                                  <YAxis stroke={theme.palette.text.secondary} />
+                                  <RechartsTooltip 
+                                    contentStyle={{ 
+                                      backgroundColor: theme.palette.background.paper,
+                                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                                      borderRadius: 8
+                                    }}
+                                  />
+                                  <Legend />
+                                  <Area 
+                                    type="monotone" 
+                                    dataKey="revenue" 
+                                    stroke={CHART_COLORS.success} 
+                                    fillOpacity={1} 
+                                    fill="url(#colorRevenue)" 
+                                    strokeWidth={2}
+                                  />
+                                  <Area 
+                                    type="monotone" 
+                                    dataKey="expenses" 
+                                    stroke={CHART_COLORS.error} 
+                                    fillOpacity={1} 
+                                    fill="url(#colorExpenses)"
+                                    strokeWidth={2}
+                                  />
+                                  <Line 
+                                    type="monotone" 
+                                    dataKey="profit" 
+                                    stroke={CHART_COLORS.primary} 
+                                    strokeWidth={2}
+                                    dot={false}
+                                    strokeDasharray="5 5"
+                                  />
+                                </AreaChart>
+                              </ResponsiveContainer>
+                            </ChartCard>
+                          </Grid>
+                          
+                          <Grid item xs={12} lg={4}>
+                            <ChartCard>
+                              <div className="chart-header">
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                  <DonutLargeIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                                  Expense Categories
+                                </Typography>
+                              </div>
+                              <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                  <Pie
+                                    data={calculateAnalytics.categoryData}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={({name, percentage}) => `${name}: ${percentage}%`}
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                  >
+                                    {calculateAnalytics.categoryData.map((entry, index) => (
+                                      <Cell key={`cell-${index}`} fill={CHART_COLORS.palette[index % CHART_COLORS.palette.length]} />
+                                    ))}
+                                  </Pie>
+                                  <RechartsTooltip 
+                                    formatter={(value) => `₹${value.toLocaleString()}`}
+                                    contentStyle={{ 
+                                      backgroundColor: theme.palette.background.paper,
+                                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                                      borderRadius: 8
+                                    }}
+                                  />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </ChartCard>
+                          </Grid>
+                        </Grid>
+
+                        {/* Charts Row 2: Comparisons */}
+                        <Grid container spacing={3} sx={{ mb: 3 }}>
+                          <Grid item xs={12} md={6}>
+                            <ChartCard>
+                              <div className="chart-header">
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                  <BarChartIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                                  Revenue Sources
+                                </Typography>
+                              </div>
+                              <ResponsiveContainer width="100%" height={250}>
+                                <BarChart data={calculateAnalytics.sourceData} layout="horizontal">
+                                  <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.1)} />
+                                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                                  <YAxis />
+                                  <RechartsTooltip 
+                                    formatter={(value) => `₹${value.toLocaleString()}`}
+                                    contentStyle={{ 
+                                      backgroundColor: theme.palette.background.paper,
+                                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                                      borderRadius: 8
+                                    }}
+                                  />
+                                  <Bar dataKey="value" fill={CHART_COLORS.success}>
+                                    {calculateAnalytics.sourceData.map((entry, index) => (
+                                      <Cell key={`cell-${index}`} fill={alpha(CHART_COLORS.success, 0.8 - index * 0.1)} />
+                                    ))}
+                                  </Bar>
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </ChartCard>
+                          </Grid>
+                          
+                          <Grid item xs={12} md={6}>
+                            <ChartCard>
+                              <div className="chart-header">
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                  Top Expenses
+                                </Typography>
+                              </div>
+                              <List dense>
+                                {calculateAnalytics.topExpenses.map((expense, index) => (
+                                  <ListItem key={index} sx={{ px: 0 }}>
+                                    <ListItemText
+                                      primary={
+                                        <Stack direction="row" justifyContent="space-between">
+                                          <Typography variant="body2" noWrap sx={{ maxWidth: '60%' }}>
+                                            {expense.name}
+                                          </Typography>
+                                          <Typography variant="body2" color="error" sx={{ fontWeight: 600 }}>
+                                            ₹{expense.amount.toLocaleString()}
+                                          </Typography>
+                                        </Stack>
+                                      }
+                                      secondary={
+                                        <Stack direction="row" spacing={1}>
+                                          <Chip label={expense.category} size="small" variant="outlined" />
+                                          <Typography variant="caption" color="text.secondary">
+                                            {expense.date}
+                                          </Typography>
+                                        </Stack>
+                                      }
+                                    />
+                                  </ListItem>
+                                ))}
+                              </List>
+                            </ChartCard>
+                          </Grid>
+                        </Grid>
+
+                        {/* Comparison View (when enabled) */}
+                        {comparisonEnabled && (
+                          <Grid container spacing={3} sx={{ mb: 3 }}>
+                            <Grid item xs={12}>
+                              <ChartCard>
+                                <div className="chart-header">
+                                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                    <CompareArrowsIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                                    Period Comparison
+                                  </Typography>
+                                </div>
+                                <ResponsiveContainer width="100%" height={300}>
+                                  <ComposedChart data={[
+                                    { name: 'Previous Period', revenue: 50000, expenses: 35000, profit: 15000 },
+                                    { name: 'Current Period', revenue: totalRevenue, expenses: totalExpenses, profit: netIncome }
+                                  ]}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="name" />
+                                    <YAxis />
+                                    <RechartsTooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                                    <Legend />
+                                    <Bar dataKey="revenue" fill={CHART_COLORS.success} />
+                                    <Bar dataKey="expenses" fill={CHART_COLORS.error} />
+                                    <Line type="monotone" dataKey="profit" stroke={CHART_COLORS.primary} strokeWidth={3} />
+                                  </ComposedChart>
+                                </ResponsiveContainer>
+                              </ChartCard>
+                            </Grid>
+                          </Grid>
+                        )}
+                      </Box>
+                    ) : (
+                      // Table view
+                      <Box>
+                        <FilterBar>
+                          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+                            <ToggleButtonGroup
+                              value={transactionType}
+                              exclusive
+                              onChange={(e, v) => v && setTransactionType(v)}
+                              size="small"
+                            >
+                              <ToggleButton value="all">All Transactions</ToggleButton>
+                              <ToggleButton value="revenue">Revenue Only</ToggleButton>
+                              <ToggleButton value="expense">Expenses Only</ToggleButton>
+                            </ToggleButtonGroup>
+                            <Box sx={{ flexGrow: 1 }} />
+                            <Stack direction="row" spacing={2}>
+                              <DatePicker
+                                label="Start Date"
+                                value={dateRange.start}
+                                onChange={(date) => setDateRange(prev => ({ ...prev, start: date }))}
+                                slotProps={{ textField: { size: 'small' } }}
+                              />
+                              <DatePicker
+                                label="End Date"
+                                value={dateRange.end}
+                                onChange={(date) => setDateRange(prev => ({ ...prev, end: date }))}
+                                slotProps={{ textField: { size: 'small' } }}
+                              />
+                              <Button
+                                size="small"
+                                onClick={() => setDateRange({ start: null, end: null })}
+                              >
+                                Clear
+                              </Button>
+                            </Stack>
+                          </Stack>
+                        </FilterBar>
+
+                        {/* Transactions Table */}
+                        <TableContainer sx={{ maxHeight: 500 }}>
+                          <Table stickyHeader size="small">
+                            <TableHead>
+                              <TableRow>
+                                <TableCell sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Date</TableCell>
+                                <TableCell sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Description</TableCell>
+                                <TableCell sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Type</TableCell>
+                                <TableCell sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Category</TableCell>
+                                <TableCell align="right" sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Amount</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 700, bgcolor: 'background.paper' }}>Actions</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {loading.expenses || loading.revenue ? (
+                                [...Array(5)].map((_, i) => (
+                                  <TableRow key={i}>
+                                    {[...Array(6)].map((_, j) => (
+                                      <TableCell key={j}><Skeleton /></TableCell>
+                                    ))}
+                                  </TableRow>
+                                ))
+                              ) : filteredTransactions.length > 0 ? (
+                                filteredTransactions.map(transaction => (
+                                  <StyledTableRow key={transaction._id}>
+                                    <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                                    <TableCell>
+                                      <EditableField
+                                        value={transaction.description}
+                                        onSave={(value) => handleUpdateTransaction(
+                                          transaction._id,
+                                          transaction.type,
+                                          { description: value }
+                                        )}
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <AnimatedChip
+                                        label={transaction.type}
+                                        size="small"
+                                        color={transaction.type === 'revenue' ? 'success' : 'error'}
+                                        variant="outlined"
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Chip
+                                        label={transaction.category || transaction.source}
+                                        size="small"
+                                        variant="filled"
+                                        sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1) }}
+                                      />
+                                    </TableCell>
+                                    <TableCell align="right">
+                                      <EditableField
+                                        value={transaction.amount}
+                                        type="currency"
+                                        onSave={(value) => handleUpdateTransaction(
+                                          transaction._id,
+                                          transaction.type,
+                                          { amount: value }
+                                        )}
+                                      />
+                                    </TableCell>
+                                    <TableCell align="center">
+                                      <IconButton
+                                        size="small"
+                                        onClick={() => setDeleteDialog({
+                                          open: true,
+                                          id: transaction._id,
+                                          type: transaction.type,
+                                          name: transaction.description
+                                        })}
+                                      >
+                                        <DeleteIcon fontSize="small" />
+                                      </IconButton>
+                                    </TableCell>
+                                  </StyledTableRow>
+                                ))
+                              ) : (
+                                <TableRow>
+                                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                      No transactions found for the selected filters
+                                    </Typography>
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </Box>
+                    )}
                   </Box>
                 </Fade>
               )}
