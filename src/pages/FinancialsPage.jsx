@@ -481,6 +481,7 @@ const FinancialsPage = () => {
   const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
   const totalRevenue = revenues.reduce((sum, rev) => sum + rev.amount, 0);
   const netIncome = totalRevenue - totalExpenses;
+  const remainingBalance = totalBalance - totalExpenses;
 
   // Get unique categories and sources
   const availableCategories = useMemo(() => {
@@ -774,62 +775,79 @@ const FinancialsPage = () => {
           )}
 
           {/* Key Metrics */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Grow in timeout={500}>
-                <Box>
-                  <MetricDisplay
-                    title="Total Balance"
-                    value={totalBalance}
-                    icon={<AccountBalanceWalletIcon />}
-                    color="primary"
-                    loading={loading.bankAccounts}
-                  />
-                </Box>
-              </Grow>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Grow in timeout={700}>
-                <Box>
-                  <MetricDisplay
-                    title="Total Revenue"
-                    value={totalRevenue}
-                    icon={<TrendingUpIcon />}
-                    color="success"
-                    loading={loading.revenue}
-                    trend={calculateAnalytics.expenseChange}
-                  />
-                </Box>
-              </Grow>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Grow in timeout={900}>
-                <Box>
-                  <MetricDisplay
-                    title="Total Expenses"
-                    value={totalExpenses}
-                    icon={<TrendingDownIcon />}
-                    color="error"
-                    loading={loading.expenses}
-                    trend={calculateAnalytics.expenseChange}
-                  />
-                </Box>
-              </Grow>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Grow in timeout={1100}>
-                <Box>
-                  <MetricDisplay
-                    title="Net Income"
-                    value={netIncome}
-                    icon={<PointOfSaleIcon />}
-                    color={netIncome >= 0 ? "success" : "error"}
-                    loading={loading.expenses || loading.revenue}
-                  />
-                </Box>
-              </Grow>
-            </Grid>
-          </Grid>
+<Grid container spacing={3} sx={{ mb: 4 }}>
+  <Grid item xs={12} sm={6} lg={2.4}>
+    <Grow in timeout={500}>
+      <Box>
+        <MetricDisplay
+          title="Total Balance"
+          value={totalBalance}
+          icon={<AccountBalanceWalletIcon />}
+          color="primary"
+          loading={loading.bankAccounts}
+        />
+      </Box>
+    </Grow>
+  </Grid>
+  
+  <Grid item xs={12} sm={6} lg={2.4}>
+    <Grow in timeout={600}>
+      <Box>
+        <MetricDisplay
+          title="Remaining Balance"
+          value={remainingBalance}
+          icon={<SavingsIcon />}
+          color="info"
+          loading={loading.bankAccounts || loading.expenses}
+        />
+      </Box>
+    </Grow>
+  </Grid>
+  
+  <Grid item xs={12} sm={6} lg={2.4}>
+    <Grow in timeout={700}>
+      <Box>
+        <MetricDisplay
+          title="Total Revenue"
+          value={totalRevenue}
+          icon={<TrendingUpIcon />}
+          color="success"
+          loading={loading.revenue}
+          trend={calculateAnalytics.expenseChange}
+        />
+      </Box>
+    </Grow>
+  </Grid>
+  
+  <Grid item xs={12} sm={6} lg={2.4}>
+    <Grow in timeout={900}>
+      <Box>
+        <MetricDisplay
+          title="Total Expenses"
+          value={totalExpenses}
+          icon={<TrendingDownIcon />}
+          color="error"
+          loading={loading.expenses}
+          trend={calculateAnalytics.expenseChange}
+        />
+      </Box>
+    </Grow>
+  </Grid>
+  
+  <Grid item xs={12} sm={6} lg={2.4}>
+    <Grow in timeout={1100}>
+      <Box>
+        <MetricDisplay
+          title="Net Income"
+          value={netIncome}
+          icon={<PointOfSaleIcon />}
+          color={netIncome >= 0 ? "success" : "error"}
+          loading={loading.expenses || loading.revenue}
+        />
+      </Box>
+    </Grow>
+  </Grid>
+</Grid>
 
           {/* Quick Actions */}
           <Box sx={{ mb: 4 }}>
