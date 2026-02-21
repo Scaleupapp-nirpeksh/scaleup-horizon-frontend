@@ -1,7 +1,6 @@
 // UpdatedTasksPage.jsx - Integration with improved Kanban board and Analytics
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import {
   Container, Grid, Paper, Typography, Box, Stack, useTheme, alpha, 
   IconButton, Button, Chip, Avatar, Badge, Tooltip, Fab, Menu, MenuItem,
@@ -61,11 +60,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import GroupIcon from '@mui/icons-material/Group';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import LabelIcon from '@mui/icons-material/Label';
-import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 
 // Component imports
 import EnhancedTaskDialog from '../components/tasks/EnhancedTaskDialog';
@@ -74,8 +69,8 @@ import TaskAnalytics from '../components/tasks/TaskAnalytics';
 
 // API imports
 import {
-  getTasks, createTask, updateTask, archiveTask, assignTask, updateTaskWatchers,
-  getTaskComments, addTaskComment, updateTaskComment, deleteTaskComment,
+  getTasks, createTask, updateTask, archiveTask,
+  getTaskComments, addTaskComment,
   getTaskStats, formatTaskFilters, listOrganizationMembers
 } from '../services/api';
 
@@ -84,11 +79,6 @@ const pulse = keyframes`
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.05); opacity: 0.8; }
   100% { transform: scale(1); opacity: 1; }
-`;
-
-const slideIn = keyframes`
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
 `;
 
 const fadeIn = keyframes`
@@ -260,8 +250,7 @@ const getStatusColor = (status) => {
 // Main Component
 const TasksPage = () => {
   const theme = useTheme();
-  const { user, activeOrganization } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   // State Management
@@ -387,7 +376,7 @@ const TasksPage = () => {
 
       console.log('Sending to API:', taskData);
 
-      const res = await createTask(taskData);
+      await createTask(taskData);
       setSuccess('Task created successfully!');
       setCreateTaskOpen(false);
       fetchTasks(true);
@@ -457,17 +446,6 @@ const TasksPage = () => {
     } catch (err) {
       console.error('Error archiving task:', err);
       setError(err.response?.data?.msg || 'Failed to archive task');
-    }
-  };
-  
-  const handleAssignTask = async (taskId, assigneeId) => {
-    try {
-      await assignTask(taskId, { assigneeId });
-      setSuccess('Task assigned successfully!');
-      fetchTasks(true);
-    } catch (err) {
-      console.error('Error assigning task:', err);
-      setError(err.response?.data?.msg || 'Failed to assign task');
     }
   };
   
@@ -564,6 +542,8 @@ const TasksPage = () => {
             break;
           case 'todo':
             tasksByAssignee[assigneeId].todo++;
+            break;
+          default:
             break;
         }
         
