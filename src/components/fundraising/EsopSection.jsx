@@ -1,10 +1,10 @@
 // src/components/fundraising/EsopSection.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Button, Grid, Paper, IconButton, Tooltip, CircularProgress, 
-  Card, CardHeader, CardContent, Avatar, Chip, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, Dialog, DialogTitle, DialogContent, 
-  DialogActions, alpha, useTheme, Grow, Stack, LinearProgress, Fade, 
+  Box, Typography, Button, Grid, Paper, IconButton,
+  Card, CardContent, Avatar, Chip,
+  Dialog, DialogTitle, DialogContent,
+  DialogActions, alpha, useTheme, Grow, Stack, LinearProgress, Fade,
   TextField, InputAdornment, Skeleton, Divider
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -12,18 +12,14 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SearchIcon from '@mui/icons-material/Search';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import LockIcon from '@mui/icons-material/Lock';
 import TimerIcon from '@mui/icons-material/Timer';
 
 import EsopGrantForm from './EsopGrantForm';

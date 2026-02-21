@@ -2,21 +2,18 @@
 import React from 'react';
 import {
   Box, Paper, Grid, Typography, Stack, IconButton, Chip, 
-  Avatar, LinearProgress, Divider, Table, TableContainer, 
-  TableHead, TableRow, TableCell, TableBody, Rating
+  Avatar, LinearProgress, Divider
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  BarChart, Bar, LineChart, Line, Area, AreaChart,
-  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
   ResponsiveContainer
 } from 'recharts';
 import EditIcon from '@mui/icons-material/Edit';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import HistoryIcon from '@mui/icons-material/History';
 
-import { ScenarioChip, GlassCard, PredictionCard } from './StyledComponents';
+import { ScenarioChip, GlassCard } from './StyledComponents';
 import { formatCurrency, formatDate, formatPercentage } from './formatters';
 
 const FundraisingDetails = ({

@@ -2,14 +2,13 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   Container, Typography, Box, Grid, Paper, Card, CardContent, Stack,
-  Button, IconButton, Avatar, Chip, Divider, Tooltip, Badge, useTheme,
+  Button, IconButton, Avatar, Chip, Tooltip, Badge, useTheme,
   alpha, Fade, Grow, Skeleton, LinearProgress, TextField, Menu, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel,
-  Select, FormHelperText, Tab, Tabs, Autocomplete, InputAdornment, ListItem,
-  ListItemAvatar, ListItemText, List, CircularProgress, Alert, AlertTitle,
-  Checkbox, FormGroup, FormControlLabel, Zoom, Slide, ToggleButton,
-  ToggleButtonGroup, Stepper, Step, StepLabel, StepContent, AvatarGroup,
-  Collapse, useMediaQuery
+  Select, Tab, Tabs, Autocomplete, InputAdornment, List, ListItem,
+  ListItemAvatar, ListItemText, CircularProgress, Alert,
+  Checkbox, FormControlLabel, Zoom, ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -23,7 +22,6 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PendingIcon from '@mui/icons-material/Pending';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import SpeedIcon from '@mui/icons-material/Speed';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -33,46 +31,23 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
 import FlagIcon from '@mui/icons-material/Flag';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import ScienceIcon from '@mui/icons-material/Science';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import SortIcon from '@mui/icons-material/Sort';
-import BlockIcon from '@mui/icons-material/Block';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import GroupsIcon from '@mui/icons-material/Groups';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CommentIcon from '@mui/icons-material/Comment';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import LabelIcon from '@mui/icons-material/Label';
-import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import WarningIcon from '@mui/icons-material/Warning';
 import InfoIcon from '@mui/icons-material/Info';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import ArchiveIcon from '@mui/icons-material/Archive';
 
 // API
 import {
@@ -83,9 +58,7 @@ import {
   deleteProductMilestone,
   addMilestoneTask,
   updateMilestoneTask,
-  deleteMilestoneTask,
   getProductMilestoneStatistics,
-  getInvestorRoadmap,
   getHeadcounts,
 } from '../services/api';
 
@@ -99,11 +72,6 @@ const float = keyframes`
 const pulse = keyframes`
   0%, 100% { opacity: 0.4; transform: scale(1); }
   50% { opacity: 0.8; transform: scale(1.05); }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
 `;
 
 const glow = keyframes`
@@ -680,8 +648,6 @@ const TabPanel = ({ children, value, index, ...other }) => (
 
 // Milestone Item Component for Kanban
 const MilestoneItem = React.memo(({ milestone, index, onClick, onMenuClick }) => {
-  const theme = useTheme();
-  
   const handleClick = useCallback((e) => {
     if (!e.defaultPrevented) {
       onClick(milestone);
@@ -1005,8 +971,7 @@ const initialTaskData = {
 const ProductMilestonesPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   // State Management
   const [loading, setLoading] = useState(true);
   const [milestones, setMilestones] = useState([]);
@@ -1017,7 +982,7 @@ const ProductMilestonesPage = () => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedQuarter, setSelectedQuarter] = useState('all');
-  const [sortBy, setSortBy] = useState('plannedEndDate');
+  const [sortBy] = useState('plannedEndDate');
   const [searchQuery, setSearchQuery] = useState('');
   
   // Dialog states

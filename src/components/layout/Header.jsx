@@ -1,11 +1,11 @@
 // src/components/layout/Header.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   AppBar, Toolbar, IconButton, Typography, Box, Menu, MenuItem,
-  Avatar, Divider, CircularProgress, Tooltip, Chip, useTheme, alpha, Button,
-  ListItemIcon, Fade, Badge
+  Avatar, Divider, CircularProgress, Tooltip, Chip, alpha, Button,
+  ListItemIcon, Fade
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -172,23 +172,11 @@ const ProfileHeader = styled(Box)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
 }));
 
-const NotificationBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    backgroundColor: theme.palette.error.main,
-    color: theme.palette.error.contrastText,
-    fontSize: '0.7rem',
-    height: 16,
-    minWidth: 16,
-    padding: '0 4px',
-  }
-}));
-
 const Header = ({ onDrawerToggle, drawerWidth }) => {
   const { 
     user, logout, activeOrganization, memberships, switchOrganization, isLoading: authLoading 
   } = useAuth();
   const navigate = useNavigate();
-  const theme = useTheme();
 
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElOrg, setAnchorElOrg] = useState(null);

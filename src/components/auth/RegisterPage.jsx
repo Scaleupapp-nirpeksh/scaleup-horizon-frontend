@@ -4,7 +4,7 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   Button, TextField, Link, Grid, Box, Typography, Container, 
-  CircularProgress, Alert, Paper, useTheme, useMediaQuery,
+  CircularProgress, Alert, Paper, useTheme,
   InputAdornment, IconButton, LinearProgress, Tooltip
 } from '@mui/material';
 import { styled, keyframes, alpha } from '@mui/material/styles';
@@ -16,7 +16,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import StarsIcon from '@mui/icons-material/Stars';
 
@@ -24,11 +23,6 @@ import StarsIcon from '@mui/icons-material/Stars';
 const pulse = keyframes`
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.05); opacity: 0.8; }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
 `;
 
 const orbit = keyframes`
@@ -364,7 +358,7 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [meteors, setMeteors] = useState([]);
+  const [meteors] = useState([]);
   const [stars, setStars] = useState([]);
   const { registerOrganizationOwner } = useAuth(); // Updated to use new function
   const navigate = useNavigate();

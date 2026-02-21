@@ -9,13 +9,12 @@ import RevenueCohortsList from './RevenueCohortsList';
 import RevenueCohortDetails from './RevenueCohortDetails';
 import { EmptyStateBox } from './StyledComponents';
 
-import { 
+import {
   createRevenueCohort,
   getRevenueCohorts,
   getRevenueCohortById,
   updateRevenueCohort,
   updateCohortMetrics,
-  deleteRevenueCohort,
   generateCohortProjections
 } from '../../services/api';
 

@@ -10,12 +10,10 @@ import RunwayScenarioList from './RunwayScenarioList';
 import RunwayScenarioDetails from './RunwayScenarioDetails';
 import { EmptyStateBox } from './StyledComponents';
 
-import { 
-  getRunwayScenarios, 
-  getRunwayScenarioById, 
-  createRunwayScenario, 
-  updateRunwayScenario, 
-  deleteRunwayScenario,
+import {
+  getRunwayScenarios,
+  createRunwayScenario,
+  updateRunwayScenario,
   compareRunwayScenarios
 } from '../../services/api';
 

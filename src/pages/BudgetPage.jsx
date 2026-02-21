@@ -1,27 +1,22 @@
 // src/pages/BudgetPage.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Container, Typography, Box, Grid, Paper, List, ListItem, ListItemText,
-  IconButton, Tooltip, Button, Divider, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, FormControl, InputLabel, Select,
-  MenuItem, TextField, CircularProgress, Alert, Card, CardContent,
-  CardHeader, Avatar, Stack, useTheme, alpha, Fade, Grow, Skeleton,
+  Container, Typography, Box, Grid, Paper,
+  IconButton, Tooltip, Button, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow,
+  CircularProgress, Card, CardContent,
+  Avatar, Stack, useTheme, alpha, Fade, Grow, Skeleton,
   Chip, LinearProgress, ToggleButton, ToggleButtonGroup, Tab, Tabs,
-  Dialog, DialogTitle, DialogContent, Collapse, ButtonGroup, Badge, useMediaQuery
+  Dialog, DialogTitle, DialogContent, ButtonGroup, useMediaQuery
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import BudgetForm from '../components/budgets/BudgetForm';
 import { getBudgets, deleteBudget, getBudgetVsActualsReport } from '../services/api';
-import LoadingSpinner from '../components/common/LoadingSpinner';
 import AlertMessage from '../components/common/AlertMessage';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -32,8 +27,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CategoryIcon from '@mui/icons-material/Category';
 import TimelineIcon from '@mui/icons-material/Timeline';
-import DonutLargeIcon from '@mui/icons-material/DonutLarge';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, RadialBarChart, RadialBar } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend } from 'recharts';
 
 // Styled Components
 const GlassCard = styled(Card)(({ theme }) => ({
@@ -215,7 +209,7 @@ const BudgetPage = () => {
   const [reportLoading, setReportLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [showFormDialog, setShowFormDialog] = useState(false);
-  const [selectedBudget, setSelectedBudget] = useState(null);
+  const [, setSelectedBudget] = useState(null);
   const [viewMode, setViewMode] = useState('grid');
 
   const fetchBudgets = useCallback(async () => {

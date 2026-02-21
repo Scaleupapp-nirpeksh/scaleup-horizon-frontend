@@ -3,17 +3,16 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
-  Container, Grid, Paper, Typography, Box, Alert, Stack, useTheme, alpha,
-  Fade, Grow, Skeleton, Button, Chip, Avatar, AvatarGroup, IconButton,
-  Card, CardContent, Divider, LinearProgress, Badge, Tooltip, useMediaQuery,
-  List, ListItem, ListItemText, ListItemIcon, ListItemAvatar, Tabs, Tab,
-  Dialog, DialogTitle, DialogContent, Zoom, Collapse, CardActionArea
+  Container, Grid, Paper, Typography, Box, Stack, useTheme, alpha,
+  Fade, Grow, Skeleton, Button, Chip, Avatar,
+  Card, CardContent, Divider,
+  CardActionArea
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 import {
-  PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, LineChart, Line,
-  RadialBarChart, RadialBar, ComposedChart
+  PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Line,
+  ComposedChart
 } from 'recharts';
 
 // Icons
@@ -24,41 +23,23 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import PeopleIcon from '@mui/icons-material/People';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import GroupsIcon from '@mui/icons-material/Groups';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import AssignmentIcon from '@mui/icons-material/Assignment';
 import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import InfoIcon from '@mui/icons-material/Info';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import EqualizerIcon from '@mui/icons-material/Equalizer';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import FolderIcon from '@mui/icons-material/Folder';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import SpeedIcon from '@mui/icons-material/Speed';
-import BoltIcon from '@mui/icons-material/Bolt';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import TimelineIcon from '@mui/icons-material/Timeline';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 // API imports
 import api, {
   // Financial APIs
   getBudgets,
-  getExpenses,
-  getRevenue,
   getBankAccounts,
   getRecurringTransactions,
   
@@ -89,16 +70,6 @@ const pulse = keyframes`
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.05); opacity: 0.9; }
   100% { transform: scale(1); opacity: 1; }
-`;
-
-const slideIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const glow = keyframes`
-  0%, 100% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.5); }
-  50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.8); }
 `;
 
 // Styled Components
@@ -270,8 +241,7 @@ const DashboardPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   // State management
   const [loading, setLoading] = useState({
     financial: true,
@@ -292,8 +262,6 @@ const DashboardPage = () => {
   
   const [alerts, setAlerts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState(null);
-  const [activeTab, setActiveTab] = useState(0);
 
   // Fetch all data
   const fetchAllData = useCallback(async () => {

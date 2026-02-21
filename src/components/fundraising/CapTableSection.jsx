@@ -1,11 +1,11 @@
 // src/components/fundraising/CapTableSection.jsx - COMPLETE FIXED VERSION WITH NULL SAFETY
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Button, Grid, Paper, IconButton, Tooltip, CircularProgress, 
-  Card, CardHeader, CardContent, Avatar, Chip, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, Dialog, DialogTitle, DialogContent, 
+  Box, Typography, Button, Grid, Paper, IconButton, Tooltip,
+  Card, CardHeader, CardContent, Avatar, Chip, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Dialog, DialogTitle, DialogContent,
   DialogActions, alpha, useTheme, Grow, Stack, LinearProgress, Fade, Skeleton,
-  Alert, Badge, Select, MenuItem, FormControl, InputLabel
+  Alert, Select, MenuItem, FormControl, InputLabel
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
@@ -13,19 +13,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PieChartOutlineIcon from '@mui/icons-material/PieChartOutline';
 import DonutLargeIcon from '@mui/icons-material/DonutLarge';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupsIcon from '@mui/icons-material/Groups';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SecurityIcon from '@mui/icons-material/Security';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import CalculateIcon from '@mui/icons-material/Calculate';
 import InfoIcon from '@mui/icons-material/Info';
-import ShareIcon from '@mui/icons-material/Share';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTooltip, Sector } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Sector } from 'recharts';
 
 import CapTableForm from './CapTableForm';
 import { getCapTableSummary, deleteCapTableEntry, getRounds } from '../../services/api';
@@ -134,7 +129,7 @@ const CHART_COLORS = [
 
 // Custom active shape for pie chart
 const renderActiveShape = (props) => {
-  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent } = props;
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
 
   return (
     <g>
@@ -174,7 +169,7 @@ const renderActiveShape = (props) => {
 const CapTableSection = () => {
   const theme = useTheme();
   const [capTableEntries, setCapTableEntries] = useState([]);
-  const [capTableSummary, setCapTableSummary] = useState(null);
+  const [, setCapTableSummary] = useState(null);
   const [rounds, setRounds] = useState([]);
   const [selectedRound, setSelectedRound] = useState('');
   const [entryToEdit, setEntryToEdit] = useState(null);

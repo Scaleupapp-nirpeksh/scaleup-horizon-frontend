@@ -9,12 +9,10 @@ import CashFlowList from './CashFlowList';
 import CashFlowDetails from './CashFlowDetails';
 import { EmptyStateBox } from './StyledComponents';
 
-import { 
+import {
   createCashFlowForecast,
   getCashFlowForecasts,
-  getCashFlowForecastById,
   updateCashFlowForecast,
-  deleteCashFlowForecast,
   getHistoricalCashFlowData,
   getCurrentCashPosition
 } from '../../services/api';

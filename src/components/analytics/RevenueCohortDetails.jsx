@@ -2,18 +2,17 @@
 import React, { useState } from 'react';
 import {
   Box, Paper, Grid, Typography, Stack, IconButton, Chip,
-  Avatar, LinearProgress, Divider, List, ListItem, ListItemIcon, ListItemText,
-  Button, TextField, Card, Tab, Tabs, FormControl, InputLabel, Select, MenuItem,
+  Divider, List, ListItem, ListItemIcon, ListItemText,
+  Button, Tab, Tabs, FormControl, Select, MenuItem,
   Tooltip
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import {
-  ComposedChart, LineChart, Line, AreaChart, Area, BarChart, Bar,
+  ComposedChart, Line, Area, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
-  ResponsiveContainer, ReferenceLine, Brush, ScatterChart, Scatter
+  ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import EditIcon from '@mui/icons-material/Edit';
-import TuneIcon from '@mui/icons-material/Tune';
 import DownloadIcon from '@mui/icons-material/Download';
 import PeopleIcon from '@mui/icons-material/People';
 import HistoryIcon from '@mui/icons-material/History';
@@ -24,7 +23,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import DataUsageIcon from '@mui/icons-material/DataUsage';
 
 import { ScenarioChip, PredictionCard, InsightBox } from './StyledComponents';

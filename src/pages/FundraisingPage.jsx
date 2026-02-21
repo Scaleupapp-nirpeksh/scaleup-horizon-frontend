@@ -1,11 +1,10 @@
 // src/pages/FundraisingPage.jsx
 import React, { useState, useEffect } from 'react';
 import { 
-  Container, Typography, Box, Tabs, Tab, Paper, alpha, useTheme, 
-  Card, Grid, Stack, Fade, Grow, IconButton, Chip, Avatar, LinearProgress
+  Container, Typography, Box, Tabs, Tab, alpha, useTheme,
+  Card, Grid, Stack, Fade, Grow, Avatar, LinearProgress
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import GroupWorkIcon from '@mui/icons-material/GroupWork'; 
 import PeopleIcon from '@mui/icons-material/People'; 
 import PieChartOutlineIcon from '@mui/icons-material/PieChartOutline'; 
@@ -13,7 +12,6 @@ import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
@@ -131,7 +129,7 @@ const FundraisingPage = () => {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const [roundsRes, investorsRes, capTableRes, esopRes] = await Promise.all([
+        const [roundsRes, investorsRes, , esopRes] = await Promise.all([
           getRounds(),
           getInvestors(),
           getCapTableSummary(),
@@ -140,7 +138,6 @@ const FundraisingPage = () => {
         
         const rounds = roundsRes.data || [];
         const investors = investorsRes.data || [];
-        const capTable = capTableRes.data || [];
         const esopGrants = esopRes.data || [];
         
         // Calculate real metrics

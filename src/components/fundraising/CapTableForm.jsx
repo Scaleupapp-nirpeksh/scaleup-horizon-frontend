@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Button, TextField, Grid, Typography, Box, CircularProgress,
   Select, MenuItem, FormControl, InputLabel, Alert, Chip, 
-  Stack, Autocomplete, Switch, FormControlLabel, Tooltip, IconButton
+  Stack, Autocomplete, Switch, FormControlLabel, Tooltip
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CalculateIcon from '@mui/icons-material/Calculate';
@@ -116,6 +116,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
     } else {
       setCalculationPreview(null);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.investmentAmount, formData.numberOfShares, selectedRound, formData.useRoundPricing]);
 
   const resetForm = () => {

@@ -2,22 +2,20 @@
 import React from 'react';
 import {
   Box, Paper, Grid, Typography, Stack, IconButton, Chip,
-  Avatar, LinearProgress, Divider, List, ListItem, ListItemIcon, ListItemText
+  Divider, List, ListItem, ListItemIcon, ListItemText
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import {
-  ComposedChart, LineChart, Line, AreaChart, Area, BarChart, Bar,
+  ComposedChart, Line, AreaChart, Area, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
-  ResponsiveContainer, ReferenceLine, Brush
+  ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import EditIcon from '@mui/icons-material/Edit';
-import TuneIcon from '@mui/icons-material/Tune';
 import DownloadIcon from '@mui/icons-material/Download';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import HistoryIcon from '@mui/icons-material/History';
 import ErrorIcon from '@mui/icons-material/Error';
 import WarningIcon from '@mui/icons-material/Warning';
-import SpeedIcon from '@mui/icons-material/Speed';
 
 import { ScenarioChip, PredictionCard, InsightBox } from './StyledComponents';
 import { formatCurrency, formatDate, formatPercentage } from './formatters';

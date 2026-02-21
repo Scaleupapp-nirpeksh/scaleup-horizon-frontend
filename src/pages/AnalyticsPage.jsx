@@ -1,9 +1,9 @@
 // src/pages/AnalyticsPage.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Container, Typography, Box, Grid, Tabs, Tab, Snackbar, Alert,
+  Container, Typography, Box, Tabs, Tab, Snackbar, Alert,
   LinearProgress, Stack, Chip, Breadcrumbs, Link, IconButton,
-  ToggleButtonGroup, ToggleButton, alpha, Backdrop, CircularProgress,
+  ToggleButtonGroup, ToggleButton, alpha, CircularProgress,
   SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions,
   DialogContent, DialogTitle, Button
 } from '@mui/material';

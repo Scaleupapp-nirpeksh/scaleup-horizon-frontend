@@ -2,10 +2,10 @@
 import React, { useState, useMemo } from 'react';
 import {
   Box, Typography, Paper, List, ListItem, ListItemText, ListItemAvatar, Avatar, alpha,
-  IconButton, Tooltip, Divider, Chip, Link as MuiLink, Grid, Card, CardContent,
+  IconButton, Tooltip, Divider, Chip, Grid, Card, CardContent,
   CardActions, Button, TextField, InputAdornment, Menu, MenuItem, Fade, Grow,
-  Stack, useTheme, LinearProgress, Badge, ToggleButton, ToggleButtonGroup,
-  Collapse, CardMedia, Skeleton, ButtonGroup, FormControl, Select, InputLabel
+  Stack, useTheme, Badge, ToggleButton, ToggleButtonGroup,
+  Skeleton, ButtonGroup, FormControl, Select, InputLabel
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import FolderIcon from '@mui/icons-material/Folder';
@@ -16,7 +16,6 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -35,8 +34,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import SortIcon from '@mui/icons-material/Sort';
-import LoadingSpinner from '../common/LoadingSpinner';
-import { downloadDocumentLink, deleteDocument as deleteDocApi } from '../../services/api';
+import { downloadDocumentLink } from '../../services/api';
 // Animation components will use MUI's built-in transitions
 
 // Styled Components
@@ -198,7 +196,6 @@ const DocumentList = ({ documents, loading, onDeleteDocument, onUploadClick }) =
   const [sortBy, setSortBy] = useState('date');
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedDoc, setSelectedDoc] = useState(null);
-  const [filterMenuAnchor, setFilterMenuAnchor] = useState(null);
   const [sortMenuAnchor, setSortMenuAnchor] = useState(null);
 
   // Filter and sort documents

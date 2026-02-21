@@ -1,16 +1,16 @@
 // src/pages/FinancialsPage.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  Container, Grid, Typography, Box, Paper, List, ListItem, ListItemText,
+  Container, Grid, Typography, Box, Paper, ListItemText,
   IconButton, Divider, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Tooltip, Button, Dialog, DialogActions,
+  TableHead, TableRow, Button, Dialog, DialogActions,
   DialogContent, DialogContentText, DialogTitle, Chip, Card,
-  CardHeader, CardContent, Avatar, Stack, useTheme, alpha,
+  CardContent, Avatar, Stack, useTheme, alpha,
   Fade, Grow, Skeleton, TextField, MenuItem, ToggleButton,
   ToggleButtonGroup, Zoom, Collapse, SwipeableDrawer, Tab, Tabs,
-  LinearProgress, Badge, ButtonGroup, FormControl, Select,
-  FormControlLabel, Switch, InputLabel, OutlinedInput,
-  Checkbox, ListItemIcon, useMediaQuery
+  LinearProgress, Badge, FormControl, Select,
+  OutlinedInput,
+  Checkbox, useMediaQuery
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -34,29 +34,25 @@ import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SavingsIcon from '@mui/icons-material/Savings';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import DonutLargeIcon from '@mui/icons-material/DonutLarge';
-import BarChartIcon from '@mui/icons-material/BarChart';
 import InsightsIcon from '@mui/icons-material/Insights';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import CategoryIcon from '@mui/icons-material/Category';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import LoadingSpinner from '../components/common/LoadingSpinner';
 import AlertMessage from '../components/common/AlertMessage';
 
 // Recharts imports for data visualization
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
-  Legend, ResponsiveContainer, Area, AreaChart, ComposedChart,
+  Line, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
+  Legend, ResponsiveContainer, ComposedChart,
   Sector
 } from 'recharts';
 
 import {
   getExpenses, getRevenue, getBankAccounts, getRecurringTransactions,
   deleteExpense, deleteRevenue, deleteBankAccount, deleteRecurringTransaction,
-  updateExpense, updateRevenue, updateBankAccount, updateRecurringTransaction,
+  updateExpense, updateRevenue, updateBankAccount,
   pauseRecurringTransaction, resumeRecurringTransaction, getRecurringSummary
 } from '../services/api';
 import ExpenseForm from '../components/financials/ExpenseForm';
@@ -1708,6 +1704,8 @@ const FinancialsPage = () => {
                       break;
                     case 'year':
                       start = new Date(now.setFullYear(now.getFullYear() - 1));
+                      break;
+                    default:
                       break;
                   }
                   

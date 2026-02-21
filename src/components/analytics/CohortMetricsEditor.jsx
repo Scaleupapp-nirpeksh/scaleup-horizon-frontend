@@ -4,20 +4,18 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Grid, TextField, Typography, Stack, IconButton,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Divider, Box, Alert, Tooltip, InputAdornment
+  Paper, Divider, Box, Alert, InputAdornment
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
 import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DownloadIcon from '@mui/icons-material/Download';
 import PeopleIcon from '@mui/icons-material/People';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import PercentIcon from '@mui/icons-material/Percent';
 import moment from 'moment';
 
-import { formatCurrency, formatPercentage } from './formatters';
+import { formatCurrency } from './formatters';
 
 const CohortMetricsEditor = ({
   open,

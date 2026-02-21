@@ -1,6 +1,6 @@
 // src/components/analytics/MetricCards.jsx
 import React from 'react';
-import { Grid, Typography, Box, Stack, Avatar } from '@mui/material';
+import { Grid, Typography, Box, Stack } from '@mui/material';
 import { motion } from 'framer-motion';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
@@ -8,7 +8,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PeopleIcon from '@mui/icons-material/People';
 
 import { MetricCard, AnimatedAvatar } from './StyledComponents';
-import { formatCurrency, formatDate, formatPercentage } from './formatters';
+import { formatCurrency, formatDate } from './formatters';
 
 const MetricCards = ({ 
   selectedScenario, 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChevronRight,
   Rocket,
@@ -12,7 +12,6 @@ import {
   Target,
   Activity,
   Briefcase,
-  Calendar,
   CheckCircle2,
   ArrowUpRight,
   Cpu,
@@ -67,6 +66,7 @@ const OnboardingExperience = ({ onComplete }) => {
     };
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSlide, isTransitioning]);
 
   const features = [

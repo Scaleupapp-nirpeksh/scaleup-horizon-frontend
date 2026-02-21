@@ -2,11 +2,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Container, Typography, Box, Grid, Paper, Card, CardContent, Stack,
-  Button, IconButton, Avatar, Chip, Divider, Tooltip, Badge, useTheme,
-  alpha, Fade, Grow, Skeleton, LinearProgress, TextField, Menu, MenuItem,
+  Button, IconButton, Avatar, Chip, Tooltip, useTheme,
+  alpha, Fade, Grow, Skeleton, TextField, Menu, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel,
   Select, FormHelperText, Tab, Tabs, Autocomplete, InputAdornment, ListItem,
-  ListItemAvatar, ListItemText, List, CircularProgress, Alert, AlertTitle, 
+  ListItemAvatar, ListItemText, List, CircularProgress, Alert,
   Checkbox, FormGroup, FormControlLabel, Zoom, Slide
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
@@ -36,18 +36,15 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import GroupIcon from '@mui/icons-material/Group';
-import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import LinkIcon from '@mui/icons-material/Link';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CancelIcon from '@mui/icons-material/Cancel';
-import MailIcon from '@mui/icons-material/Mail';
 import CategoryIcon from '@mui/icons-material/Category';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import NotesIcon from '@mui/icons-material/Notes';
-import FeedbackIcon from '@mui/icons-material/Feedback';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -62,7 +59,6 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'; // NEW: Icon for launching presentation
 
 // API
@@ -79,8 +75,6 @@ import {
   getInvestors as getAvailableInvestorsFromAPI,
   getHeadcounts as getAvailableTeamMembersFromAPI,
   prepareInvestorMeeting,
-  completeInvestorMeeting,
-  addMeetingFeedback,
 } from '../services/api';
 
 // Magical Animations
@@ -88,11 +82,6 @@ const float = keyframes`
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   33% { transform: translateY(-20px) rotate(-5deg); }
   66% { transform: translateY(10px) rotate(5deg); }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
 `;
 
 const pulse = keyframes`
@@ -105,11 +94,6 @@ const gradientShift = keyframes`
   50% { background-position: 100% 50%; }
 `;
 
-const sparkle = keyframes`
-  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1) rotate(180deg); }
-`;
-
 const glow = keyframes`
   0%, 100% { 
     box-shadow: 0 0 5px rgba(99, 102, 241, 0.5),
@@ -120,17 +104,6 @@ const glow = keyframes`
     box-shadow: 0 0 10px rgba(99, 102, 241, 0.8),
                 0 0 40px rgba(99, 102, 241, 0.5),
                 0 0 60px rgba(99, 102, 241, 0.3);
-  }
-`;
-
-const slideInRight = keyframes`
-  from {
-    opacity: 0;
-    transform: translateX(100px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
   }
 `;
 

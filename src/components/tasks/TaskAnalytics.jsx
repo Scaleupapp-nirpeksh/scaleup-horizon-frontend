@@ -2,18 +2,17 @@
 import React from 'react';
 import {
   Box, Grid, Paper, Typography, Stack, useTheme, alpha,
-  Avatar, Chip, LinearProgress, Card, CardContent, Tooltip
+  Avatar, Chip, LinearProgress, Card, CardContent
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip as RechartsTooltip, Legend, LineChart, Line, Area, AreaChart
+  CartesianGrid, Tooltip as RechartsTooltip, Legend, LineChart, Line
 } from 'recharts';
 
 // Icons
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import SpeedIcon from '@mui/icons-material/Speed';
 import GroupIcon from '@mui/icons-material/Group';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -200,6 +199,8 @@ const TaskAnalytics = ({ stats, tasks = [] }) => {
             break;
           case 'todo':
             memberStats[memberId].todo++;
+            break;
+          default:
             break;
         }
       }

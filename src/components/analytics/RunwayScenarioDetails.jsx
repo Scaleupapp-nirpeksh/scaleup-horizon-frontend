@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import {
-  LineChart, Line, Area, BarChart, Bar, Cell,
+  Line, Area, BarChart, Bar, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
   ResponsiveContainer, ComposedChart, ReferenceLine, Brush
 } from 'recharts';

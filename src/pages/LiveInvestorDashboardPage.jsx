@@ -1,10 +1,10 @@
 // src/pages/LiveInvestorDashboardPage.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Container, Typography, Box, Grid, Paper, Card, CardContent, Stack,
-  CircularProgress, Alert, Chip, Divider, useTheme, alpha, Skeleton,
+  Container, Typography, Box, Grid, Paper, Stack,
+  CircularProgress, Alert, Chip, Divider, useTheme, alpha,
   List, ListItem, ListItemText, ListItemAvatar, Avatar, Fade, Grow, Zoom,
-  IconButton, Tooltip, Badge
+  Tooltip
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 import GroupAddIcon         from '@mui/icons-material/GroupAdd';
@@ -23,7 +23,6 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import StarIcon from '@mui/icons-material/Star';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import WorkIcon from '@mui/icons-material/Work';
@@ -31,7 +30,6 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import SparklesIcon from '@mui/icons-material/AutoAwesome';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
@@ -42,11 +40,6 @@ const float = keyframes`
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   33% { transform: translateY(-10px) rotate(-3deg); }
   66% { transform: translateY(5px) rotate(3deg); }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
 `;
 
 const pulse = keyframes`

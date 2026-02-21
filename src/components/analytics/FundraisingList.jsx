@@ -19,7 +19,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 import { SearchBox, HistoryCard, ListViewItem } from './StyledComponents';
-import { formatCurrency, formatDate, getRelativeTime } from './formatters';
+import { formatCurrency, getRelativeTime } from './formatters';
 
 const FundraisingList = ({
   predictions,

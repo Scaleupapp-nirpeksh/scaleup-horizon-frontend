@@ -4,7 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext'; 
 import {
   Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText,
-  Divider, Box, Typography, useMediaQuery, Tooltip, Chip, Fade
+  Box, Typography, useMediaQuery, Chip, Fade
 } from '@mui/material';
 import { useTheme, styled, alpha, keyframes } from '@mui/material/styles';
 
@@ -13,9 +13,7 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import BarChartIcon from '@mui/icons-material/BarChart';
-import SettingsIcon from '@mui/icons-material/Settings';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import FolderIcon from '@mui/icons-material/Folder';
 import LoginIcon from '@mui/icons-material/Login';
@@ -24,7 +22,6 @@ import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility'; 
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import BusinessIcon from '@mui/icons-material/Business';
-import CircleIcon from '@mui/icons-material/Circle';
 import TaskIcon from '@mui/icons-material/Task';
 
 // Animations
@@ -150,14 +147,6 @@ const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
   minWidth: 40,
   color: theme.palette.text.secondary,
   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-}));
-
-const StatusDot = styled(CircleIcon)(({ theme, status }) => ({
-  fontSize: 7,
-  marginLeft: theme.spacing(0.75),
-  color: status === 'new' 
-    ? theme.palette.success.main 
-    : theme.palette.warning.main,
 }));
 
 const FooterSection = styled(Box)(({ theme }) => ({

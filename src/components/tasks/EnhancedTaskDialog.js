@@ -4,8 +4,8 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select,
   FormControl, InputLabel, MenuItem, Button, Stack, Chip, IconButton,
   Typography, Box, Avatar, Autocomplete, Alert, Tabs, Tab, Paper,
-  Divider, ToggleButtonGroup, ToggleButton, Tooltip, Fade, Grow,
-  InputAdornment, FormHelperText, AvatarGroup, Collapse, useTheme,
+  Divider, ToggleButtonGroup, ToggleButton, Fade, Grow,
+  InputAdornment, Collapse, useTheme,
   alpha, CircularProgress, Badge, ListItem, ListItemAvatar, ListItemText
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -20,7 +20,6 @@ import FlagIcon from '@mui/icons-material/Flag';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LabelIcon from '@mui/icons-material/Label';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -32,7 +31,6 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import CategoryIcon from '@mui/icons-material/Category';
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupIcon from '@mui/icons-material/Group';
-import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 
 const priorityConfig = {
   critical: { icon: <LocalFireDepartmentIcon />, color: '#f44336', label: 'Critical' },

@@ -6,11 +6,8 @@ import {
   Typography, Stack, Box, Switch, FormControlLabel, Slider,
   InputAdornment
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
-
-import { formatCurrency } from './formatters';
 
 const FundraisingDialog = ({ 
   open, 

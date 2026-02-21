@@ -1,5 +1,5 @@
 // src/pages/OrganizationManagementPage.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
 import {
@@ -7,8 +7,8 @@ import {
   Grid, TextField, Button, FormControl, InputLabel, Select, MenuItem,
   List, ListItem, ListItemAvatar, Avatar, ListItemText, IconButton,
   Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Snackbar, Tooltip, Fade, Slide, Zoom, Grow, Skeleton, Badge,
-  LinearProgress, Card, CardContent, Divider, useMediaQuery
+  Snackbar, Tooltip, Slide, Zoom, Skeleton, Badge,
+  Card, CardContent, Divider, useMediaQuery
 } from '@mui/material';
 import { styled, alpha, keyframes } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +20,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -28,7 +27,6 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import LanguageIcon from '@mui/icons-material/Language';
 import EmailIcon from '@mui/icons-material/Email';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -689,6 +687,7 @@ const ManageMembersSection = () => {
 
   useEffect(() => {
     fetchMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeOrganization]);
 
   const handleOpenRoleDialog = (member) => {

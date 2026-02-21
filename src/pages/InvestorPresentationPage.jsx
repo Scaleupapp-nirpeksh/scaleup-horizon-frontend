@@ -5,20 +5,14 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container, Typography, Box, Grid, Paper, Card, CardContent, Stack,
-  Button, IconButton, Avatar, Chip, Divider, Tooltip, Skeleton, LinearProgress,
-  Alert, Slide, Fade, Grow, Zoom, useTheme, alpha, CircularProgress,
-  Dialog, DialogContent, Backdrop, List, ListItem, ListItemIcon, ListItemText,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  useMediaQuery, SwipeableDrawer, SpeedDial, SpeedDialAction, Fab
+  Button, IconButton, Avatar, Chip, Tooltip, LinearProgress,
+  Alert, useTheme, alpha, CircularProgress
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import CountUp from 'react-countup';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
-         CartesianGrid, Tooltip as RechartsTooltip, Legend, LineChart, Line, 
-         Area, AreaChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, 
-         Radar, Treemap, ComposedChart, RadialBarChart, RadialBar, ScatterChart,
-         Scatter, FunnelChart, Funnel, LabelList } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Bar, XAxis, YAxis,
+         CartesianGrid, Tooltip as RechartsTooltip, ComposedChart } from 'recharts';
 import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
 
@@ -49,34 +43,13 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import TrendingFlatIcon from '@mui/icons-material/TrendingFlat';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import LoyaltyIcon from '@mui/icons-material/Loyalty';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import SpeedIcon from '@mui/icons-material/Speed';
-import WhatshotIcon from '@mui/icons-material/Whatshot';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import DiamondIcon from '@mui/icons-material/Diamond';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import DataUsageIcon from '@mui/icons-material/DataUsage';
-import BoltIcon from '@mui/icons-material/Bolt';
-import WavesIcon from '@mui/icons-material/Waves';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import PsychologyIcon from '@mui/icons-material/Psychology';
-import SchoolIcon from '@mui/icons-material/School';
-import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import FlareIcon from '@mui/icons-material/Flare';
-import GradeIcon from '@mui/icons-material/Grade';
-import WhatshotOutlinedIcon from '@mui/icons-material/WhatshotOutlined';
-import BlurOnIcon from '@mui/icons-material/BlurOn';
 
 // Import API functions
 import {
@@ -145,11 +118,6 @@ const morphing = keyframes`
   25% { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; }
   50% { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; }
   75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
-`;
-
-const rotate = keyframes`
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 `;
 
 const fadeInUp = keyframes`
@@ -410,8 +378,6 @@ const Card3D = ({ children, ...props }) => {
 
 // Enhanced Custom Tooltip
 const CustomTooltip = ({ active, payload, label }) => {
-  const theme = useTheme();
-  
   if (active && payload && payload.length) {
     return (
       <motion.div
@@ -446,7 +412,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 const InvestorPresentationPage = () => {
   const { meetingId } = useParams();
   const navigate = useNavigate();
-  const theme = useTheme();
   const containerRef = useRef(null);
   
   // State
@@ -603,11 +568,12 @@ const InvestorPresentationPage = () => {
     if (presentationData) {
       const slides = allSlides.filter(slide => slide.checkData(presentationData));
       setAvailableSlides(slides);
-      
+
       if (currentSlide >= slides.length) {
         setCurrentSlide(0);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [presentationData]);
 
   // Keyboard navigation
@@ -628,6 +594,7 @@ const InvestorPresentationPage = () => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSlide, isAutoPlay, availableSlides.length]);
 
   // Auto-play functionality
@@ -636,9 +603,10 @@ const InvestorPresentationPage = () => {
       const timer = setInterval(() => {
         handleNextSlide();
       }, 10000);
-      
+
       return () => clearInterval(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAutoPlay, currentSlide, dataFetched, availableSlides.length]);
 
   // Hide navigation on inactivity
@@ -875,8 +843,6 @@ const InvestorPresentationPage = () => {
 
 // Slide Components
 const HeroSlide = ({ data }) => {
-  const theme = useTheme();
-  
   return (
     <Container maxWidth="lg">
       <motion.div
@@ -1225,7 +1191,6 @@ const OverviewSlide = ({ data }) => {
 };
 
 const FinancialsSlide = ({ data }) => {
-  const theme = useTheme();
   const financials = data?.financialSnapshot;
   
   if (!financials) return null;
@@ -1396,7 +1361,6 @@ const FinancialsSlide = ({ data }) => {
 };
 
 const MetricsSlide = ({ data }) => {
-  const theme = useTheme();
   const userMetrics = data?.userMetricsSnapshot;
   const kpis = data?.highlightedKpis;
   
@@ -1541,7 +1505,6 @@ const MetricsSlide = ({ data }) => {
 };
 
 const CustomerInsightsSlide = ({ data }) => {
-  const theme = useTheme();
   const userMetrics = data?.userMetricsSnapshot;
   
   const customerInsights = data?.talkingPoints?.filter(point => 
@@ -1667,7 +1630,6 @@ const CustomerInsightsSlide = ({ data }) => {
 };
 
 const TeamSlide = ({ data }) => {
-  const theme = useTheme();
   const teamData = data?.teamUpdates;
   
   if (!teamData) return null;
@@ -1820,7 +1782,6 @@ const TeamSlide = ({ data }) => {
 };
 
 const ProductSlide = ({ data }) => {
-  const theme = useTheme();
   const milestones = data?.highlightedMilestones;
   
   if (!milestones || milestones.length === 0) return null;
@@ -1979,8 +1940,6 @@ const ProductSlide = ({ data }) => {
 };
 
 const ChallengesSlide = ({ data }) => {
-  const theme = useTheme();
-  
   const challenges = data?.talkingPoints?.filter(point => 
     point.category === 'Challenge' || point.category === 'Request'
   ) || [];
@@ -2107,8 +2066,6 @@ const ChallengesSlide = ({ data }) => {
 };
 
 const AsksSlide = ({ data }) => {
-  const theme = useTheme();
-  
   const asks = data?.talkingPoints?.filter(point => 
     point.category === 'Request' || point.title?.toLowerCase().includes('help') || point.title?.toLowerCase().includes('need')
   ) || [];
@@ -2232,8 +2189,6 @@ const AsksSlide = ({ data }) => {
 };
 
 const ClosingSlide = ({ data }) => {
-  const theme = useTheme();
-  
   return (
     <Container maxWidth="lg">
       <motion.div
@@ -2364,8 +2319,6 @@ const ClosingSlide = ({ data }) => {
 
 // Helper Components
 const LoadingScreen = () => {
-  const theme = useTheme();
-  
   return (
     <Box 
       sx={{ 

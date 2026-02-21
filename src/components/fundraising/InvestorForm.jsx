@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Button, TextField, Grid, Typography, Box, CircularProgress,
   Select, MenuItem, FormControl, InputLabel, IconButton, Paper, 
-  Divider, Autocomplete, Tooltip, Alert, Chip, Stack
+  Tooltip, Alert, Chip, Stack
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
@@ -155,6 +155,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
       setIsEditing(false);
       resetForm();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [investorToEdit, rounds]);
 
   // Trigger investment preview when key fields change
@@ -164,6 +165,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
     } else {
       setInvestmentPreview(null);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRound, formData.totalCommittedAmount]);
 
   const resetForm = () => {

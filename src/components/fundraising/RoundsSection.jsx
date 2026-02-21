@@ -1,9 +1,9 @@
 // src/components/fundraising/RoundsSection.jsx - ENHANCED FULL VERSION
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Button, Grid, Paper, IconButton, Tooltip, CircularProgress, 
-  Card, CardContent, Avatar, Chip, Dialog, DialogTitle, DialogContent, DialogActions, 
-  alpha, useTheme, Grow, Stack, LinearProgress, Fade, Skeleton, Badge, Alert,
+  Box, Typography, Button, Grid, Paper, IconButton, CircularProgress,
+  Card, CardContent, Avatar, Chip, Dialog, DialogTitle, DialogContent, DialogActions,
+  alpha, useTheme, Grow, Stack, LinearProgress, Fade, Skeleton, Alert,
   TextField, InputAdornment, Divider, Menu, MenuItem
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -19,7 +19,6 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CalculateIcon from '@mui/icons-material/Calculate';
@@ -27,7 +26,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PeopleIcon from '@mui/icons-material/People';
-import ShareIcon from '@mui/icons-material/Share';
 import TimelineIcon from '@mui/icons-material/Timeline';
 
 import RoundForm from './RoundForm';

@@ -27,7 +27,7 @@ const ExpenseForm = ({ onExpenseAdded }) => {
   
   const [suggestedCategory, setSuggestedCategory] = useState(null);
   const [categorizationConfidence, setCategorizationConfidence] = useState(null);
-  const [lastSavedExpenseId, setLastSavedExpenseId] = useState(null); // To link correction
+  const [, setLastSavedExpenseId] = useState(null); // To link correction
 
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });

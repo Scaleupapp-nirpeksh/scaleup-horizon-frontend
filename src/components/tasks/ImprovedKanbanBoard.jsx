@@ -3,15 +3,14 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   Box, Grid, Paper, Typography, Stack, useTheme, alpha,
   IconButton, Button, Chip, Avatar, Badge, Tooltip, Collapse,
-  Card, CardContent, CircularProgress, Divider, useMediaQuery,
-  Container, Zoom, Fade, Skeleton
+  Card, CardContent, CircularProgress, Divider,
+  Zoom, Fade, Skeleton
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 // Icons
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -347,7 +346,6 @@ const formatTaskDate = (dateString) => {
 
 // FIXED: Individual Task Card Component with proper drag handling
 const TaskItem = React.memo(({ task, index, onClick, onMenuClick }) => {
-  const theme = useTheme();
   const dueDate = formatTaskDate(task.dueDate);
   
   const handleClick = useCallback((e) => {
@@ -649,8 +647,7 @@ const ImprovedKanbanBoard = ({
   loading = false 
 }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   // State for pagination and archive
   const [visibleCounts, setVisibleCounts] = useState({
     todo: 10,

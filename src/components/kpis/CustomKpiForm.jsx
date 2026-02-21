@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Button, TextField, Grid, Typography, Box, CircularProgress, Select, MenuItem,
-  FormControl, InputLabel, IconButton, Paper, Divider, Switch, FormControlLabel,
-  Tooltip, Autocomplete
+  FormControl, InputLabel, IconButton, Paper, Switch, FormControlLabel,
+  Tooltip
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
@@ -97,7 +97,7 @@ const CustomKpiForm = ({ onKpiSaved, kpiToEdit, onCancelEdit }) => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
     if (name === "isPinned") {
         setFormData(prev => ({ ...prev, [name]: checked }));
     } else {

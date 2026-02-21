@@ -19,7 +19,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 import { SearchBox, HistoryCard, ListViewItem } from './StyledComponents';
-import { formatDate, getRelativeTime } from './formatters';
+import { getRelativeTime } from './formatters';
 
 const CashFlowList = ({
   forecasts,

@@ -1,11 +1,11 @@
 // src/components/kpis/CustomKpiSection.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Button, Grid, Paper, IconButton, Tooltip, CircularProgress, 
-  Card, CardHeader, CardContent, Avatar, Chip, Dialog, DialogTitle, DialogContent, 
+  Box, Typography, Button, Grid, Paper, IconButton, CircularProgress,
+  Card, CardHeader, CardContent, Avatar, Chip, Dialog, DialogTitle, DialogContent,
   DialogActions, alpha, useTheme, Grow, Stack, Divider, Fade, Skeleton,
-  LinearProgress, Tab, Tabs, TextField, InputAdornment, ToggleButton, 
-  ToggleButtonGroup, Collapse, Badge, CardActions, Menu, MenuItem
+  Tab, Tabs, TextField, InputAdornment, ToggleButton,
+  ToggleButtonGroup, Badge, CardActions, Menu, MenuItem
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
@@ -20,9 +20,7 @@ import FunctionsIcon from '@mui/icons-material/Functions';
 import CategoryIcon from '@mui/icons-material/Category';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import SpeedIcon from '@mui/icons-material/Speed';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import { SparkLineChart } from '@mui/x-charts';
 

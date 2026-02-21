@@ -2,19 +2,19 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import {
-  Container, Grid, Paper, Typography, Box, Stack, useTheme, alpha, 
-  IconButton, Button, Chip, Avatar, Badge, Tooltip, Fab, Menu, MenuItem,
-  TextField, Select, FormControl, InputLabel, Divider, Dialog, 
-  DialogTitle, DialogContent, DialogActions, Tab, Tabs, Card, CardContent,
-  LinearProgress, CircularProgress, Skeleton, Zoom, Fade, Grow, Collapse,
-  ToggleButton, ToggleButtonGroup, List, ListItem, ListItemText, ListItemAvatar,
-  ListItemSecondaryAction, InputAdornment, FormHelperText, AvatarGroup,
-  Breadcrumbs, Link, Alert, Snackbar, SpeedDial, SpeedDialAction, SpeedDialIcon,
-  useMediaQuery, SwipeableDrawer, Autocomplete, Rating, ButtonGroup,
+  Container, Grid, Paper, Typography, Box, Stack, useTheme, alpha,
+  IconButton, Button, Chip, Avatar, Tooltip, Fab, Menu, MenuItem,
+  TextField, Select, FormControl, InputLabel, Divider, Dialog,
+  DialogTitle, DialogContent, Card,
+  LinearProgress, Skeleton, Collapse,
+  ToggleButton, ToggleButtonGroup,
+  InputAdornment, AvatarGroup,
+  Breadcrumbs, Link, Alert, Snackbar,
+  useMediaQuery,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
-import { format, formatDistanceToNow, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 
 // Icons
 import TaskIcon from '@mui/icons-material/Task';
@@ -22,18 +22,12 @@ import AddIcon from '@mui/icons-material/Add';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import ArchiveIcon from '@mui/icons-material/Archive';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import CommentIcon from '@mui/icons-material/Comment';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
 import FlagIcon from '@mui/icons-material/Flag';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import PendingIcon from '@mui/icons-material/Pending';
@@ -41,25 +35,11 @@ import BlockIcon from '@mui/icons-material/Block';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import WarningIcon from '@mui/icons-material/Warning';
 import InfoIcon from '@mui/icons-material/Info';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
-import StarIcon from '@mui/icons-material/Star';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
-import DownloadIcon from '@mui/icons-material/Download';
-import PrintIcon from '@mui/icons-material/Print';
-import ShareIcon from '@mui/icons-material/Share';
-import GroupIcon from '@mui/icons-material/Group';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 
 // Component imports

@@ -22,7 +22,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 import { SearchBox, HistoryCard, ListViewItem } from './StyledComponents';
-import { formatDate, getRelativeTime, formatCurrency, formatPercentage } from './formatters';
+import { formatDate, formatCurrency } from './formatters';
 
 const RevenueCohortsList = ({
   cohorts,

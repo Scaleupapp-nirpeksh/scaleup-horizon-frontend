@@ -9,14 +9,11 @@ import FundraisingList from './FundraisingList';
 import FundraisingDetails from './FundraisingDetails';
 import { EmptyStateBox } from './StyledComponents';
 
-import { 
+import {
   getFundraisingReadiness,
   getFundraisingPredictions,
-  getFundraisingPredictionById,
   createFundraisingPrediction,
   updateFundraisingPrediction,
-  deleteFundraisingPrediction,
-  
 } from '../../services/api';
 
 const FundraisingPredictions = ({ 
@@ -46,7 +43,7 @@ const FundraisingPredictions = ({
   const fetchFundraisingData = useCallback(async () => {
     setLoading(true);
     try {
-      const [readinessRes, predictionsRes, comparablesRes] = await Promise.all([
+      const [readinessRes, predictionsRes] = await Promise.all([
         getFundraisingReadiness(),
         getFundraisingPredictions()
       ]);

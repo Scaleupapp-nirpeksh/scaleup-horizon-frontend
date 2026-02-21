@@ -22,8 +22,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import PaymentIcon from '@mui/icons-material/Payment';
-import ShareIcon from '@mui/icons-material/Share';
 
 import InvestorForm from './InvestorForm';
 import { getInvestors, deleteInvestor, getRounds } from '../../services/api';

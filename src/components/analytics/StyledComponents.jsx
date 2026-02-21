@@ -1,8 +1,7 @@
 // src/components/analytics/StyledComponents.jsx
 import { alpha, keyframes, styled } from '@mui/material/styles';
-import { 
-  Card, Paper, Box, Avatar, Chip, 
-  Stack, Typography
+import {
+  Card, Paper, Box, Avatar, Chip
 } from '@mui/material';
 
 // Animation keyframes

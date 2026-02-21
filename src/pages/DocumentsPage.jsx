@@ -2,43 +2,29 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Container, Typography, Box, Button, Dialog, DialogTitle, DialogContent,
-  alpha, useTheme, Paper, Grid, Select, MenuItem, FormControl, InputLabel, 
-  TextField, Stack, IconButton, Chip, Avatar, Card, CardContent, Fade, Grow,
-  Tooltip, LinearProgress, Badge, Divider, InputAdornment, Skeleton,
-  List, ListItem, ListItemIcon, ListItemText, ToggleButton, ToggleButtonGroup,
-  useMediaQuery, Collapse, Alert, Zoom, Slide
+  alpha, useTheme, Paper, Grid, Select, MenuItem, FormControl, InputLabel,
+  TextField, Stack, IconButton, Chip, Avatar, Card, CardContent, Fade,
+  Tooltip, Badge, InputAdornment, Skeleton,
+  Collapse, Alert, Zoom, Slide
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import AddIcon from '@mui/icons-material/Add';
 import FolderSpecialIcon from '@mui/icons-material/FolderSpecial';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ClearIcon from '@mui/icons-material/Clear';
 import DescriptionIcon from '@mui/icons-material/Description';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import ImageIcon from '@mui/icons-material/Image';
-import TableChartIcon from '@mui/icons-material/TableChart';
-import InsightsIcon from '@mui/icons-material/Insights';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StorageIcon from '@mui/icons-material/Storage';
-import SecurityIcon from '@mui/icons-material/Security';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CategoryIcon from '@mui/icons-material/Category';
 import BusinessIcon from '@mui/icons-material/Business';
 import PeopleIcon from '@mui/icons-material/People';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ArticleIcon from '@mui/icons-material/Article';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import CloseIcon from '@mui/icons-material/Close';
-import InfoIcon from '@mui/icons-material/Info';
 import DocumentUploadForm from '../components/documents/DocumentUploadForm';
 import DocumentList from '../components/documents/DocumentList';
 import { getDocuments, deleteDocument, getRounds, getInvestors } from '../services/api';
-import AlertMessage from '../components/common/AlertMessage';
 
 const documentCategories = ['All', 'Investor Agreement', 'Financial Report', 'Pitch Deck', 'Legal', 'Meeting Minutes', 'Product Specs', 'Other'];
 
@@ -212,7 +198,6 @@ const formatFileSize = (bytes) => {
 
 const DocumentsPage = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });

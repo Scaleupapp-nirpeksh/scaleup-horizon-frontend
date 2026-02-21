@@ -1,12 +1,12 @@
 // src/pages/KpisPage.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Container, Typography, Paper, Box, Grid, List, ListItem, Divider,
-  ListItemText, IconButton, Tooltip, Card, CardContent, Avatar,
+  Container, Typography, Paper, Box, Grid, Divider,
+  IconButton, Card, CardContent, Avatar,
   Stack, useTheme, alpha, Fade, Grow, Skeleton, Chip, Button,
-  LinearProgress, Tab, Tabs, TextField, InputAdornment, Badge,
-  Menu, MenuItem, ButtonGroup, ToggleButton, ToggleButtonGroup,
-  Dialog, DialogTitle, DialogContent, DialogActions
+  LinearProgress, Tab, Tabs, TextField, InputAdornment,
+  ToggleButton, ToggleButtonGroup,
+  Dialog, DialogTitle, DialogContent
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ManualKpiSnapshotForm from '../components/kpis/ManualKpiSnapshotForm';
@@ -17,7 +17,6 @@ import {
   getDauMauHistory,
   getUserGrowthMetrics 
 } from '../services/api';
-import LoadingSpinner from '../components/common/LoadingSpinner';
 import AlertMessage from '../components/common/AlertMessage';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -27,19 +26,15 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import GroupIcon from '@mui/icons-material/Group';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import TimelineIcon from '@mui/icons-material/Timeline';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import InsightsIcon from '@mui/icons-material/Insights';
 import SpeedIcon from '@mui/icons-material/Speed';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import AddchartIcon from '@mui/icons-material/Addchart';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 
 // Styled Components
 const GlassCard = styled(Card)(({ theme }) => ({
@@ -205,8 +200,6 @@ const KpisPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [timeRange, setTimeRange] = useState('30d');
   const [searchQuery, setSearchQuery] = useState('');
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedSnapshot, setSelectedSnapshot] = useState(null);
   const [showFormDialog, setShowFormDialog] = useState(false);
   const [growthMetrics, setGrowthMetrics] = useState(null);
   const [dauMauHistory, setDauMauHistory] = useState([]);
@@ -683,11 +676,7 @@ const KpisPage = () => {
                       {filteredSnapshots.map((snap, index) => (
                         <Grid item xs={12} sm={6} md={4} key={snap._id}>
                           <Grow in timeout={index * 100}>
-                            <SnapshotCard
-                              onClick={() => setSelectedSnapshot(snap)}
-                              onMouseEnter={(e) => setAnchorEl(e.currentTarget)}
-                              onMouseLeave={() => setAnchorEl(null)}
-                            >
+                            <SnapshotCard>
                               <Stack spacing={2}>
                                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                                   <Stack direction="row" spacing={1} alignItems="center">

@@ -12,7 +12,6 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import VpnKeyIcon from '@mui/icons-material/VpnKey'; // Icon for setup
 

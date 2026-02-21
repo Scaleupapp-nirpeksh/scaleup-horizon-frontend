@@ -6,7 +6,7 @@ import {
   CircularProgress, Alert, Card, CardContent, Avatar, Stack, Chip, Menu, MenuItem,
   useTheme, alpha, Grow, Skeleton, TextField, Dialog, DialogActions, DialogContent, DialogTitle,
   FormControl, InputLabel, Select, FormHelperText, Autocomplete, Divider, Collapse, Badge,
-  Tabs, Tab, Fade, useMediaQuery, LinearProgress, Switch, FormControlLabel, Snackbar, Backdrop,
+  Tabs, Tab, LinearProgress, Snackbar, Backdrop,
   ToggleButtonGroup, ToggleButton, InputAdornment, Breadcrumbs, Link
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
@@ -20,7 +20,6 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import BusinessIcon from '@mui/icons-material/Business';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
@@ -31,7 +30,6 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import DonutLargeIcon from '@mui/icons-material/DonutLarge';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
@@ -39,17 +37,13 @@ import PersonIcon from '@mui/icons-material/Person';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import FaceIcon from '@mui/icons-material/Face';
 import PublicIcon from '@mui/icons-material/Public';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import EmailIcon from '@mui/icons-material/Email';
-import PhoneIcon from '@mui/icons-material/Phone';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SortIcon from '@mui/icons-material/Sort';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -68,9 +62,7 @@ import {
   createHeadcount,
   updateHeadcount,
   deleteHeadcount,
-  getHeadcountById,
 } from '../services/api';
-import AlertMessage from '../components/common/AlertMessage';
 
 const calculateTotalAnnualCost = (compensation) => {
   const baseSalary = compensation?.baseSalary || 0;
@@ -449,7 +441,6 @@ const FilterPanel = ({ open, onClose, filters, setFilters, applyFilters }) => {
 // HeadcountPage component
 const HeadcountPage = () => {
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [headcounts, setHeadcounts] = useState([]);
   const [filteredHeadcounts, setFilteredHeadcounts] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -640,10 +631,6 @@ const HeadcountPage = () => {
       compensation: { // Ensure nested objects are fully spread or initialized
         ...initialHeadcountFormData.compensation,
         ...(headcount.compensation || {}),
-      },
-      budgetTracking: {
-        ...initialHeadcountFormData.budgetTracking,
-        ...(headcount.budgetTracking || {}),
       },
       hiringDetails: {
         ...initialHeadcountFormData.hiringDetails,

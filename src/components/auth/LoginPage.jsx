@@ -255,7 +255,7 @@ const LoginPage = () => {
   const theme = useTheme();
   const logoRef = useRef(null);
   const [stars, setStars] = useState([]);
-  const [meteors, setMeteors] = useState([]);
+  const [meteors] = useState([]);
 
   // Redirect if already authenticated
   useEffect(() => {

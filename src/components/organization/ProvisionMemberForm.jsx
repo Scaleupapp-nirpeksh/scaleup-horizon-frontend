@@ -15,12 +15,6 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
-const glow = keyframes`
-  0% { box-shadow: 0 0 5px ${alpha('#6C63FF', 0.5)}, 0 0 10px ${alpha('#6C63FF', 0.3)}; }
-  50% { box-shadow: 0 0 20px ${alpha('#6C63FF', 0.8)}, 0 0 30px ${alpha('#6C63FF', 0.5)}; }
-  100% { box-shadow: 0 0 5px ${alpha('#6C63FF', 0.5)}, 0 0 10px ${alpha('#6C63FF', 0.3)}; }
-`;
-
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   borderRadius: theme.shape.borderRadius * 3,

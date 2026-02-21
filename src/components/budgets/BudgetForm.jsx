@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Button, TextField, Grid, Card, CardContent, Typography, Box, CircularProgress,
-  Select, MenuItem, FormControl, InputLabel, IconButton, Paper, Divider,
+  Select, MenuItem, FormControl, InputLabel, IconButton, Paper,
   CardHeader, Avatar, Tooltip
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -51,6 +51,7 @@ const BudgetForm = ({ onBudgetSaved, budgetToEdit, onCancelEdit }) => {
       setIsEditing(false);
       resetForm();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [budgetToEdit]);
 
   const resetForm = () => {
