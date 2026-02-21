@@ -235,7 +235,7 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
         </Typography>
       </OrganizationHeader>
       
-      <NavigationList sx={{ flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+      <NavigationList component="nav" aria-label="Main navigation" sx={{ flexGrow: 1, overflowY: 'auto', overflowX: 'hidden' }}>
         {navItemsToDisplay.map((item, index) => {
           const isActive = isActiveRoute(item.path);
           return (
@@ -250,6 +250,7 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
                   to={item.path}
                   onClick={handleListItemClick}
                   active={isActive ? 1 : 0}
+                  aria-current={isActive ? 'page' : undefined}
                 >
                   <StyledListItemIcon>
                     {React.cloneElement(item.icon, {
@@ -265,13 +266,12 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {item.name}
                         {item.status && (
-                          <Tooltip 
-                            title={item.status === 'new' ? 'New Feature' : 'Beta Feature'} 
-                            arrow
-                            placement="right"
-                          >
-                            <StatusDot status={item.status} />
-                          </Tooltip>
+                          <Chip
+                            label={item.status === 'new' ? 'NEW' : 'BETA'}
+                            size="small"
+                            color={item.status === 'new' ? 'success' : 'warning'}
+                            sx={{ ml: 1, height: 18, fontSize: '0.6rem', fontWeight: 700 }}
+                          />
                         )}
                       </Box>
                     }

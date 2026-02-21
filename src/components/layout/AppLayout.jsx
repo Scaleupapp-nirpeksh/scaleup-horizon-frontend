@@ -19,6 +19,10 @@ const AppLayout = () => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+      {/* Skip to content link for keyboard/screen reader users */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       {/* CRITICAL: Header with proper z-index */}
       <Header 
         onDrawerToggle={handleDrawerToggle} 
@@ -62,10 +66,11 @@ const AppLayout = () => {
         
         {/* Scrollable content area */}
         <Box
+          id="main-content"
           sx={{
             flexGrow: 1,
             overflowY: 'auto',
-            padding: theme.spacing(3),
+            padding: { xs: theme.spacing(1.5), sm: theme.spacing(2), md: theme.spacing(3) },
             height: 'calc(100vh - 64px)',
           }}
         >

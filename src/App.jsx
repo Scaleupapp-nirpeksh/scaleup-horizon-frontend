@@ -1,33 +1,35 @@
 // src/App.jsx
 // Main application component: Sets up routing and authentication context.
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AppLayout from './components/layout/AppLayout';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
 import CompleteSetupPage from './components/auth/CompleteSetupPage';
-import OnboardingExperience from './pages/OnboardingExperience'; // Import the new component
-import DashboardPage from './pages/DashboardPage';
-import FinancialsPage from './pages/FinancialsPage';
-import FundraisingPage from './pages/FundraisingPage';
-import KpisPage from './pages/KpisPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import ReportsPage from './pages/ReportsPage';
-import BudgetPage from './pages/BudgetPage';
-import DocumentsPage from './pages/DocumentsPage';
-import SettingsPage from './pages/SettingsPage';
-import OrganizationManagementPage from './pages/OrganizationManagementPage';
-import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './utils/ProtectedRoute';
 import LoadingSpinner from './components/common/LoadingSpinner';
-import InvestorMeetingsPage from './pages/InvestorMeetingsPage';
-import HeadcountPage from './pages/HeadcountPage';
-import LiveInvestorDashboardPage from './pages/LiveInvestorDashboardPage';
-import ProductMilestonesPage from './pages/ProductMilestonesPage';
-import InvestorPresentationPage from './pages/InvestorPresentationPage';
-import TasksPage from './pages/TasksPage';
 import './styles/KanbanBoard.css';
+
+// Lazy-loaded pages for code splitting
+const OnboardingExperience = lazy(() => import('./pages/OnboardingExperience'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const FinancialsPage = lazy(() => import('./pages/FinancialsPage'));
+const FundraisingPage = lazy(() => import('./pages/FundraisingPage'));
+const KpisPage = lazy(() => import('./pages/KpisPage'));
+const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const BudgetPage = lazy(() => import('./pages/BudgetPage'));
+const DocumentsPage = lazy(() => import('./pages/DocumentsPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const OrganizationManagementPage = lazy(() => import('./pages/OrganizationManagementPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const InvestorMeetingsPage = lazy(() => import('./pages/InvestorMeetingsPage'));
+const HeadcountPage = lazy(() => import('./pages/HeadcountPage'));
+const LiveInvestorDashboardPage = lazy(() => import('./pages/LiveInvestorDashboardPage'));
+const ProductMilestonesPage = lazy(() => import('./pages/ProductMilestonesPage'));
+const InvestorPresentationPage = lazy(() => import('./pages/InvestorPresentationPage'));
+const TasksPage = lazy(() => import('./pages/TasksPage'));
 // Onboarding Wrapper Component
 function OnboardingWrapper() {
   const navigate = useNavigate();
@@ -57,10 +59,15 @@ function OnboardingWrapper() {
   }
 
   if (showOnboarding) {
-    return <OnboardingExperience onComplete={handleOnboardingComplete} />;
+    return (
+      <Suspense fallback={<LoadingSpinner fullScreen message="Loading..." />}>
+        <OnboardingExperience onComplete={handleOnboardingComplete} />
+      </Suspense>
+    );
   }
 
   return (
+    <Suspense fallback={<LoadingSpinner fullScreen message="Loading..." />}>
     <Routes>
       {/* Public Auth Routes - No AppLayout needed */}
       <Route path="/login" element={<LoginPage />} />
@@ -101,6 +108,7 @@ function OnboardingWrapper() {
       
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </Suspense>
   );
 }
 

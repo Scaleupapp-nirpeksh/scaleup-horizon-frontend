@@ -99,8 +99,8 @@ const FloatingCard = styled(Paper)(({ theme }) => ({
   position: 'relative',
   zIndex: 5,
   borderRadius: 20, // Slightly more rounded
-  backdropFilter: 'blur(25px) saturate(150%)',
-  WebkitBackdropFilter: 'blur(25px) saturate(150%)', // For Safari
+  backdropFilter: 'blur(12px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(12px) saturate(150%)', // For Safari
   background: theme.palette.mode === 'dark'
     ? alpha(theme.palette.background.paper, 0.75) // More transparency
     : alpha(theme.palette.background.paper, 0.85),
@@ -372,24 +372,16 @@ const RegisterPage = () => {
   const logoRef = useRef(null);
 
   useEffect(() => {
-    const newStars = Array.from({ length: 60 }, (_, i) => ({ // More stars
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+    const newStars = Array.from({ length: 20 }, (_, i) => ({
       id: i,
       top: Math.random() * 100,
       left: Math.random() * 100,
-      size: Math.random() * 2.5 + 0.5, // Varied sizes
+      size: Math.random() * 2.5 + 0.5,
       delay: Math.random() * 6
     }));
     setStars(newStars);
-
-    const createMeteor = () => {
-      setMeteors(prev => {
-        const newMeteors = prev.length > 8 ? prev.slice(1) : [...prev]; // Keep max 8 meteors
-        return [...newMeteors, { id: Date.now(), top: Math.random() * 70 + 10, delay: 0 }];
-      });
-    };
-    const meteorInterval = setInterval(createMeteor, 2500); // Slightly less frequent
-    createMeteor();
-    return () => clearInterval(meteorInterval);
   }, []);
 
   const handleSubmit = async (event) => {
@@ -422,14 +414,19 @@ const RegisterPage = () => {
     }
   };
 
+  const rafRef = useRef(null);
   const handleMouseMove = (e) => {
-    if (!logoRef.current) return;
-    const rect = logoRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    const rotateX = (y / (rect.height / 2)) * 8; // Reduced rotation
-    const rotateY = (x / (rect.width / 2)) * -8;
-    logoRef.current.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    if (!logoRef.current || rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      if (!logoRef.current) { rafRef.current = null; return; }
+      const rect = logoRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      const rotateX = (y / (rect.height / 2)) * 8;
+      const rotateY = (x / (rect.width / 2)) * -8;
+      logoRef.current.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+      rafRef.current = null;
+    });
   };
 
   const handleMouseLeave = () => {

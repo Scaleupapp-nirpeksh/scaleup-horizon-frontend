@@ -287,13 +287,13 @@ const KanbanGrid = styled(Box)(({ theme }) => ({
 
 const KanbanColumn = styled(Paper)(({ theme }) => ({
   width: 320,
-  minWidth: 320,
-  maxWidth: 320,
+  minWidth: 280,
+  flexShrink: 0,
   backgroundColor: alpha(theme.palette.background.paper, 0.9),
   backdropFilter: 'blur(10px)',
   borderRadius: theme.spacing(2),
   padding: theme.spacing(2),
-  minHeight: 600,
+  minHeight: 400,
   maxHeight: 'calc(100vh - 300px)',
   border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -301,20 +301,24 @@ const KanbanColumn = styled(Paper)(({ theme }) => ({
   flexDirection: 'column',
   position: 'relative',
   zIndex: 3,
-  
+
   '&:hover': {
     boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.08)}`,
     transform: 'translateY(-2px)',
   },
-  
+
   '&[data-is-drag-occurring="true"]': {
     zIndex: 4,
   },
-  
-  [theme.breakpoints.down('sm')]: {
-    width: 300,
-    minWidth: 300,
-    maxWidth: 300,
+
+  [theme.breakpoints.down('md')]: {
+    width: '80vw',
+    minWidth: '80vw',
+    maxWidth: '80vw',
+  },
+
+  [theme.breakpoints.up('md')]: {
+    maxWidth: 320,
   },
 }));
 

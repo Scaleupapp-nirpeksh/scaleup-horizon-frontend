@@ -227,7 +227,7 @@ const Header = ({ onDrawerToggle, drawerWidth }) => {
     try {
       const result = await switchOrganization(organizationId);
       if (result.success) {
-        window.location.reload(); 
+        navigate('/dashboard');
       } else {
         console.error("Failed to switch organization:", result.message);
       }
@@ -367,7 +367,7 @@ const Header = ({ onDrawerToggle, drawerWidth }) => {
 
           {user && (
             <Tooltip title="Account menu" arrow>
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0.5 }}>
+              <IconButton onClick={handleOpenUserMenu} aria-label="Open account menu" sx={{ p: 0.5 }}>
                 <UserAvatar>
                   {getUserInitials(user.name)}
                 </UserAvatar>

@@ -10,7 +10,7 @@ import {
   ToggleButtonGroup, Zoom, Collapse, SwipeableDrawer, Tab, Tabs,
   LinearProgress, Badge, ButtonGroup, FormControl, Select,
   FormControlLabel, Switch, InputLabel, OutlinedInput,
-  Checkbox, ListItemIcon
+  Checkbox, ListItemIcon, useMediaQuery
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -363,6 +363,7 @@ const EditableField = ({ value, onSave, type = 'text' }) => {
 
 const FinancialsPage = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [expenses, setExpenses] = useState([]);
   const [revenues, setRevenues] = useState([]);
   const [bankAccounts, setBankAccounts] = useState([]);
@@ -1170,7 +1171,7 @@ const FinancialsPage = () => {
                               </Stack>
                               
                               {calculateAnalytics.trendData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height={350}>
+                                <ResponsiveContainer width="100%" height={isMobile ? 250 : 350}>
                                   <ComposedChart data={calculateAnalytics.trendData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.1)} />
                                     <XAxis 
@@ -1216,7 +1217,7 @@ const FinancialsPage = () => {
                               </Typography>
                               {calculateAnalytics.categoryData.length > 0 ? (
                                 <>
-                                  <ResponsiveContainer width="100%" height={400}>
+                                  <ResponsiveContainer width="100%" height={isMobile ? 280 : 400}>
                                     <PieChart>
                                       <Pie
                                         activeIndex={activePieIndex}
@@ -1275,7 +1276,7 @@ const FinancialsPage = () => {
                                 Revenue Sources
                               </Typography>
                               {calculateAnalytics.sourceData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height={500}>
+                                <ResponsiveContainer width="100%" height={isMobile ? 300 : 500}>
                                   <BarChart data={calculateAnalytics.sourceData} layout="vertical">
                                     <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.1)} />
                                     <XAxis type="number" />
@@ -1342,7 +1343,7 @@ const FinancialsPage = () => {
                           </Stack>
                         </FilterBar>
 
-                        <TableContainer sx={{ maxHeight: 600 }}>
+                        <TableContainer sx={{ maxHeight: isMobile ? 400 : 600, overflowX: 'auto' }}>
                           <Table stickyHeader size="small">
                             <TableHead>
                               <TableRow>

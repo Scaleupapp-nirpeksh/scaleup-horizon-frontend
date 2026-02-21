@@ -7,7 +7,7 @@ import {
   MenuItem, TextField, CircularProgress, Alert, Card, CardContent,
   CardHeader, Avatar, Stack, useTheme, alpha, Fade, Grow, Skeleton,
   Chip, LinearProgress, ToggleButton, ToggleButtonGroup, Tab, Tabs,
-  Dialog, DialogTitle, DialogContent, Collapse, ButtonGroup, Badge
+  Dialog, DialogTitle, DialogContent, Collapse, ButtonGroup, Badge, useMediaQuery
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
@@ -206,6 +206,7 @@ const BudgetOverviewCard = ({ title, value, icon, color, subtitle }) => {
 
 const BudgetPage = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [budgets, setBudgets] = useState([]);
   const [budgetToEdit, setBudgetToEdit] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -669,7 +670,7 @@ const BudgetPage = () => {
                         {reportLoading ? (
                           <Skeleton variant="rectangular" height={300} />
                         ) : (
-                          <ResponsiveContainer width="100%" height={300}>
+                          <ResponsiveContainer width="100%" height={isMobile ? 220 : 300}>
                             <BarChart data={generateChartData()}>
                               <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.2)} />
                               <XAxis dataKey="category" />
@@ -698,7 +699,7 @@ const BudgetPage = () => {
                         {reportLoading ? (
                           <Skeleton variant="circular" width={200} height={200} sx={{ mx: 'auto' }} />
                         ) : (
-                          <ResponsiveContainer width="100%" height={250}>
+                          <ResponsiveContainer width="100%" height={isMobile ? 200 : 250}>
                             <PieChart>
                               <Pie
                                 data={generatePieData()}

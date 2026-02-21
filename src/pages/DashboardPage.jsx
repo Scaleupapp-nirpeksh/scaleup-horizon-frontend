@@ -652,7 +652,7 @@ const DashboardPage = () => {
       {/* Hero Section */}
       <HeroSection sx={{ py: { xs: 3, md: 4 }, mb: 4 }}>
         <Container maxWidth="xl">
-          <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" spacing={2}>
+          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} flexWrap="wrap" spacing={2}>
             <Box>
               <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, display: 'flex', alignItems: 'center' }}>
                 <DashboardIcon sx={{ mr: 1.5, fontSize: 32 }} />
@@ -699,7 +699,7 @@ const DashboardPage = () => {
           <Card sx={{ mb: 4, borderRadius: 3, overflow: 'visible' }}>
             <CardContent sx={{ p: 3 }}>
               <Grid container spacing={3} alignItems="center">
-                <Grid item xs={12} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                   <Box sx={{ textAlign: 'center' }}>
                     <Box sx={{ position: 'relative', display: 'inline-flex' }}>
                       <Box
@@ -764,7 +764,7 @@ const DashboardPage = () => {
         {/* Key Metrics Grid */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {/* Financial Metrics */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <Grow in timeout={600}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/financials')} sx={{ height: '100%' }}>
@@ -817,7 +817,7 @@ const DashboardPage = () => {
           </Grid>
 
           {/* Growth Metrics */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <Grow in timeout={700}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/kpis')} sx={{ height: '100%' }}>
@@ -873,7 +873,7 @@ const DashboardPage = () => {
           </Grid>
 
           {/* Fundraising Metrics */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <Grow in timeout={800}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/fundraising')} sx={{ height: '100%' }}>
@@ -926,7 +926,7 @@ const DashboardPage = () => {
           </Grid>
 
           {/* Team Metrics */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <Grow in timeout={900}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/headcount')} sx={{ height: '100%' }}>
@@ -1028,7 +1028,7 @@ const DashboardPage = () => {
                   </Button>
                 </Stack>
                 
-                <Box sx={{ height: 350 }}>
+                <Box sx={{ height: { xs: 250, md: 350 } }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={revenueExpenseData}>
                       <defs>
@@ -1157,7 +1157,7 @@ const DashboardPage = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                   User Growth
                 </Typography>
-                <Box sx={{ height: 250 }}>
+                <Box sx={{ height: { xs: 200, md: 250 } }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={userGrowthData}>
                       <defs>
@@ -1185,7 +1185,7 @@ const DashboardPage = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                   Team Distribution
                 </Typography>
-                <Box sx={{ height: 250 }}>
+                <Box sx={{ height: { xs: 200, md: 250 } }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
