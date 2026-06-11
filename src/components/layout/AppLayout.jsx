@@ -50,11 +50,15 @@ const AppLayout = () => {
         />
       </Box>
       
-      {/* CRITICAL: Main content with no margin - just flex grow */}
+      {/* CRITICAL: Main content with no margin - just flex grow.
+          minWidth: 0 stops wide content (e.g. the kanban board) from
+          inflating this flex child past the viewport — wide content must
+          scroll inside its own container, never the whole page. */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
+          minWidth: 0,
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100vh',
@@ -63,13 +67,14 @@ const AppLayout = () => {
       >
         {/* Spacer for header */}
         <Box sx={{ height: '64px', flexShrink: 0 }} />
-        
+
         {/* Scrollable content area */}
         <Box
           id="main-content"
           sx={{
             flexGrow: 1,
             overflowY: 'auto',
+            overflowX: 'hidden',
             padding: { xs: theme.spacing(1.5), sm: theme.spacing(2), md: theme.spacing(3) },
             height: 'calc(100vh - 64px)',
           }}
