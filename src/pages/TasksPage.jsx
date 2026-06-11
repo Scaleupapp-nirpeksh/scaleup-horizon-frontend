@@ -90,6 +90,10 @@ const PageContainer = styled(Box)(({ theme }) => ({
         ${alpha(theme.palette.grey[50], 0.95)} 50%,
         ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
   position: 'relative',
+  // The page must never scroll sideways — wide content (kanban) scrolls
+  // inside its own container instead
+  overflowX: 'hidden',
+  maxWidth: '100%',
   '&::before': {
     content: '""',
     position: 'fixed',
@@ -927,7 +931,7 @@ const TasksPage = () => {
           
           <DialogContent sx={{ pt: 2 }}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={8}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <Stack spacing={3}>
                   <Box>
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>
@@ -1019,7 +1023,7 @@ const TasksPage = () => {
                 </Stack>
               </Grid>
               
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Stack spacing={3}>
                   {/* Hierarchy: parent + children */}
                   {(selectedTask.parentTask || (taskDetail?.children?.length > 0)) && (
@@ -1262,7 +1266,7 @@ const TasksPage = () => {
             <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2 }} />
             <Grid container spacing={2}>
               {[1, 2, 3, 4].map((i) => (
-                <Grid item xs={12} sm={6} md={3} key={i}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
                   <Skeleton variant="rectangular" height={150} sx={{ borderRadius: 2 }} />
                 </Grid>
               ))}
@@ -1369,7 +1373,7 @@ const TasksPage = () => {
       <Container maxWidth="xl" sx={{ pb: 4, position: 'relative', zIndex: 1 }}>
         {/* Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <StatsCard color="primary">
               <Stack spacing={2}>
                 <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main' }}>
@@ -1387,7 +1391,7 @@ const TasksPage = () => {
             </StatsCard>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <StatsCard color="warning">
               <Stack spacing={2}>
                 <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.1), color: 'warning.main' }}>
@@ -1405,7 +1409,7 @@ const TasksPage = () => {
             </StatsCard>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <StatsCard color="success">
               <Stack spacing={2}>
                 <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), color: 'success.main' }}>
@@ -1423,7 +1427,7 @@ const TasksPage = () => {
             </StatsCard>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <StatsCard color="error">
               <Stack spacing={2}>
                 <Avatar sx={{ bgcolor: alpha(theme.palette.error.main, 0.1), color: 'error.main' }}>
@@ -1446,7 +1450,7 @@ const TasksPage = () => {
         <Collapse in={activeFilter}>
           <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <TextField
                   fullWidth
                   placeholder="Search tasks..."
@@ -1462,7 +1466,7 @@ const TasksPage = () => {
                 />
               </Grid>
               
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <FormControl fullWidth>
                   <InputLabel>Epic</InputLabel>
                   <Select
@@ -1480,7 +1484,7 @@ const TasksPage = () => {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <FormControl fullWidth>
                   <InputLabel>Type</InputLabel>
                   <Select
@@ -1495,7 +1499,7 @@ const TasksPage = () => {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <FormControl fullWidth>
                   <InputLabel>Status</InputLabel>
                   <Select
@@ -1514,7 +1518,7 @@ const TasksPage = () => {
                 </FormControl>
               </Grid>
               
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <FormControl fullWidth>
                   <InputLabel>Priority</InputLabel>
                   <Select
@@ -1531,7 +1535,7 @@ const TasksPage = () => {
                 </FormControl>
               </Grid>
               
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <FormControl fullWidth>
                   <InputLabel>Assignee</InputLabel>
                   <Select
@@ -1549,7 +1553,7 @@ const TasksPage = () => {
                 </FormControl>
               </Grid>
               
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <FormControl fullWidth>
                   <InputLabel>Sort By</InputLabel>
                   <Select
@@ -1565,7 +1569,7 @@ const TasksPage = () => {
                 </FormControl>
               </Grid>
               
-              <Grid item xs={12} md={1}>
+              <Grid size={{ xs: 12, md: 1 }}>
                 <Button
                   fullWidth
                   variant="outlined"

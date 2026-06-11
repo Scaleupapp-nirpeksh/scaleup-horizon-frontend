@@ -872,7 +872,7 @@ const ImprovedKanbanBoard = ({
             <Divider sx={{ mb: 3 }} />
             <Grid container spacing={2}>
               {archivedCompleted.map((task, index) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={task._id}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={task._id}>
                   <Zoom 
                     in={showArchive} 
                     timeout={300 + (index % 12) * 50}

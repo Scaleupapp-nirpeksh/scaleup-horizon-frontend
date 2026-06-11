@@ -270,7 +270,7 @@ const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
     <Box>
       {/* Enhanced Summary Metrics */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <MetricCard color="primary">
             <CardContent>
               <Stack spacing={2}>
@@ -300,7 +300,7 @@ const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
           </MetricCard>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <MetricCard color="secondary">
             <CardContent>
               <Stack spacing={2}>
@@ -330,7 +330,7 @@ const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
           </MetricCard>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <MetricCard color="success">
             <CardContent>
               <Stack spacing={2}>
@@ -361,7 +361,7 @@ const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
           </MetricCard>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <MetricCard color="error">
             <CardContent>
               <Stack spacing={2}>
@@ -395,7 +395,7 @@ const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
       {/* Charts Grid */}
       <Grid container spacing={3}>
         {/* Priority Distribution */}
-        <Grid item xs={12} md={6} lg={4}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <AnalyticsCard>
             <Stack spacing={3}>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -461,7 +461,7 @@ const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
         </Grid>
 
         {/* Status Overview */}
-        <Grid item xs={12} md={6} lg={4}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <AnalyticsCard>
             <Stack spacing={3}>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -506,7 +506,7 @@ const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
         </Grid>
 
         {/* Task Velocity */}
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           <AnalyticsCard>
             <Stack spacing={3}>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -555,7 +555,7 @@ const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
         </Grid>
 
         {/* Team Performance */}
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <AnalyticsCard>
             <Stack spacing={3}>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -599,7 +599,7 @@ const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
         </Grid>
 
         {/* Category Distribution */}
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           <AnalyticsCard>
             <Stack spacing={3}>
               <Stack direction="row" alignItems="center" spacing={2}>
