@@ -198,6 +198,15 @@ const FloatingActionButton = styled(Fab)(({ theme }) => ({
 }));
 
 // Helper Functions
+// Safe date formatting: partial task objects (e.g. a populated parent ref
+// that only carries title/status) may lack date fields entirely.
+const safeFormatDate = (value, fmt) => {
+  if (!value) return null;
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return null;
+  return format(d, fmt);
+};
+
 const getPriorityIcon = (priority) => {
   switch (priority) {
     case 'critical': return <LocalFireDepartmentIcon color="error" />;
@@ -693,12 +702,12 @@ const TasksPage = () => {
                 )}
               </TableCell>
               <TableCell>
-                {task.dueDate ? (
-                  <Typography 
-                    variant="body2" 
+                {safeFormatDate(task.dueDate, 'MMM dd, yyyy') ? (
+                  <Typography
+                    variant="body2"
                     color={new Date(task.dueDate) < new Date() ? 'error' : 'text.primary'}
                   >
-                    {format(new Date(task.dueDate), 'MMM dd, yyyy')}
+                    {safeFormatDate(task.dueDate, 'MMM dd, yyyy')}
                   </Typography>
                 ) : (
                   <Typography variant="body2" color="text.secondary">No due date</Typography>
@@ -1019,7 +1028,7 @@ const TasksPage = () => {
                         <Typography variant="caption" color="text.secondary">Status</Typography>
                         <Chip
                           icon={getStatusIcon(selectedTask.status)}
-                          label={selectedTask.status.replace('_', ' ')}
+                          label={(selectedTask.status || 'todo').replace('_', ' ')}
                           color={getStatusColor(selectedTask.status)}
                           size="small"
                           sx={{ mt: 0.5 }}
@@ -1043,20 +1052,22 @@ const TasksPage = () => {
                           </Typography>
                         )}
                       </Box>
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">Created</Typography>
-                        <Typography variant="body2">
-                          {format(new Date(selectedTask.createdAt), 'MMM dd, yyyy')}
-                        </Typography>
-                      </Box>
-                      {selectedTask.dueDate && (
+                      {safeFormatDate(selectedTask.createdAt, 'MMM dd, yyyy') && (
+                        <Box>
+                          <Typography variant="caption" color="text.secondary">Created</Typography>
+                          <Typography variant="body2">
+                            {safeFormatDate(selectedTask.createdAt, 'MMM dd, yyyy')}
+                          </Typography>
+                        </Box>
+                      )}
+                      {safeFormatDate(selectedTask.dueDate, 'MMM dd, yyyy') && (
                         <Box>
                           <Typography variant="caption" color="text.secondary">Due Date</Typography>
-                          <Typography 
+                          <Typography
                             variant="body2"
                             color={new Date(selectedTask.dueDate) < new Date() ? 'error' : 'text.primary'}
                           >
-                            {format(new Date(selectedTask.dueDate), 'MMM dd, yyyy')}
+                            {safeFormatDate(selectedTask.dueDate, 'MMM dd, yyyy')}
                           </Typography>
                         </Box>
                       )}
