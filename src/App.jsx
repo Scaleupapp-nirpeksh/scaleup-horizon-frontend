@@ -9,6 +9,7 @@ import RegisterPage from './components/auth/RegisterPage';
 import CompleteSetupPage from './components/auth/CompleteSetupPage';
 import ProtectedRoute from './utils/ProtectedRoute';
 import LoadingSpinner from './components/common/LoadingSpinner';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import './styles/KanbanBoard.css';
 
 // Lazy-loaded pages for code splitting
@@ -115,13 +116,15 @@ function OnboardingWrapper() {
 // Main App Component
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AuthLoadingGate>
-          <OnboardingWrapper />
-        </AuthLoadingGate>
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <AuthLoadingGate>
+            <OnboardingWrapper />
+          </AuthLoadingGate>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

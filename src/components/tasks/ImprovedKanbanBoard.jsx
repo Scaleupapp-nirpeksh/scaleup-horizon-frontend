@@ -29,6 +29,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import PendingIcon from '@mui/icons-material/Pending';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DoDisturbIcon from '@mui/icons-material/DoDisturb';
 
 // Enhanced Animations
 const slideDown = keyframes`
@@ -308,6 +309,12 @@ const STATUS_CONFIG = {
     icon: <CheckCircleIcon />,
     color: 'success',
     bgColor: '#e8f5e8'
+  },
+  cancelled: {
+    label: 'Cancelled',
+    icon: <DoDisturbIcon />,
+    color: 'default',
+    bgColor: '#eeeeee'
   }
 };
 
@@ -648,43 +655,43 @@ const ImprovedKanbanBoard = ({
 }) => {
   const theme = useTheme();
 
-  // State for pagination and archive
+  // State for pagination and the older-completed section
   const [visibleCounts, setVisibleCounts] = useState({
     todo: 10,
     in_progress: 10,
     in_review: 10,
     blocked: 10,
-    completed: 10
+    completed: 10,
+    cancelled: 10
   });
-  
+
   const [loadingMore, setLoadingMore] = useState({
     todo: false,
     in_progress: false,
     in_review: false,
     blocked: false,
-    completed: false
+    completed: false,
+    cancelled: false
   });
-  
+
   const [showArchive, setShowArchive] = useState(false);
-  
-  // Separate completed tasks into recent and archived
+
+  // Keep only the 10 most recently completed tasks on the board;
+  // older completed tasks move to the collapsible section below.
   const { currentTasks, archivedCompleted } = useMemo(() => {
-    console.log('Processing tasks for archive...', tasks.length);
-    
     const completedTasks = tasks.filter(task => task.status === 'completed');
-    console.log('Found completed tasks:', completedTasks.length);
-    
+
     // Separate old vs recent completed tasks
     const recentCompleted = [];
     const archivedTasks = [];
-    
+
     // Sort completed tasks by completion date (most recent first)
     const sortedCompleted = [...completedTasks].sort((a, b) => {
       const dateA = new Date(a.completedAt || a.updatedAt || a.createdAt);
       const dateB = new Date(b.completedAt || b.updatedAt || b.createdAt);
       return dateB - dateA; // Most recent first
     });
-    
+
     // Take first 10 as recent, rest as archived
     sortedCompleted.forEach((task, index) => {
       if (index < 10) {
@@ -693,10 +700,7 @@ const ImprovedKanbanBoard = ({
         archivedTasks.push(task);
       }
     });
-    
-    console.log('Recent completed:', recentCompleted.length);
-    console.log('Archived completed:', archivedTasks.length);
-    
+
     // Create filtered task list with only recent completed tasks
     const filteredTasks = tasks.filter(task => {
       if (task.status === 'completed') {
@@ -704,13 +708,13 @@ const ImprovedKanbanBoard = ({
       }
       return true;
     });
-    
+
     return {
       currentTasks: filteredTasks,
       archivedCompleted: archivedTasks
     };
   }, [tasks]);
-  
+
   // Group current tasks by status and sort by due date
   const tasksByStatus = useMemo(() => {
     const grouped = {
@@ -718,9 +722,10 @@ const ImprovedKanbanBoard = ({
       in_progress: [],
       in_review: [],
       blocked: [],
-      completed: []
+      completed: [],
+      cancelled: []
     };
-    
+
     currentTasks.forEach(task => {
       if (grouped[task.status]) {
         grouped[task.status].push(task);
@@ -757,7 +762,8 @@ const ImprovedKanbanBoard = ({
       in_progress: 10,
       in_review: 10,
       blocked: 10,
-      completed: 10
+      completed: 10,
+      cancelled: 10
     });
   }, [tasks.length]);
   
@@ -814,10 +820,10 @@ const ImprovedKanbanBoard = ({
               </Avatar>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  Archived Completed Tasks
+                  Older Completed Tasks
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {archivedCompleted.length} older completed tasks (beyond the latest 10)
+                  {archivedCompleted.length} completed tasks beyond the latest 10 shown on the board
                 </Typography>
               </Box>
             </Stack>
@@ -827,7 +833,7 @@ const ImprovedKanbanBoard = ({
               onClick={() => setShowArchive(!showArchive)}
               sx={{ textTransform: 'none' }}
             >
-              {showArchive ? 'Hide' : 'Show'} Archive ({archivedCompleted.length})
+              {showArchive ? 'Hide' : 'Show'} Older Tasks ({archivedCompleted.length})
             </Button>
           </Stack>
           

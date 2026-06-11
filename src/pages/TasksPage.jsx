@@ -1,5 +1,5 @@
 // UpdatedTasksPage.jsx - Integration with improved Kanban board and Analytics
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Container, Grid, Paper, Typography, Box, Stack, useTheme, alpha,
@@ -49,10 +49,15 @@ import TaskAnalytics from '../components/tasks/TaskAnalytics';
 
 // API imports
 import {
-  getTasks, createTask, updateTask, archiveTask,
+  getTasks, getTaskById, createTask, updateTask, archiveTask,
   getTaskComments, addTaskComment,
   getTaskStats, formatTaskFilters, listOrganizationMembers
 } from '../services/api';
+
+// The kanban board has no pagination UI, so it needs the full task set
+const KANBAN_FETCH_LIMIT = 500;
+// Analytics are computed from the full (capped) dataset, not the current page
+const ANALYTICS_FETCH_LIMIT = 1000;
 
 // Animations
 const pulse = keyframes`
@@ -278,30 +283,62 @@ const TasksPage = () => {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
-  
+
+  // Analytics dataset (full org task list, independent of pagination)
+  const [analyticsTasks, setAnalyticsTasks] = useState([]);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+
+  // Debounced search input (filters.search updates 400ms after typing stops)
+  const [searchInput, setSearchInput] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters(prev => (
+        prev.search === searchInput ? prev : { ...prev, search: searchInput, page: 1 }
+      ));
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Fetch organization members once (used for assignment and filtering).
+  // Only active members can be assigned tasks.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const membersRes = await listOrganizationMembers();
+        const membersList = membersRes.data?.members || membersRes.data || [];
+        if (!cancelled) {
+          setMembers(Array.isArray(membersList) ? membersList.filter(m => m.status === 'active') : []);
+        }
+      } catch (err) {
+        console.error('Error fetching members:', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   // Fetch Data
   const fetchTasks = useCallback(async (showRefreshing = false) => {
     if (showRefreshing) setRefreshing(true);
     else setLoading(true);
-    
+
     try {
       const params = formatTaskFilters(filters);
-      
-      // Fetch all data in parallel
-      const [tasksRes, statsRes, membersRes] = await Promise.all([
+      // The kanban board has no pagination controls — fetch the full set
+      if (viewMode === 'kanban') {
+        params.page = 1;
+        params.limit = KANBAN_FETCH_LIMIT;
+      }
+
+      const [tasksRes, statsRes] = await Promise.all([
         getTasks(params),
-        getTaskStats(),
-        listOrganizationMembers()
+        getTaskStats()
       ]);
-      
+
       setTasks(tasksRes.data.tasks || []);
       setPagination(tasksRes.data.pagination || {});
       setStats(statsRes.data || null);
-      
-      // Ensure members array is properly set
-      const membersList = membersRes.data?.members || membersRes.data || [];
-      setMembers(Array.isArray(membersList) ? membersList : []);
-      
+
     } catch (err) {
       console.error('Error fetching tasks:', err);
       setError('Failed to load tasks. Please try again.');
@@ -309,11 +346,30 @@ const TasksPage = () => {
       setLoading(false);
       if (showRefreshing) setTimeout(() => setRefreshing(false), 500);
     }
-  }, [filters]);
-  
+  }, [filters, viewMode]);
+
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
+
+  // Load the full dataset for the analytics view (kept fresh as tasks change)
+  useEffect(() => {
+    if (viewMode !== 'analytics') return;
+    let cancelled = false;
+    (async () => {
+      setAnalyticsLoading(true);
+      try {
+        const res = await getTasks({ limit: ANALYTICS_FETCH_LIMIT });
+        if (!cancelled) setAnalyticsTasks(res.data.tasks || []);
+      } catch (err) {
+        console.error('Error fetching analytics data:', err);
+        if (!cancelled) setError('Failed to load analytics data');
+      } finally {
+        if (!cancelled) setAnalyticsLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [viewMode, tasks]);
   
   // Fetch Comments
   const fetchComments = async (taskId) => {
@@ -333,8 +389,6 @@ const TasksPage = () => {
   const handleCreateTask = async (formData) => {
     setCreateLoading(true);
     try {
-      console.log('Creating task with data:', formData);
-      
       const taskData = {
         title: formData.title,
         description: formData.description,
@@ -350,11 +404,9 @@ const TasksPage = () => {
       };
 
       // Only include assignee field if it has a valid value
-      if (formData.assignee && formData.assignee !== null && formData.assignee !== undefined) {
+      if (formData.assignee) {
         taskData.assignee = formData.assignee;
       }
-
-      console.log('Sending to API:', taskData);
 
       await createTask(taskData);
       setSuccess('Task created successfully!');
@@ -386,14 +438,22 @@ const TasksPage = () => {
         customFields: formData.subcategory ? { subcategory: formData.subcategory } : undefined
       };
 
-      await updateTask(editingTask._id, updates);
+      const editedTaskId = editingTask._id;
+      await updateTask(editedTaskId, updates);
       setSuccess('Task updated successfully!');
       setEditingTask(null);
       setEditDialogOpen(false);
       fetchTasks(true);
-      
-      if (selectedTask?._id === editingTask._id) {
-        setSelectedTask({ ...selectedTask, ...updates });
+
+      // Refresh the detail view with a fully populated task (the raw form
+      // values would replace the populated assignee object with a bare ID)
+      if (selectedTask?._id === editedTaskId) {
+        try {
+          const res = await getTaskById(editedTaskId);
+          setSelectedTask(res.data.task);
+        } catch (refreshErr) {
+          console.error('Error refreshing task detail:', refreshErr);
+        }
       }
     } catch (err) {
       console.error('Error updating task:', err);
@@ -478,93 +538,6 @@ const TasksPage = () => {
     setSelectedTaskMenu(taskId);
     setMoreMenuAnchor(anchorEl);
   }, []);
-  
-  // Calculate enhanced stats for analytics
-  const enhancedStats = useMemo(() => {
-    if (!stats || !tasks.length) return stats;
-
-    const now = new Date();
-    const overdueCount = tasks.filter(task => 
-      task.dueDate && new Date(task.dueDate) < now && task.status !== 'completed'
-    ).length;
-
-    const completedTasks = tasks.filter(task => task.status === 'completed');
-    const totalTasks = tasks.length;
-    const completionRate = totalTasks > 0 ? (completedTasks.length / totalTasks) * 100 : 0;
-
-    // Calculate task distribution by assignee from actual tasks
-    const tasksByAssignee = {};
-    tasks.forEach(task => {
-      if (task.assignee) {
-        const assigneeId = task.assignee._id || task.assignee;
-        const assigneeName = task.assignee.name || 'Unknown';
-        
-        if (!tasksByAssignee[assigneeId]) {
-          tasksByAssignee[assigneeId] = {
-            _id: assigneeId,
-            name: assigneeName,
-            taskCount: 0,
-            completed: 0,
-            inProgress: 0,
-            todo: 0,
-            overdue: 0
-          };
-        }
-        
-        tasksByAssignee[assigneeId].taskCount++;
-        
-        switch (task.status) {
-          case 'completed':
-            tasksByAssignee[assigneeId].completed++;
-            break;
-          case 'in_progress':
-            tasksByAssignee[assigneeId].inProgress++;
-            break;
-          case 'todo':
-            tasksByAssignee[assigneeId].todo++;
-            break;
-          default:
-            break;
-        }
-        
-        if (task.dueDate && new Date(task.dueDate) < now && task.status !== 'completed') {
-          tasksByAssignee[assigneeId].overdue++;
-        }
-      }
-    });
-
-    // Calculate category distribution from actual tasks
-    const categoryDistribution = {};
-    tasks.forEach(task => {
-      const category = task.category || 'other';
-      categoryDistribution[category] = (categoryDistribution[category] || 0) + 1;
-    });
-
-    // Calculate priority distribution from actual tasks
-    const priorityDistribution = {};
-    tasks.forEach(task => {
-      const priority = task.priority || 'medium';
-      priorityDistribution[priority] = (priorityDistribution[priority] || 0) + 1;
-    });
-
-    // Calculate status distribution from actual tasks
-    const statusDistribution = {};
-    tasks.forEach(task => {
-      const status = task.status || 'todo';
-      statusDistribution[status] = (statusDistribution[status] || 0) + 1;
-    });
-
-    return {
-      ...stats,
-      totalTasks,
-      overdueCount,
-      completionRate,
-      tasksByAssignee: Object.values(tasksByAssignee),
-      categoryDistribution: Object.entries(categoryDistribution).map(([_id, count]) => ({ _id, count })),
-      priorityDistribution: Object.entries(priorityDistribution).map(([_id, count]) => ({ _id, count })),
-      statusDistribution: Object.entries(statusDistribution).map(([_id, count]) => ({ _id, count }))
-    };
-  }, [stats, tasks]);
   
   // Render Functions
   const renderListView = () => (
@@ -1034,7 +1007,7 @@ const TasksPage = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {enhancedStats?.totalTasks || 0}
+                    {stats?.totalTasks || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Total Tasks
@@ -1052,7 +1025,7 @@ const TasksPage = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {enhancedStats?.statusDistribution?.find(s => s._id === 'in_progress')?.count || 0}
+                    {stats?.statusDistribution?.find(s => s._id === 'in_progress')?.count || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     In Progress
@@ -1070,7 +1043,7 @@ const TasksPage = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {enhancedStats?.statusDistribution?.find(s => s._id === 'completed')?.count || 0}
+                    {stats?.statusDistribution?.find(s => s._id === 'completed')?.count || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Completed
@@ -1088,7 +1061,7 @@ const TasksPage = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {enhancedStats?.overdueCount || 0}
+                    {stats?.overdueCount || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Overdue
@@ -1107,8 +1080,8 @@ const TasksPage = () => {
                 <TextField
                   fullWidth
                   placeholder="Search tasks..."
-                  value={filters.search}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -1133,6 +1106,7 @@ const TasksPage = () => {
                     <MenuItem value="in_review">In Review</MenuItem>
                     <MenuItem value="blocked">Blocked</MenuItem>
                     <MenuItem value="completed">Completed</MenuItem>
+                    <MenuItem value="cancelled">Cancelled</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -1164,7 +1138,7 @@ const TasksPage = () => {
                   >
                     <MenuItem value="all">All Assignees</MenuItem>
                     {members.map((member) => (
-                      <MenuItem key={member._id} value={member._id}>
+                      <MenuItem key={member.userId} value={member.userId}>
                         {member.name || 'Unknown User'}
                       </MenuItem>
                     ))}
@@ -1192,17 +1166,20 @@ const TasksPage = () => {
                 <Button
                   fullWidth
                   variant="outlined"
-                  onClick={() => setFilters({
-                    status: 'all',
-                    priority: 'all',
-                    category: 'all',
-                    assignee: 'all',
-                    search: '',
-                    myTasks: false,
-                    sortBy: 'createdAt',
-                    page: 1,
-                    limit: 20
-                  })}
+                  onClick={() => {
+                    setSearchInput('');
+                    setFilters({
+                      status: 'all',
+                      priority: 'all',
+                      category: 'all',
+                      assignee: 'all',
+                      search: '',
+                      myTasks: false,
+                      sortBy: 'createdAt',
+                      page: 1,
+                      limit: 20
+                    });
+                  }}
                   sx={{ height: '56px' }}
                 >
                   Reset
@@ -1267,9 +1244,9 @@ const TasksPage = () => {
         {viewMode === 'list' && renderListView()}
         
         {viewMode === 'analytics' && (
-          <TaskAnalytics 
-            stats={enhancedStats} 
-            tasks={tasks}
+          <TaskAnalytics
+            tasks={analyticsTasks}
+            loading={analyticsLoading && analyticsTasks.length === 0}
           />
         )}
         

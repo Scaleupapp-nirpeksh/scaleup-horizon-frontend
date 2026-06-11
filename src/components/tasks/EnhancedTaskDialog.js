@@ -39,6 +39,9 @@ const priorityConfig = {
   low: { icon: <FlagIcon />, color: '#4caf50', label: 'Low' }
 };
 
+// Guard against invalid Date objects before calling date-fns format()
+const isValidDate = (d) => d instanceof Date && !isNaN(d.getTime());
+
 const categorySubcategories = {
   development: ['Frontend', 'Backend', 'Database', 'DevOps', 'Testing', 'Bug Fix', 'Feature', 'Refactoring'],
   marketing: ['Content', 'Social Media', 'SEO', 'Email Campaign', 'Analytics', 'Branding', 'PR'],
@@ -83,10 +86,30 @@ const EnhancedTaskDialog = ({
   useEffect(() => {
     if (open) {
       if (existingTask) {
+        const category = existingTask.category || 'other';
+        const subcategory = existingTask.subcategory || '';
+        // Subcategories outside the predefined list are shown as "custom"
+        const isCustomSubcategory = !!subcategory &&
+          !(categorySubcategories[category] || []).includes(subcategory);
+
         setTaskForm({
-          ...existingTask,
-          assignee: existingTask.assignee?._id || existingTask.assignee?.userId || null // Handle both cases
+          title: existingTask.title || '',
+          description: existingTask.description || '',
+          category,
+          subcategory: isCustomSubcategory ? '' : subcategory,
+          tags: existingTask.tags || [],
+          priority: existingTask.priority || 'medium',
+          status: existingTask.status,
+          // assignee may arrive populated ({_id, name}) or as a bare id
+          assignee: existingTask.assignee?._id || existingTask.assignee || null,
+          // dates arrive as ISO strings from the API — the pickers need Date objects
+          dueDate: existingTask.dueDate ? new Date(existingTask.dueDate) : null,
+          startDate: existingTask.startDate ? new Date(existingTask.startDate) : null,
+          parentTask: existingTask.parentTask?._id || existingTask.parentTask || null,
+          blockedBy: existingTask.blockedBy || []
         });
+        setCustomSubcategory(isCustomSubcategory ? subcategory : '');
+        setShowCustomSubcategory(isCustomSubcategory);
       } else {
         // Reset form for new task
         setTaskForm({
@@ -101,10 +124,10 @@ const EnhancedTaskDialog = ({
           parentTask: null,
           blockedBy: []
         });
+        setCustomSubcategory('');
+        setShowCustomSubcategory(false);
       }
       setErrors({});
-      setCustomSubcategory('');
-      setShowCustomSubcategory(false);
       setActiveTab(0);
     }
   }, [open, existingTask]);
@@ -125,21 +148,10 @@ const EnhancedTaskDialog = ({
 
   const handleSubmit = () => {
     if (validateForm()) {
-      console.log('=== TASK FORM DEBUG (FIXED) ===');
-      console.log('taskForm.assignee:', taskForm.assignee);
-      console.log('members array:', members);
-      console.log('members with userId:', members.map(m => ({ userId: m.userId, name: m.name })));
-      console.log('selected member:', members.find(m => m.userId === taskForm.assignee));
-      
       const submitData = {
         ...taskForm,
-        assignee: taskForm.assignee, // Remove || undefined
-        subcategory: showCustomSubcategory ? customSubcategory : (taskForm.subcategory || null),
+        subcategory: showCustomSubcategory ? (customSubcategory.trim() || null) : (taskForm.subcategory || null),
       };
-      
-      console.log('submitData.assignee:', submitData.assignee);
-      console.log('=== END DEBUG ===');
-      
       onSubmit(submitData);
     }
   };
@@ -544,8 +556,8 @@ const EnhancedTaskDialog = ({
                       label="Today"
                       onClick={() => handleQuickDate('today')}
                       variant={
-                        taskForm.dueDate && 
-                        format(taskForm.dueDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') 
+                        isValidDate(taskForm.dueDate) &&
+                        format(taskForm.dueDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
                           ? 'filled' : 'outlined'
                       }
                       color="primary"
@@ -579,20 +591,7 @@ const EnhancedTaskDialog = ({
                       label="Select Due Date"
                       value={taskForm.dueDate}
                       onChange={(newValue) => setTaskForm({ ...taskForm, dueDate: newValue })}
-                      renderInput={(params) => (
-                        <TextField 
-                          {...params} 
-                          fullWidth
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <CalendarTodayIcon color="action" />
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      )}
+                      slotProps={{ textField: { fullWidth: true } }}
                     />
                   </LocalizationProvider>
                 </Box>
@@ -641,7 +640,7 @@ const EnhancedTaskDialog = ({
                         />
                       </Stack>
                     )}
-                    {taskForm.dueDate && (
+                    {isValidDate(taskForm.dueDate) && (
                       <Stack direction="row" spacing={1} alignItems="center">
                         <Typography variant="body2" color="text.secondary">Due:</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>

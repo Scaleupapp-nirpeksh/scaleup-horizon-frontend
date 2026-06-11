@@ -2,7 +2,7 @@
 import React from 'react';
 import {
   Box, Grid, Paper, Typography, Stack, useTheme, alpha,
-  Avatar, Chip, LinearProgress, Card, CardContent
+  Avatar, Chip, LinearProgress, Card, CardContent, CircularProgress
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
@@ -69,8 +69,21 @@ const COLORS = {
   chart: ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#06b6d4', '#84cc16', '#f97316']
 };
 
-const TaskAnalytics = ({ stats, tasks = [] }) => {
+const TaskAnalytics = ({ stats, tasks = [], loading = false }) => {
   const theme = useTheme();
+
+  if (loading) {
+    return (
+      <AnalyticsCard>
+        <Stack spacing={3} alignItems="center" justifyContent="center" sx={{ minHeight: 400 }}>
+          <CircularProgress />
+          <Typography variant="body2" color="text.secondary">
+            Loading analytics…
+          </Typography>
+        </Stack>
+      </AnalyticsCard>
+    );
+  }
 
   // Ensure we have valid data
   if (!stats && (!tasks || tasks.length === 0)) {
@@ -93,9 +106,10 @@ const TaskAnalytics = ({ stats, tasks = [] }) => {
   const totalTasks = stats?.totalTasks || tasks.length;
   const completedCount = stats?.statusDistribution?.find(s => s._id === 'completed')?.count || 
                         tasks.filter(t => t.status === 'completed').length;
-  const overdueCount = stats?.overdueCount || 
-                      tasks.filter(task => 
-                        task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'completed'
+  const overdueCount = stats?.overdueCount ||
+                      tasks.filter(task =>
+                        task.dueDate && new Date(task.dueDate) < new Date() &&
+                        !['completed', 'cancelled'].includes(task.status)
                       ).length;
   
   const completionRate = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
@@ -208,13 +222,30 @@ const TaskAnalytics = ({ stats, tasks = [] }) => {
     return Object.values(memberStats).slice(0, 8);
   })();
 
-  // Mock velocity data (in real app, this would come from historical data)
-  const velocityData = [
-    { period: 'Week 1', completed: Math.floor(completedCount * 0.2), created: Math.floor(totalTasks * 0.25) },
-    { period: 'Week 2', completed: Math.floor(completedCount * 0.3), created: Math.floor(totalTasks * 0.3) },
-    { period: 'Week 3', completed: Math.floor(completedCount * 0.35), created: Math.floor(totalTasks * 0.25) },
-    { period: 'Week 4', completed: Math.floor(completedCount * 0.15), created: Math.floor(totalTasks * 0.2) },
-  ];
+  // Real velocity over the last 4 weeks, computed from task timestamps
+  const velocityData = (() => {
+    const now = new Date();
+    const labels = ['3w ago', '2w ago', 'Last week', 'This week'];
+    return labels.map((period, idx) => {
+      const weeksBack = 3 - idx;
+      const start = new Date(now);
+      start.setDate(now.getDate() - (weeksBack + 1) * 7);
+      const end = new Date(now);
+      end.setDate(now.getDate() - weeksBack * 7);
+
+      const created = tasks.filter(t => {
+        const d = new Date(t.createdAt);
+        return d >= start && d < end;
+      }).length;
+      const completed = tasks.filter(t => {
+        if (!t.completedAt) return false;
+        const d = new Date(t.completedAt);
+        return d >= start && d < end;
+      }).length;
+
+      return { period, created, completed };
+    });
+  })();
 
   // Custom tooltip for charts
   const CustomTooltip = ({ active, payload, label }) => {
