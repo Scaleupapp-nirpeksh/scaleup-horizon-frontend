@@ -392,9 +392,9 @@ const TaskItem = React.memo(({ task, index, onClick, onMenuClick }) => {
           >
             <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
               <Stack spacing={1.5}>
-                {/* Key + type row */}
-                {(task.taskKey || task.taskType === 'epic') && (
-                  <Stack direction="row" spacing={1} alignItems="center">
+                {/* Key + type + parent-epic row */}
+                {(task.taskKey || task.taskType === 'epic' || task.parentTask) && (
+                  <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" sx={{ rowGap: 0.5 }}>
                     {task.taskKey && (
                       <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: 'text.secondary' }}>
                         {task.taskKey}
@@ -402,6 +402,24 @@ const TaskItem = React.memo(({ task, index, onClick, onMenuClick }) => {
                     )}
                     {task.taskType === 'epic' && (
                       <Chip label="EPIC" size="small" sx={{ bgcolor: '#9c27b0', color: 'white', fontWeight: 700, height: 18, fontSize: '0.6rem' }} />
+                    )}
+                    {task.parentTask && (
+                      <Tooltip title={`Part of: ${task.parentTask.title || 'parent task'}`}>
+                        <Chip
+                          icon={<AccountTreeIcon sx={{ fontSize: '0.7rem' }} />}
+                          label={task.parentTask.taskKey || task.parentTask.title || 'parent'}
+                          size="small"
+                          sx={{
+                            height: 18,
+                            fontSize: '0.6rem',
+                            fontWeight: 700,
+                            bgcolor: 'rgba(156,39,176,0.1)',
+                            color: '#9c27b0',
+                            maxWidth: 140,
+                            '& .MuiChip-icon': { color: '#9c27b0' }
+                          }}
+                        />
+                      </Tooltip>
                     )}
                   </Stack>
                 )}

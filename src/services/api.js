@@ -647,6 +647,15 @@ export const deleteTaskComment = (taskId, commentId) => api.delete(`/tasks/${tas
 // Task Analytics
 export const getTaskStats = (params) => api.get('/tasks/stats', { params });
 
+// Bulk operations & CSV import
+export const bulkUpdateTasks = (data) => api.post('/tasks/bulk', data); // { taskIds, action, updates }
+export const importTasksCsv = (data) => api.post('/tasks/import', data); // { csv, dryRun, defaultParentKey }
+
+// Notifications
+export const getNotifications = (params) => api.get('/notifications', { params });
+export const markNotificationRead = (id) => api.post(`/notifications/${id}/read`);
+export const markAllNotificationsRead = () => api.post('/notifications/read-all');
+
 // Helper function to format task filters
 export const formatTaskFilters = (filters) => {
   const params = {};

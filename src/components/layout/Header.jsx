@@ -16,6 +16,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import GroupAddOutlinedIcon from '@mui/icons-material/GroupAddOutlined';
 import SupervisorAccountOutlinedIcon from '@mui/icons-material/SupervisorAccountOutlined';
 import { styled } from '@mui/material/styles';
+import NotificationBell from './NotificationBell';
 
 // Styled Components
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
@@ -259,6 +260,8 @@ const Header = ({ onDrawerToggle, drawerWidth }) => {
         </LogoSection>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {user && activeOrganization && <NotificationBell />}
+
           {user && (isSwitchingOrg || authLoading) && (
             <CircularProgress size={20} thickness={3} />
           )}

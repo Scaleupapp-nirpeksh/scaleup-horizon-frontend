@@ -1,12 +1,13 @@
 // UpdatedTasksPage.jsx - Integration with improved Kanban board and Analytics
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Container, Grid, Paper, Typography, Box, Stack, useTheme, alpha,
   IconButton, Button, Chip, Avatar, Tooltip, Fab, Menu, MenuItem,
   TextField, Select, FormControl, InputLabel, Divider, Dialog,
   DialogTitle, DialogContent, Card,
-  LinearProgress, Skeleton, Collapse,
+  LinearProgress, Skeleton, Collapse, Checkbox,
   ToggleButton, ToggleButtonGroup,
   InputAdornment, AvatarGroup, Autocomplete,
   Breadcrumbs, Link, Alert, Snackbar,
@@ -41,17 +42,20 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 // Component imports
 import EnhancedTaskDialog from '../components/tasks/EnhancedTaskDialog';
 import ImprovedKanbanBoard from '../components/tasks/ImprovedKanbanBoard';
 import TaskAnalytics from '../components/tasks/TaskAnalytics';
+import ImportTasksDialog from '../components/tasks/ImportTasksDialog';
 
 // API imports
 import {
   getTasks, getTaskById, createTask, updateTask, archiveTask,
   getTaskComments, addTaskComment, addTaskLink, deleteTaskLink,
-  getTaskStats, formatTaskFilters, listOrganizationMembers
+  getTaskStats, formatTaskFilters, listOrganizationMembers,
+  bulkUpdateTasks
 } from '../services/api';
 
 // The kanban board has no pagination UI, so it needs the full task set
@@ -268,6 +272,7 @@ const TasksPage = () => {
     category: 'all',
     assignee: 'all',
     taskType: 'all',
+    parentTask: '',
     search: '',
     myTasks: false,
     sortBy: 'createdAt',
@@ -306,6 +311,11 @@ const TasksPage = () => {
   const [linkTarget, setLinkTarget] = useState(null);
   const [linkType, setLinkType] = useState('relates_to');
   const [linkSaving, setLinkSaving] = useState(false);
+
+  // Bulk selection (list view) and CSV import
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   // Debounced search input (filters.search updates 400ms after typing stops)
   const [searchInput, setSearchInput] = useState('');
@@ -613,17 +623,114 @@ const TasksPage = () => {
     }
   };
 
+  // Deep link: /tasks?task=<id> opens the task detail (used by notifications)
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const taskId = searchParams.get('task');
+    if (taskId) {
+      handleTaskClick({ _id: taskId });
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams, handleTaskClick]);
+
+  // Bulk operations (list view selection)
+  const handleBulk = async (action, updates) => {
+    if (selectedIds.length === 0) return;
+    setBulkBusy(true);
+    try {
+      const res = await bulkUpdateTasks({ taskIds: selectedIds, action, updates });
+      const skippedCount = res.data.skipped?.length || 0;
+      setSuccess(res.data.msg + (skippedCount ? ` (${skippedCount} skipped)` : ''));
+      setSelectedIds([]);
+      fetchTasks(true);
+    } catch (err) {
+      console.error('Bulk operation failed:', err);
+      setError(err.response?.data?.msg || 'Bulk operation failed');
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const toggleSelect = (taskId) => {
+    setSelectedIds(prev => prev.includes(taskId)
+      ? prev.filter(id => id !== taskId)
+      : [...prev, taskId]);
+  };
+
   const handleTaskMenu = useCallback((taskId, anchorEl) => {
     setSelectedTaskMenu(taskId);
     setMoreMenuAnchor(anchorEl);
   }, []);
   
   // Render Functions
+  const renderBulkBar = () => (
+    <Collapse in={selectedIds.length > 0}>
+      <Paper sx={{ p: 1.5, mb: 1.5, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.05), border: `1px solid ${alpha(theme.palette.primary.main, 0.25)}` }}>
+        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" sx={{ rowGap: 1 }}>
+          <Chip label={`${selectedIds.length} selected`} color="primary" size="small" sx={{ fontWeight: 700 }} />
+          <FormControl size="small" sx={{ minWidth: 130 }}>
+            <InputLabel>Set status</InputLabel>
+            <Select label="Set status" value="" disabled={bulkBusy}
+              onChange={(e) => e.target.value && handleBulk('update', { status: e.target.value })}>
+              {['todo', 'in_progress', 'in_review', 'blocked', 'completed', 'cancelled'].map(s => (
+                <MenuItem key={s} value={s}>{s.replace('_', ' ')}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 130 }}>
+            <InputLabel>Set priority</InputLabel>
+            <Select label="Set priority" value="" disabled={bulkBusy}
+              onChange={(e) => e.target.value && handleBulk('update', { priority: e.target.value })}>
+              {['low', 'medium', 'high', 'critical'].map(p => (
+                <MenuItem key={p} value={p}>{p}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Assign to</InputLabel>
+            <Select label="Assign to" value="" disabled={bulkBusy}
+              onChange={(e) => e.target.value && handleBulk('update', { assignee: e.target.value })}>
+              {members.map(m => (
+                <MenuItem key={m.userId} value={m.userId}>{m.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 170 }}>
+            <InputLabel>Move to epic</InputLabel>
+            <Select label="Move to epic" value="" disabled={bulkBusy}
+              onChange={(e) => e.target.value && handleBulk('update', { parentTask: e.target.value })}>
+              {epics.map(epic => (
+                <MenuItem key={epic._id} value={epic._id}>
+                  {epic.taskKey ? `${epic.taskKey} — ` : ''}{epic.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button size="small" color="warning" startIcon={<ArchiveIcon />} disabled={bulkBusy}
+            onClick={() => handleBulk('archive')}>
+            Archive
+          </Button>
+          <Button size="small" disabled={bulkBusy} onClick={() => setSelectedIds([])}>
+            Clear
+          </Button>
+          {bulkBusy && <LinearProgress sx={{ flex: 1, minWidth: 60 }} />}
+        </Stack>
+      </Paper>
+    </Collapse>
+  );
+
   const renderListView = () => (
     <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell padding="checkbox">
+              <Checkbox
+                indeterminate={selectedIds.length > 0 && selectedIds.length < tasks.length}
+                checked={tasks.length > 0 && selectedIds.length === tasks.length}
+                onChange={(e) => setSelectedIds(e.target.checked ? tasks.map(t => t._id) : [])}
+              />
+            </TableCell>
             <TableCell>Key</TableCell>
             <TableCell>Task</TableCell>
             <TableCell>Status</TableCell>
@@ -641,7 +748,14 @@ const TasksPage = () => {
               hover
               onClick={() => handleTaskClick(task)}
               sx={{ cursor: 'pointer' }}
+              selected={selectedIds.includes(task._id)}
             >
+              <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={selectedIds.includes(task._id)}
+                  onChange={() => toggleSelect(task._id)}
+                />
+              </TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>
                 <Stack spacing={0.5} alignItems="flex-start">
                   <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
@@ -654,9 +768,23 @@ const TasksPage = () => {
               </TableCell>
               <TableCell>
                 <Stack spacing={0.5}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    {task.title}
-                  </Typography>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {task.title}
+                    </Typography>
+                    {task.parentTask && (
+                      <Tooltip title={`Part of: ${task.parentTask.title || 'parent task'}`}>
+                        <Chip
+                          label={task.parentTask.taskKey || task.parentTask.title}
+                          size="small"
+                          sx={{
+                            height: 18, fontSize: '0.6rem', fontWeight: 700,
+                            bgcolor: 'rgba(156,39,176,0.1)', color: '#9c27b0', maxWidth: 140
+                          }}
+                        />
+                      </Tooltip>
+                    )}
+                  </Stack>
                   {task.description && (
                     <Typography variant="caption" color="text.secondary" noWrap>
                       {task.description}
@@ -1191,6 +1319,21 @@ const TasksPage = () => {
             <Stack direction="row" spacing={2} sx={{ position: 'relative', zIndex: 3 }}>
               <Button
                 variant="outlined"
+                startIcon={<UploadFileIcon />}
+                onClick={() => setImportOpen(true)}
+                sx={{
+                  borderColor: 'rgba(255,255,255,0.3)',
+                  color: 'white',
+                  '&:hover': {
+                    borderColor: 'white',
+                    backgroundColor: 'rgba(255,255,255,0.1)'
+                  }
+                }}
+              >
+                Import
+              </Button>
+              <Button
+                variant="outlined"
                 startIcon={<FilterListIcon />}
                 onClick={() => setActiveFilter(!activeFilter)}
                 sx={{ 
@@ -1321,6 +1464,24 @@ const TasksPage = () => {
               
               <Grid item xs={12} sm={6} md={2}>
                 <FormControl fullWidth>
+                  <InputLabel>Epic</InputLabel>
+                  <Select
+                    value={filters.parentTask || ''}
+                    label="Epic"
+                    onChange={(e) => setFilters({ ...filters, parentTask: e.target.value, page: 1 })}
+                  >
+                    <MenuItem value="">All Epics</MenuItem>
+                    {epics.map((epic) => (
+                      <MenuItem key={epic._id} value={epic._id}>
+                        {epic.taskKey ? `${epic.taskKey} — ` : ''}{epic.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={2}>
+                <FormControl fullWidth>
                   <InputLabel>Type</InputLabel>
                   <Select
                     value={filters.taskType}
@@ -1416,6 +1577,7 @@ const TasksPage = () => {
                       category: 'all',
                       assignee: 'all',
                       taskType: 'all',
+                      parentTask: '',
                       search: '',
                       myTasks: false,
                       sortBy: 'createdAt',
@@ -1484,7 +1646,12 @@ const TasksPage = () => {
           />
         )}
         
-        {viewMode === 'list' && renderListView()}
+        {viewMode === 'list' && (
+          <>
+            {renderBulkBar()}
+            {renderListView()}
+          </>
+        )}
         
         {viewMode === 'analytics' && (
           <TaskAnalytics
@@ -1522,6 +1689,14 @@ const TasksPage = () => {
           />
         )}
         
+        {/* CSV Import Dialog */}
+        <ImportTasksDialog
+          open={importOpen}
+          onClose={() => setImportOpen(false)}
+          epics={epics}
+          onImported={() => fetchTasks(true)}
+        />
+
         {/* Task Context Menu */}
         <Menu
           anchorEl={moreMenuAnchor}
