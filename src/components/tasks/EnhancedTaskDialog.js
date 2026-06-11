@@ -53,13 +53,14 @@ const categorySubcategories = {
   other: ['General', 'Miscellaneous']
 };
 
-const EnhancedTaskDialog = ({ 
-  open, 
-  onClose, 
-  onSubmit, 
-  members = [], 
+const EnhancedTaskDialog = ({
+  open,
+  onClose,
+  onSubmit,
+  members = [],
+  epics = [],
   existingTask = null,
-  loading = false 
+  loading = false
 }) => {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState(0);
@@ -74,6 +75,7 @@ const EnhancedTaskDialog = ({
     subcategory: '',
     tags: [],
     priority: 'medium',
+    taskType: 'task',
     assignee: null,
     dueDate: null,
     parentTask: null,
@@ -99,6 +101,7 @@ const EnhancedTaskDialog = ({
           subcategory: isCustomSubcategory ? '' : subcategory,
           tags: existingTask.tags || [],
           priority: existingTask.priority || 'medium',
+          taskType: existingTask.taskType || 'task',
           status: existingTask.status,
           // assignee may arrive populated ({_id, name}) or as a bare id
           assignee: existingTask.assignee?._id || existingTask.assignee || null,
@@ -119,6 +122,7 @@ const EnhancedTaskDialog = ({
           subcategory: '',
           tags: [],
           priority: 'medium',
+          taskType: 'task',
           assignee: null,
           dueDate: null,
           parentTask: null,
@@ -239,7 +243,7 @@ const EnhancedTaskDialog = ({
               </Avatar>
               <Box>
                 <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                  {existingTask ? 'Edit Task' : 'Create New Task'}
+                  {existingTask ? 'Edit' : 'Create New'} {taskForm.taskType === 'epic' ? 'Epic' : 'Task'}
                 </Typography>
                 <Typography variant="body2" sx={{ opacity: 0.8 }}>
                   Fill in the details to {existingTask ? 'update' : 'create'} a task
@@ -272,6 +276,53 @@ const EnhancedTaskDialog = ({
           {activeTab === 0 && (
             <Fade in={activeTab === 0}>
               <Stack spacing={3}>
+                {/* Task Type & Parent Epic */}
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                  <Box sx={{ minWidth: 220 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                      Type
+                    </Typography>
+                    <ToggleButtonGroup
+                      value={taskForm.taskType}
+                      exclusive
+                      fullWidth
+                      onChange={(e, newType) => {
+                        if (newType) setTaskForm({ ...taskForm, taskType: newType });
+                      }}
+                      size="small"
+                    >
+                      <ToggleButton value="task" sx={{ textTransform: 'none', fontWeight: 600 }}>
+                        Task
+                      </ToggleButton>
+                      <ToggleButton
+                        value="epic"
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          '&.Mui-selected': { backgroundColor: '#9c27b0', color: 'white', '&:hover': { backgroundColor: '#9c27b0' } }
+                        }}
+                      >
+                        Epic
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                      Parent Epic
+                    </Typography>
+                    <Autocomplete
+                      options={epics.filter(e => !existingTask || e._id !== existingTask._id)}
+                      getOptionLabel={(option) => `${option.taskKey ? option.taskKey + ' — ' : ''}${option.title}`}
+                      value={epics.find(e => e._id === taskForm.parentTask) || null}
+                      onChange={(e, newValue) => setTaskForm({ ...taskForm, parentTask: newValue?._id || null })}
+                      size="small"
+                      renderInput={(params) => (
+                        <TextField {...params} placeholder="None (top level)" />
+                      )}
+                    />
+                  </Box>
+                </Stack>
+
                 {/* Title Field */}
                 <TextField
                   label="Task Title"
@@ -675,7 +726,7 @@ const EnhancedTaskDialog = ({
             }
           }}
         >
-          {loading ? 'Creating...' : (existingTask ? 'Update Task' : 'Create Task')}
+          {loading ? 'Saving...' : (existingTask ? 'Update' : 'Create')} {!loading && (taskForm.taskType === 'epic' ? 'Epic' : 'Task')}
         </Button>
       </DialogActions>
     </Dialog>

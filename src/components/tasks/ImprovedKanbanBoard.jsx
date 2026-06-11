@@ -392,12 +392,25 @@ const TaskItem = React.memo(({ task, index, onClick, onMenuClick }) => {
           >
             <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
               <Stack spacing={1.5}>
+                {/* Key + type row */}
+                {(task.taskKey || task.taskType === 'epic') && (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    {task.taskKey && (
+                      <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: 'text.secondary' }}>
+                        {task.taskKey}
+                      </Typography>
+                    )}
+                    {task.taskType === 'epic' && (
+                      <Chip label="EPIC" size="small" sx={{ bgcolor: '#9c27b0', color: 'white', fontWeight: 700, height: 18, fontSize: '0.6rem' }} />
+                    )}
+                  </Stack>
+                )}
                 {/* Task Header */}
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                  <Typography 
-                    variant="subtitle2" 
-                    sx={{ 
-                      fontWeight: 600, 
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 600,
                       pr: 1,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',

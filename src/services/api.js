@@ -634,6 +634,10 @@ export const getTaskSubcategories = (category) => api.get('/tasks/subcategories'
 export const assignTask = (id, data) => api.post(`/tasks/${id}/assign`, data);
 export const updateTaskWatchers = (id, data) => api.post(`/tasks/${id}/watchers`, data);
 
+// Task Links (JIRA-style relations)
+export const addTaskLink = (taskId, data) => api.post(`/tasks/${taskId}/links`, data); // { targetTaskId, linkType }
+export const deleteTaskLink = (taskId, linkId) => api.delete(`/tasks/${taskId}/links/${linkId}`);
+
 // Task Comments
 export const getTaskComments = (taskId) => api.get(`/tasks/${taskId}/comments`);
 export const addTaskComment = (taskId, commentData) => api.post(`/tasks/${taskId}/comments`, commentData);
@@ -651,6 +655,8 @@ export const formatTaskFilters = (filters) => {
   if (filters.priority && filters.priority !== 'all') params.priority = filters.priority;
   if (filters.assignee && filters.assignee !== 'all') params.assignee = filters.assignee;
   if (filters.category && filters.category !== 'all') params.category = filters.category;
+  if (filters.taskType && filters.taskType !== 'all') params.taskType = filters.taskType;
+  if (filters.parentTask) params.parentTask = filters.parentTask;
   if (filters.search) params.search = filters.search;
   if (filters.myTasks) params.myTasks = 'true';
   if (filters.sortBy) params.sortBy = filters.sortBy;

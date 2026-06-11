@@ -8,7 +8,7 @@ import {
   DialogTitle, DialogContent, Card,
   LinearProgress, Skeleton, Collapse,
   ToggleButton, ToggleButtonGroup,
-  InputAdornment, AvatarGroup,
+  InputAdornment, AvatarGroup, Autocomplete,
   Breadcrumbs, Link, Alert, Snackbar,
   useMediaQuery,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination
@@ -50,7 +50,7 @@ import TaskAnalytics from '../components/tasks/TaskAnalytics';
 // API imports
 import {
   getTasks, getTaskById, createTask, updateTask, archiveTask,
-  getTaskComments, addTaskComment,
+  getTaskComments, addTaskComment, addTaskLink, deleteTaskLink,
   getTaskStats, formatTaskFilters, listOrganizationMembers
 } from '../services/api';
 
@@ -258,6 +258,7 @@ const TasksPage = () => {
     priority: 'all',
     category: 'all',
     assignee: 'all',
+    taskType: 'all',
     search: '',
     myTasks: false,
     sortBy: 'createdAt',
@@ -287,6 +288,15 @@ const TasksPage = () => {
   // Analytics dataset (full org task list, independent of pagination)
   const [analyticsTasks, setAnalyticsTasks] = useState([]);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
+
+  // Epics (for the parent picker and epic chips)
+  const [epics, setEpics] = useState([]);
+
+  // Task detail enrichment from getTaskById: children, childStats, links
+  const [taskDetail, setTaskDetail] = useState(null);
+  const [linkTarget, setLinkTarget] = useState(null);
+  const [linkType, setLinkType] = useState('relates_to');
+  const [linkSaving, setLinkSaving] = useState(false);
 
   // Debounced search input (filters.search updates 400ms after typing stops)
   const [searchInput, setSearchInput] = useState('');
@@ -338,6 +348,14 @@ const TasksPage = () => {
       setTasks(tasksRes.data.tasks || []);
       setPagination(tasksRes.data.pagination || {});
       setStats(statsRes.data || null);
+
+      // Keep the epic list fresh for the parent picker
+      try {
+        const epicsRes = await getTasks({ taskType: 'epic', limit: 200, sortBy: 'title' });
+        setEpics(epicsRes.data.tasks || []);
+      } catch (epicErr) {
+        console.error('Error fetching epics:', epicErr);
+      }
 
     } catch (err) {
       console.error('Error fetching tasks:', err);
@@ -396,6 +414,7 @@ const TasksPage = () => {
         subcategory: formData.subcategory,
         tags: formData.tags,
         priority: formData.priority,
+        taskType: formData.taskType,
         dueDate: formData.dueDate,
         startDate: formData.startDate,
         parentTask: formData.parentTask,
@@ -431,10 +450,12 @@ const TasksPage = () => {
         subcategory: formData.subcategory,
         tags: formData.tags,
         priority: formData.priority,
+        taskType: formData.taskType,
         status: formData.status,
         assignee: formData.assignee,
         dueDate: formData.dueDate,
         startDate: formData.startDate,
+        parentTask: formData.parentTask !== undefined ? formData.parentTask : undefined,
         customFields: formData.subcategory ? { subcategory: formData.subcategory } : undefined
       };
 
@@ -448,12 +469,7 @@ const TasksPage = () => {
       // Refresh the detail view with a fully populated task (the raw form
       // values would replace the populated assignee object with a bare ID)
       if (selectedTask?._id === editedTaskId) {
-        try {
-          const res = await getTaskById(editedTaskId);
-          setSelectedTask(res.data.task);
-        } catch (refreshErr) {
-          console.error('Error refreshing task detail:', refreshErr);
-        }
+        refreshTaskDetail(editedTaskId);
       }
     } catch (err) {
       console.error('Error updating task:', err);
@@ -530,9 +546,63 @@ const TasksPage = () => {
   // Task click handlers
   const handleTaskClick = useCallback((task) => {
     setSelectedTask(task);
+    setTaskDetail(null);
     setTaskDetailOpen(true);
     fetchComments(task._id);
+    // Enrich with hierarchy + links from the detail endpoint
+    getTaskById(task._id)
+      .then((res) => {
+        setSelectedTask(res.data.task);
+        setTaskDetail({
+          children: res.data.children || [],
+          childStats: res.data.childStats || null,
+          links: res.data.links || []
+        });
+      })
+      .catch((err) => console.error('Error fetching task detail:', err));
   }, []);
+
+  const refreshTaskDetail = async (taskId) => {
+    try {
+      const res = await getTaskById(taskId);
+      setSelectedTask(res.data.task);
+      setTaskDetail({
+        children: res.data.children || [],
+        childStats: res.data.childStats || null,
+        links: res.data.links || []
+      });
+    } catch (err) {
+      console.error('Error refreshing task detail:', err);
+    }
+  };
+
+  const handleAddLink = async () => {
+    if (!selectedTask || !linkTarget) return;
+    setLinkSaving(true);
+    try {
+      await addTaskLink(selectedTask._id, { targetTaskId: linkTarget._id, linkType });
+      setLinkTarget(null);
+      setSuccess('Tasks linked!');
+      refreshTaskDetail(selectedTask._id);
+    } catch (err) {
+      console.error('Error linking tasks:', err);
+      setError(err.response?.data?.msg || 'Failed to link tasks');
+    } finally {
+      setLinkSaving(false);
+    }
+  };
+
+  const handleRemoveLink = async (linkId) => {
+    if (!selectedTask) return;
+    try {
+      await deleteTaskLink(selectedTask._id, linkId);
+      setSuccess('Link removed');
+      refreshTaskDetail(selectedTask._id);
+    } catch (err) {
+      console.error('Error removing link:', err);
+      setError(err.response?.data?.msg || 'Failed to remove link');
+    }
+  };
 
   const handleTaskMenu = useCallback((taskId, anchorEl) => {
     setSelectedTaskMenu(taskId);
@@ -545,6 +615,7 @@ const TasksPage = () => {
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>Key</TableCell>
             <TableCell>Task</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Priority</TableCell>
@@ -562,6 +633,16 @@ const TasksPage = () => {
               onClick={() => handleTaskClick(task)}
               sx={{ cursor: 'pointer' }}
             >
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                <Stack spacing={0.5} alignItems="flex-start">
+                  <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
+                    {task.taskKey || '—'}
+                  </Typography>
+                  {task.taskType === 'epic' && (
+                    <Chip label="EPIC" size="small" sx={{ bgcolor: '#9c27b0', color: 'white', fontWeight: 700, height: 18, fontSize: '0.6rem' }} />
+                  )}
+                </Stack>
+              </TableCell>
               <TableCell>
                 <Stack spacing={0.5}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
@@ -678,6 +759,16 @@ const TasksPage = () => {
                 >
                   <CloseIcon />
                 </IconButton>
+                {selectedTask.taskKey && (
+                  <Chip
+                    label={selectedTask.taskKey}
+                    size="small"
+                    sx={{ fontWeight: 700, fontFamily: 'monospace' }}
+                  />
+                )}
+                {selectedTask.taskType === 'epic' && (
+                  <Chip label="EPIC" size="small" sx={{ bgcolor: '#9c27b0', color: 'white', fontWeight: 700 }} />
+                )}
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                   {selectedTask.title}
                 </Typography>
@@ -793,6 +884,131 @@ const TasksPage = () => {
               
               <Grid item xs={12} md={4}>
                 <Stack spacing={3}>
+                  {/* Hierarchy: parent + children */}
+                  {(selectedTask.parentTask || (taskDetail?.children?.length > 0)) && (
+                    <Paper sx={{ p: 2, borderRadius: 2 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+                        Hierarchy
+                      </Typography>
+                      {selectedTask.parentTask && (
+                        <Box sx={{ mb: taskDetail?.children?.length ? 2 : 0 }}>
+                          <Typography variant="caption" color="text.secondary">Parent</Typography>
+                          <Chip
+                            label={selectedTask.parentTask.title || 'Parent task'}
+                            size="small"
+                            variant="outlined"
+                            onClick={() => {
+                              const parent = selectedTask.parentTask;
+                              if (parent?._id) handleTaskClick({ _id: parent._id, ...parent });
+                            }}
+                            sx={{ display: 'flex', mt: 0.5, justifyContent: 'flex-start', maxWidth: '100%' }}
+                          />
+                        </Box>
+                      )}
+                      {taskDetail?.children?.length > 0 && (
+                        <Box>
+                          <Stack direction="row" justifyContent="space-between" alignItems="center">
+                            <Typography variant="caption" color="text.secondary">
+                              Children ({taskDetail.childStats?.completed || 0}/{taskDetail.childStats?.total || 0} done)
+                            </Typography>
+                            <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                              {taskDetail.childStats?.percentComplete || 0}%
+                            </Typography>
+                          </Stack>
+                          <LinearProgress
+                            variant="determinate"
+                            value={taskDetail.childStats?.percentComplete || 0}
+                            sx={{ my: 1, height: 6, borderRadius: 3 }}
+                          />
+                          <Stack spacing={0.5} sx={{ maxHeight: 220, overflowY: 'auto' }}>
+                            {taskDetail.children.map((child) => (
+                              <Stack
+                                key={child._id}
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                                onClick={() => handleTaskClick(child)}
+                                sx={{
+                                  cursor: 'pointer',
+                                  p: 0.5,
+                                  borderRadius: 1,
+                                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.06) }
+                                }}
+                              >
+                                {getStatusIcon(child.status)}
+                                <Typography variant="caption" sx={{ fontFamily: 'monospace', color: 'text.secondary' }}>
+                                  {child.taskKey}
+                                </Typography>
+                                <Typography variant="body2" noWrap sx={{ flex: 1 }}>
+                                  {child.title}
+                                </Typography>
+                              </Stack>
+                            ))}
+                          </Stack>
+                        </Box>
+                      )}
+                    </Paper>
+                  )}
+
+                  {/* Linked Tasks */}
+                  <Paper sx={{ p: 2, borderRadius: 2 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+                      Linked Tasks ({taskDetail?.links?.length || 0})
+                    </Typography>
+                    <Stack spacing={1}>
+                      {(taskDetail?.links || []).map((link) => (
+                        <Stack key={link._id} direction="row" spacing={1} alignItems="center">
+                          <Chip
+                            label={link.linkType.replace(/_/g, ' ')}
+                            size="small"
+                            color={link.linkType.includes('block') ? 'error' : 'default'}
+                            sx={{ fontSize: '0.65rem', minWidth: 92 }}
+                          />
+                          <Typography
+                            variant="body2"
+                            noWrap
+                            onClick={() => handleTaskClick(link.task)}
+                            sx={{ flex: 1, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                          >
+                            {link.task.taskKey ? `${link.task.taskKey} — ` : ''}{link.task.title}
+                          </Typography>
+                          <IconButton size="small" onClick={() => handleRemoveLink(link._id)}>
+                            <CloseIcon sx={{ fontSize: '0.9rem' }} />
+                          </IconButton>
+                        </Stack>
+                      ))}
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Select
+                          size="small"
+                          value={linkType}
+                          onChange={(e) => setLinkType(e.target.value)}
+                          sx={{ fontSize: '0.75rem', minWidth: 104 }}
+                        >
+                          <MenuItem value="relates_to">relates to</MenuItem>
+                          <MenuItem value="blocks">blocks</MenuItem>
+                          <MenuItem value="duplicates">duplicates</MenuItem>
+                        </Select>
+                        <Autocomplete
+                          options={tasks.filter(t => t._id !== selectedTask._id)}
+                          getOptionLabel={(o) => `${o.taskKey ? o.taskKey + ' — ' : ''}${o.title}`}
+                          value={linkTarget}
+                          onChange={(e, v) => setLinkTarget(v)}
+                          size="small"
+                          sx={{ flex: 1 }}
+                          renderInput={(params) => <TextField {...params} placeholder="Find task…" />}
+                        />
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          disabled={!linkTarget || linkSaving}
+                          onClick={handleAddLink}
+                        >
+                          <AddIcon />
+                        </IconButton>
+                      </Stack>
+                    </Stack>
+                  </Paper>
+
                   {/* Task Details */}
                   <Paper sx={{ p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
@@ -1094,6 +1310,21 @@ const TasksPage = () => {
               
               <Grid item xs={12} sm={6} md={2}>
                 <FormControl fullWidth>
+                  <InputLabel>Type</InputLabel>
+                  <Select
+                    value={filters.taskType}
+                    label="Type"
+                    onChange={(e) => setFilters({ ...filters, taskType: e.target.value, page: 1 })}
+                  >
+                    <MenuItem value="all">All Types</MenuItem>
+                    <MenuItem value="epic">Epics</MenuItem>
+                    <MenuItem value="task">Tasks</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={2}>
+                <FormControl fullWidth>
                   <InputLabel>Status</InputLabel>
                   <Select
                     value={filters.status}
@@ -1173,6 +1404,7 @@ const TasksPage = () => {
                       priority: 'all',
                       category: 'all',
                       assignee: 'all',
+                      taskType: 'all',
                       search: '',
                       myTasks: false,
                       sortBy: 'createdAt',
@@ -1259,6 +1491,7 @@ const TasksPage = () => {
           onClose={() => setCreateTaskOpen(false)}
           onSubmit={handleCreateTask}
           members={members}
+          epics={epics}
           loading={createLoading}
         />
         
@@ -1272,6 +1505,7 @@ const TasksPage = () => {
             }}
             onSubmit={handleUpdateTaskFromDialog}
             members={members}
+            epics={epics}
             existingTask={editingTask}
             loading={updateLoading}
           />
