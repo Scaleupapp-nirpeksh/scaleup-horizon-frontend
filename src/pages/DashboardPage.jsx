@@ -1,1260 +1,582 @@
-// src/pages/OverviewDashboard.jsx
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+// src/pages/DashboardPage.jsx
+// "Today" — the founder command center. One backend call
+// (/dashboard/command-center) supplies everything; sections render honest
+// empty states with setup CTAs instead of zero-filled metrics.
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Container, Grid, Paper, Typography, Box, Stack, useTheme, alpha,
-  Fade, Grow, Skeleton, Button, Chip, Avatar,
-  Card, CardContent, Divider,
-  CardActionArea
+  Skeleton, Button, Chip, Avatar, Card, CardContent, CardActionArea,
+  LinearProgress, Tooltip, IconButton, Divider
 } from '@mui/material';
-import { styled, keyframes } from '@mui/material/styles';
-import {
-  PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Line,
-  ComposedChart
-} from 'recharts';
+import { styled } from '@mui/material/styles';
+import { format, formatDistanceToNow, isToday, isTomorrow } from 'date-fns';
 
 // Icons
-import CircularProgress from '@mui/material/CircularProgress';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import PeopleIcon from '@mui/icons-material/People';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import GroupsIcon from '@mui/icons-material/Groups';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import WarningIcon from '@mui/icons-material/Warning';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
-import InfoIcon from '@mui/icons-material/Info';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import PeopleIcon from '@mui/icons-material/People';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import FolderIcon from '@mui/icons-material/Folder';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import SpeedIcon from '@mui/icons-material/Speed';
+import AddTaskIcon from '@mui/icons-material/AddTask';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 
-// API imports
-import api, {
-  // Financial APIs
-  getBudgets,
-  getBankAccounts,
-  getRecurringTransactions,
-  
-  // Fundraising APIs
-  getRounds,
-  getInvestors,
-  getCapTableSummary,
-  getEsopGrants,
-  
-  // KPI APIs
-  getManualKpiSnapshots,
-  getProductMilestoneStatistics,
-  getDauMauHistory,
-  
-  // Headcount APIs
-  getHeadcountSummary,
-  getHeadcounts,
-  
-  // Product APIs
-  getProductMilestones,
-  
-  // Document APIs
-  getDocuments
-} from '../services/api';
+import { getCommandCenter } from '../services/api';
 
-// Animations
-const pulse = keyframes`
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.9; }
-  100% { transform: scale(1); opacity: 1; }
-`;
-
-// Styled Components
-const ExecutiveDashboard = styled(Box)(({ theme }) => ({
+// ---------- styled ----------
+const Page = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
+  paddingBottom: theme.spacing(6),
   background: theme.palette.mode === 'dark'
     ? 'linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%)'
     : 'linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%)',
-  paddingBottom: theme.spacing(6)
-}));
-
-const HeroSection = styled(Box)(({ theme }) => ({
-  background: `linear-gradient(135deg, 
-    ${alpha(theme.palette.primary.main, 0.05)} 0%, 
-    ${alpha(theme.palette.secondary.main, 0.03)} 50%,
-    ${alpha(theme.palette.primary.light, 0.02)} 100%)`,
-  borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-  position: 'relative',
-  overflow: 'hidden',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: -100,
-    right: -100,
-    width: 300,
-    height: 300,
-    borderRadius: '50%',
-    background: alpha(theme.palette.primary.main, 0.08),
-    filter: 'blur(80px)'
-  }
 }));
 
 const SectionCard = styled(Card)(({ theme }) => ({
   height: '100%',
   borderRadius: theme.spacing(2),
-  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  border: `1px solid ${alpha(theme.palette.divider, 0.12)}`,
   background: theme.palette.background.paper,
+  transition: 'all 0.25s ease',
   '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[8],
-    borderColor: alpha(theme.palette.primary.main, 0.2)
-  }
+    boxShadow: theme.shadows[4],
+    borderColor: alpha(theme.palette.primary.main, 0.25),
+  },
 }));
 
-const MetricCard = styled(Paper)(({ theme, variant = 'default' }) => ({
-  padding: theme.spacing(2.5),
+const AttentionRow = styled(Stack)(({ theme }) => ({
+  padding: theme.spacing(1.25, 1.5),
   borderRadius: theme.spacing(1.5),
-  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-  background: variant === 'primary' 
-    ? `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`
-    : theme.palette.background.paper,
-  transition: 'all 0.3s ease',
-  position: 'relative',
-  overflow: 'hidden',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4]
-  }
-}));
-
-const AlertCard = styled(Paper)(({ theme, severity = 'info' }) => ({
-  padding: theme.spacing(2),
-  borderRadius: theme.spacing(1.5),
-  border: `1px solid ${alpha(theme.palette[severity].main, 0.3)}`,
-  background: alpha(theme.palette[severity].main, 0.05),
-  transition: 'all 0.3s ease',
   cursor: 'pointer',
-  '&:hover': {
-    borderColor: theme.palette[severity].main,
-    background: alpha(theme.palette[severity].main, 0.1),
-    transform: 'translateX(4px)'
-  }
+  transition: 'all 0.15s ease',
+  '&:hover': { background: alpha(theme.palette.primary.main, 0.06), transform: 'translateX(3px)' },
 }));
 
-const LiveBadge = styled(Box)(({ theme }) => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: theme.spacing(0.5),
-  padding: theme.spacing(0.5, 1.5),
-  borderRadius: theme.spacing(2),
-  background: alpha(theme.palette.success.main, 0.1),
-  border: `1px solid ${alpha(theme.palette.success.main, 0.3)}`,
-  '& .dot': {
-    width: 6,
-    height: 6,
-    borderRadius: '50%',
-    backgroundColor: theme.palette.success.main,
-    animation: `${pulse} 1.5s ease-in-out infinite`
-  }
-}));
-
-// Utility functions
-const formatCurrency = (value) => {
+// ---------- helpers ----------
+const formatINR = (value) => {
   if (!value && value !== 0) return '₹0';
-  const absValue = Math.abs(value);
-  if (absValue >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
-  if (absValue >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
-  return `₹${value.toLocaleString()}`;
+  const abs = Math.abs(value);
+  if (abs >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
+  if (abs >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+  return `₹${Math.round(value).toLocaleString('en-IN')}`;
 };
 
-const formatNumber = (value) => {
-  if (!value && value !== 0) return '0';
-  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-  if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
-  return value.toLocaleString();
+const dueLabel = (dueDate) => {
+  const d = new Date(dueDate);
+  if (isNaN(d)) return '';
+  if (isToday(d)) return 'today';
+  if (isTomorrow(d)) return 'tomorrow';
+  return format(d, 'EEE, MMM d');
 };
 
-const calculateGrowth = (current, previous) => {
-  if (!previous || previous === 0) return 0;
-  return ((current - previous) / previous * 100).toFixed(1);
-};
+// Trim the import suffix for compact business cards
+const epicShortName = (title) => String(title).replace(/\s*[—-]\s*5-Month Plan.*$/i, '');
 
-// Health Score Calculator
-const calculateHealthScore = (metrics) => {
-  let score = 100;
-  const factors = [];
-  
-  // Runway (40% weight)
-  if (metrics.runway < 3) {
-    score -= 40;
-    factors.push({ issue: 'Critical runway', severity: 'error' });
-  } else if (metrics.runway < 6) {
-    score -= 20;
-    factors.push({ issue: 'Low runway', severity: 'warning' });
-  } else if (metrics.runway < 12) {
-    score -= 10;
-    factors.push({ issue: 'Moderate runway', severity: 'info' });
-  }
-  
-  // Revenue vs Burn (30% weight)
-  const burnCoverage = metrics.monthlyRevenue / metrics.burnRate;
-  if (burnCoverage < 0.2) {
-    score -= 30;
-    factors.push({ issue: 'High burn rate', severity: 'error' });
-  } else if (burnCoverage < 0.5) {
-    score -= 20;
-    factors.push({ issue: 'Moderate burn rate', severity: 'warning' });
-  } else if (burnCoverage < 0.8) {
-    score -= 10;
-    factors.push({ issue: 'Approaching sustainability', severity: 'info' });
-  }
-  
-  // Growth (20% weight)
-  if (metrics.userGrowth < 0) {
-    score -= 20;
-    factors.push({ issue: 'Negative growth', severity: 'error' });
-  } else if (metrics.userGrowth < 5) {
-    score -= 10;
-    factors.push({ issue: 'Slow growth', severity: 'warning' });
-  }
-  
-  // Budget adherence (10% weight)
-  if (metrics.budgetVariance > 20) {
-    score -= 10;
-    factors.push({ issue: 'Over budget', severity: 'warning' });
-  }
-  
-  return {
-    score: Math.max(0, score),
-    grade: score >= 80 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : 'D',
-    status: score >= 80 ? 'healthy' : score >= 60 ? 'good' : score >= 40 ? 'warning' : 'critical',
-    factors
-  };
-};
-
-// Main Component
 const DashboardPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // State management
-  const [loading, setLoading] = useState({
-    financial: true,
-    fundraising: true,
-    kpis: true,
-    team: true,
-    product: true
-  });
-  
-  const [data, setData] = useState({
-    financial: {},
-    fundraising: {},
-    kpis: {},
-    team: {},
-    product: {},
-    documents: {}
-  });
-  
-  const [alerts, setAlerts] = useState([]);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState(null);
 
-  // Fetch all data
-  const fetchAllData = useCallback(async () => {
+  const fetchData = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true); else setLoading(true);
     try {
-      // Financial data
-      const fetchFinancialData = async () => {
-        setLoading(prev => ({ ...prev, financial: true }));
-        try {
-          const [budgetsRes, bankAccountsRes, financialOverviewRes, recurringRes] = await Promise.all([
-            getBudgets(),
-            getBankAccounts(),
-            api.get('/financials/overview'),
-            getRecurringTransactions()
-          ]);
-          
-          const budgets = budgetsRes.data || [];
-          const bankAccounts = bankAccountsRes.data || [];
-          const overview = financialOverviewRes.data || {};
-          const recurring = recurringRes.data || [];
-          
-          // Calculate budget metrics
-          const totalBudgeted = budgets.reduce((sum, b) => sum + b.totalBudgetedAmount, 0);
-          const totalSpent = budgets.reduce((sum, b) => sum + (b.totalActualSpent || 0), 0);
-          const overBudgetCount = budgets.filter(b => b.status === 'overbudget').length;
-          
-          // Calculate total balance
-          const totalBalance = bankAccounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
-          
-          setData(prev => ({
-            ...prev,
-            financial: {
-              totalBalance: overview.currentTotalBankBalance || totalBalance,
-              burnRate: overview.averageMonthlyBurnRate || 0,
-              runway: overview.estimatedRunwayMonths !== "Infinite" ? overview.estimatedRunwayMonths : 999,
-              monthlyRevenue: overview.averageMonthlyRevenue || 0,
-              totalBudgeted,
-              totalSpent,
-              budgetVariance: totalBudgeted > 0 ? ((totalSpent - totalBudgeted) / totalBudgeted * 100) : 0,
-              overBudgetCount,
-              bankAccounts: bankAccounts.length,
-              recurringExpenses: recurring.filter(r => r.type === 'expense').reduce((sum, r) => sum + r.amount, 0),
-              recurringIncome: recurring.filter(r => r.type === 'income').reduce((sum, r) => sum + r.amount, 0),
-              historicalData: overview.historicalMonthlyData || { expenses: [], revenue: [] }
-            }
-          }));
-        } catch (error) {
-          console.error('Error fetching financial data:', error);
-        } finally {
-          setLoading(prev => ({ ...prev, financial: false }));
-        }
-      };
-
-      // Fundraising data
-      const fetchFundraisingData = async () => {
-        setLoading(prev => ({ ...prev, fundraising: true }));
-        try {
-          const [roundsRes, investorsRes, capTableRes, esopRes] = await Promise.all([
-            getRounds(),
-            getInvestors(),
-            getCapTableSummary(),
-            getEsopGrants()
-          ]);
-          
-          const rounds = roundsRes.data || [];
-          const investors = investorsRes.data || [];
-          const capTable = capTableRes.data || [];
-          const esopGrants = esopRes.data || [];
-          
-          const latestRound = rounds.sort((a, b) => new Date(b.dateStarted) - new Date(a.dateStarted))[0];
-          const totalRaised = rounds.reduce((sum, r) => sum + (r.totalFundsReceived || 0), 0);
-          const activeInvestors = investors.filter(inv => inv.status === 'Invested' || inv.status === 'Hard Committed').length;
-          const currentValuation = latestRound?.currentValuationPreMoney || 0;
-          const totalOptionsVested = esopGrants.reduce((sum, grant) => sum + (grant.totalOptionsVested || 0), 0);
-          
-          setData(prev => ({
-            ...prev,
-            fundraising: {
-              totalRaised,
-              activeInvestors,
-              currentValuation,
-              latestRound,
-              totalOptionsVested,
-              capTableEntries: capTable.length,
-              rounds: rounds.length,
-              employeeOwnership: esopGrants.reduce((sum, grant) => sum + (grant.equityPercentage || 0), 0)
-            }
-          }));
-        } catch (error) {
-          console.error('Error fetching fundraising data:', error);
-        } finally {
-          setLoading(prev => ({ ...prev, fundraising: false }));
-        }
-      };
-
-      // KPIs and user metrics
-      const fetchKpiData = async () => {
-        setLoading(prev => ({ ...prev, kpis: true }));
-        try {
-          const [kpiRes, dauMauRes] = await Promise.all([
-            getManualKpiSnapshots({ limit: 2, sort: '-snapshotDate' }),
-            getDauMauHistory({ days: 30 })
-          ]);
-          
-          const snapshots = kpiRes.data?.snapshots || [];
-          const dauMauHistory = dauMauRes.data?.history || [];
-          
-          const latestKpi = snapshots[0];
-          const previousKpi = snapshots[1];
-          
-          const userGrowth = previousKpi && latestKpi 
-            ? calculateGrowth(latestKpi.totalRegisteredUsers, previousKpi.totalRegisteredUsers) 
-            : 0;
-          
-          setData(prev => ({
-            ...prev,
-            kpis: {
-              totalUsers: latestKpi?.totalRegisteredUsers || 0,
-              dau: latestKpi?.dau || 0,
-              mau: latestKpi?.mau || 0,
-              dauMauRatio: latestKpi?.mau > 0 ? (latestKpi.dau / latestKpi.mau * 100) : 0,
-              userGrowth: parseFloat(userGrowth),
-              dauMauHistory,
-              previousTotalUsers: previousKpi?.totalRegisteredUsers || 0
-            }
-          }));
-        } catch (error) {
-          console.error('Error fetching KPI data:', error);
-        } finally {
-          setLoading(prev => ({ ...prev, kpis: false }));
-        }
-      };
-
-      // Team data
-      const fetchTeamData = async () => {
-        setLoading(prev => ({ ...prev, team: true }));
-        try {
-          const [summaryRes, headcountsRes] = await Promise.all([
-            getHeadcountSummary(),
-            getHeadcounts({ limit: 100 })
-          ]);
-          
-          const summary = summaryRes.data?.data || {};
-          const headcounts = headcountsRes.data?.data || [];
-          
-          const departmentBreakdown = headcounts.reduce((acc, emp) => {
-            if (emp.status === 'Active') {
-              acc[emp.department] = (acc[emp.department] || 0) + 1;
-            }
-            return acc;
-          }, {});
-          
-          setData(prev => ({
-            ...prev,
-            team: {
-              totalHeadcount: summary.totalHeadcount || 0,
-              openPositions: summary.openPositions || 0,
-              annualCost: summary.annualCost || 0,
-              departmentBreakdown,
-              recentHires: headcounts
-                .filter(h => h.status === 'Active' && h.startDate)
-                .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
-                .slice(0, 5),
-              averageSalary: summary.totalHeadcount > 0 
-                ? Math.round(summary.annualCost / summary.totalHeadcount / 12) 
-                : 0
-            }
-          }));
-        } catch (error) {
-          console.error('Error fetching team data:', error);
-        } finally {
-          setLoading(prev => ({ ...prev, team: false }));
-        }
-      };
-
-      // Product data
-      const fetchProductData = async () => {
-        setLoading(prev => ({ ...prev, product: true }));
-        try {
-          const [milestonesRes, statsRes, documentsRes] = await Promise.all([
-            getProductMilestones({ limit: 100 }),
-            getProductMilestoneStatistics(),
-            getDocuments({ limit: 100 })
-          ]);
-          
-          const milestones = milestonesRes.data?.data || [];
-          const stats = statsRes.data?.data || {};
-          const documents = documentsRes.data || [];
-          
-          const activeMilestones = milestones.filter(m => 
-            ['Planning', 'In Development', 'Testing'].includes(m.status)
-          );
-          
-          const completedMilestones = milestones.filter(m => m.status === 'Completed');
-          
-          const avgCompletion = activeMilestones.length > 0
-            ? activeMilestones.reduce((sum, m) => sum + (m.completionPercentage || 0), 0) / activeMilestones.length
-            : 0;
-          
-          setData(prev => ({
-            ...prev,
-            product: {
-              activeMilestones: activeMilestones.length,
-              completedMilestones: completedMilestones.length,
-              avgCompletion,
-              upcomingReleases: activeMilestones
-                .filter(m => m.plannedEndDate)
-                .sort((a, b) => new Date(a.plannedEndDate) - new Date(b.plannedEndDate))
-                .slice(0, 3),
-              delayedMilestones: stats.timelineStats?.delayedCount || 0,
-              milestonesByType: stats.typeDistribution || {}
-            },
-            documents: {
-              total: documents.length,
-              recentlyAdded: documents.filter(doc => {
-                const daysDiff = (Date.now() - new Date(doc.createdAt)) / (1000 * 60 * 60 * 24);
-                return daysDiff <= 7;
-              }).length
-            }
-          }));
-        } catch (error) {
-          console.error('Error fetching product data:', error);
-        } finally {
-          setLoading(prev => ({ ...prev, product: false }));
-        }
-      };
-
-      // Execute all fetches
-      await Promise.all([
-        fetchFinancialData(),
-        fetchFundraisingData(),
-        fetchKpiData(),
-        fetchTeamData(),
-        fetchProductData()
-      ]);
-      
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      const res = await getCommandCenter();
+      setData(res.data);
+      setUpdatedAt(new Date());
+      setError('');
+    } catch (err) {
+      console.error('Error loading dashboard:', err);
+      setError('Could not load the dashboard. Please try refreshing.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Generate alerts based on data
-  useEffect(() => {
-    const newAlerts = [];
-    
-    // Financial alerts
-    if (data.financial.runway && data.financial.runway < 6) {
-      newAlerts.push({
-        id: 'runway',
-        severity: data.financial.runway < 3 ? 'error' : 'warning',
-        title: `Runway: ${data.financial.runway} months`,
-        message: 'Consider fundraising or reducing burn rate',
-        action: '/financials'
-      });
-    }
-    
-    if (data.financial.overBudgetCount > 0) {
-      newAlerts.push({
-        id: 'budget',
-        severity: 'warning',
-        title: `${data.financial.overBudgetCount} budgets exceeded`,
-        message: 'Review and adjust budget allocations',
-        action: '/budgets'
-      });
-    }
-    
-    // Product alerts
-    if (data.product.delayedMilestones > 0) {
-      newAlerts.push({
-        id: 'milestones',
-        severity: 'info',
-        title: `${data.product.delayedMilestones} delayed milestones`,
-        message: 'Review product timeline and resources',
-        action: '/product-milestones'
-      });
-    }
-    
-    // Team alerts
-    if (data.team.openPositions > 5) {
-      newAlerts.push({
-        id: 'hiring',
-        severity: 'info',
-        title: `${data.team.openPositions} open positions`,
-        message: 'Accelerate hiring to meet growth targets',
-        action: '/headcount'
-      });
-    }
-    
-    setAlerts(newAlerts);
-  }, [data]);
+  const openTask = (task) => navigate(`/tasks?task=${task._id || task}`);
+  const openEpic = (epicId) => navigate(`/tasks?epic=${epicId}`);
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchAllData();
-    setTimeout(() => setRefreshing(false), 1000);
-  };
-
-  // Calculate health metrics
-  const healthMetrics = useMemo(() => {
-    return calculateHealthScore({
-      runway: data.financial.runway || 0,
-      monthlyRevenue: data.financial.monthlyRevenue || 0,
-      burnRate: data.financial.burnRate || 1,
-      userGrowth: data.kpis.userGrowth || 0,
-      budgetVariance: data.financial.budgetVariance || 0
-    });
-  }, [data]);
-
-  // Chart data
-  const revenueExpenseData = useMemo(() => {
-    if (!data.financial.historicalData?.expenses || !data.financial.historicalData?.revenue) return [];
-    
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const combined = [];
-    
-    // Get last 6 months
-    const expenseData = data.financial.historicalData.expenses.slice(-6);
-    const revenueData = data.financial.historicalData.revenue.slice(-6);
-    
-    expenseData.forEach((expense, index) => {
-      const revenue = revenueData.find(r => r.month === expense.month && r.year === expense.year);
-      combined.push({
-        name: months[expense.month - 1],
-        revenue: revenue?.amount || 0,
-        expense: expense.amount || 0,
-        profit: (revenue?.amount || 0) - (expense.amount || 0)
-      });
-    });
-    
-    return combined;
-  }, [data.financial.historicalData]);
-
-  const userGrowthData = useMemo(() => {
-    if (!data.kpis.dauMauHistory) return [];
-    
-    return data.kpis.dauMauHistory.slice(-14).map(item => ({
-      date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      dau: item.dau,
-      mau: item.mau
+  // ---------- attention list (notifications + overdue + alerts) ----------
+  const attentionItems = [];
+  if (data) {
+    data.attention.forEach(a => attentionItems.push({
+      key: `alert-${a.type}-${a.title}`,
+      icon: <WarningAmberIcon color={a.severity === 'error' ? 'error' : 'warning'} />,
+      primary: a.title,
+      secondary: null,
+      onClick: () => navigate(a.link),
     }));
-  }, [data.kpis.dauMauHistory]);
+    data.tasks.overdue.forEach(t => attentionItems.push({
+      key: `overdue-${t._id}`,
+      icon: <AccessTimeIcon color="error" />,
+      primary: `${t.taskKey ? t.taskKey + ' — ' : ''}${t.title}`,
+      secondary: `overdue since ${format(new Date(t.dueDate), 'MMM d')}`
+        + (t.parentTask ? ` · ${epicShortName(t.parentTask.title)}` : ''),
+      onClick: () => openTask(t),
+    }));
+    data.tasks.dueSoon.forEach(t => attentionItems.push({
+      key: `due-${t._id}`,
+      icon: <AccessTimeIcon color="warning" />,
+      primary: `${t.taskKey ? t.taskKey + ' — ' : ''}${t.title}`,
+      secondary: `due ${dueLabel(t.dueDate)}`
+        + (t.parentTask ? ` · ${epicShortName(t.parentTask.title)}` : ''),
+      onClick: () => openTask(t),
+    }));
+    data.notifications.recent.forEach(n => attentionItems.push({
+      key: `notif-${n._id}`,
+      icon: <NotificationsActiveIcon color="primary" />,
+      primary: n.title,
+      secondary: formatDistanceToNow(new Date(n.createdAt), { addSuffix: true }),
+      onClick: () => n.relatedTask ? openTask(n.relatedTask._id || n.relatedTask) : navigate('/tasks'),
+    }));
+  }
 
-  const departmentData = useMemo(() => {
-    if (!data.team.departmentBreakdown) return [];
-    
-    return Object.entries(data.team.departmentBreakdown)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
-  }, [data.team.departmentBreakdown]);
+  // ---------- week grouping ----------
+  const weekGroups = {};
+  if (data) {
+    data.tasks.dueThisWeek.forEach(t => {
+      const day = dueLabel(t.dueDate);
+      (weekGroups[day] = weekGroups[day] || []).push(t);
+    });
+  }
+
+  const businesses = (data?.portfolio || []).filter(e => !e.hasEpicChildren);
+  const setup = data?.setup || {};
+  const setupSteps = [
+    { done: setup.tasks, label: 'Create tasks & epics', link: '/tasks' },
+    { done: setup.bankAccounts, label: 'Add bank accounts', link: '/financials' },
+    { done: setup.expenses, label: 'Record expenses', link: '/financials' },
+    { done: setup.revenue, label: 'Record revenue', link: '/financials' },
+    { done: setup.team, label: 'Add your team', link: '/headcount' },
+    { done: setup.kpis, label: 'Log a KPI snapshot', link: '/kpis' },
+    { done: setup.fundraising, label: 'Set up fundraising', link: '/fundraising' },
+  ];
+  const setupDone = setupSteps.filter(s => s.done).length;
+
+  if (loading) {
+    return (
+      <Page>
+        <Container maxWidth="xl" sx={{ pt: 4 }}>
+          <Skeleton variant="text" width={300} height={48} />
+          <Grid container spacing={3} sx={{ mt: 1 }}>
+            {[1, 2, 3].map(i => (
+              <Grid size={{ xs: 12, md: 4 }} key={i}>
+                <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 3 }} />
+              </Grid>
+            ))}
+            <Grid size={{ xs: 12 }}>
+              <Skeleton variant="rectangular" height={180} sx={{ borderRadius: 3 }} />
+            </Grid>
+          </Grid>
+        </Container>
+      </Page>
+    );
+  }
 
   return (
-    <ExecutiveDashboard>
-      {/* Hero Section */}
-      <HeroSection sx={{ py: { xs: 3, md: 4 }, mb: 4 }}>
-        <Container maxWidth="xl">
-          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} flexWrap="wrap" spacing={2}>
-            <Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, display: 'flex', alignItems: 'center' }}>
-                <DashboardIcon sx={{ mr: 1.5, fontSize: 32 }} />
-                Executive Overview
-              </Typography>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <LiveBadge>
-                  <Box className="dot" />
-                  <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                    LIVE DATA
-                  </Typography>
-                </LiveBadge>
-                <Typography variant="body2" color="text.secondary">
-                  Welcome back, {user?.name?.split(' ')[0] || 'Founder'}
-                </Typography>
-              </Stack>
-            </Box>
-            
-            <Stack direction="row" spacing={2}>
-              <Button
-                variant="outlined"
-                startIcon={<NotificationsIcon />}
-                sx={{ borderRadius: 2 }}
-              >
-                {alerts.length} Alerts
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<RefreshIcon sx={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />}
-                onClick={handleRefresh}
-                disabled={refreshing}
-                sx={{ borderRadius: 2 }}
-              >
-                Refresh
-              </Button>
-            </Stack>
+    <Page>
+      <Container maxWidth="xl" sx={{ pt: 4 }}>
+        {/* ---------- Header ---------- */}
+        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between"
+          alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2} sx={{ mb: 3 }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 800 }}>
+              {(() => {
+                const h = new Date().getHours();
+                const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+                return `${greeting}, ${user?.name?.split(' ')[0] || 'Founder'}`;
+              })()}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {format(new Date(), 'EEEE, MMMM d')}
+              {updatedAt && ` · updated ${formatDistanceToNow(updatedAt, { addSuffix: true })}`}
+            </Typography>
+          </Box>
+          <Stack direction="row" spacing={1.5}>
+            <Button variant="outlined" startIcon={<AddTaskIcon />} onClick={() => navigate('/tasks')} sx={{ borderRadius: 2 }}>
+              New Task
+            </Button>
+            <IconButton onClick={() => fetchData(true)} disabled={refreshing}>
+              <RefreshIcon sx={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+            </IconButton>
           </Stack>
-        </Container>
-      </HeroSection>
+        </Stack>
 
-      <Container maxWidth="xl">
-        {/* Health Score Card */}
-        <Fade in timeout={500}>
-          <Card sx={{ mb: 4, borderRadius: 3, overflow: 'visible' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Grid container spacing={3} alignItems="center">
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                      <Box
-                        sx={{
-                          width: 120,
-                          height: 120,
-                          borderRadius: '50%',
-                          background: `conic-gradient(
-                            ${theme.palette[healthMetrics.status === 'healthy' ? 'success' : healthMetrics.status === 'warning' ? 'warning' : 'error'].main} ${healthMetrics.score * 3.6}deg,
-                            ${alpha(theme.palette.grey[300], 0.2)} ${healthMetrics.score * 3.6}deg
-                          )`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          position: 'relative',
-                          '&::before': {
-                            content: '""',
-                            position: 'absolute',
-                            inset: 8,
-                            borderRadius: '50%',
-                            backgroundColor: theme.palette.background.paper
-                          }
-                        }}
-                      >
-                        <Box sx={{ position: 'relative', zIndex: 1 }}>
-                          <Typography variant="h2" sx={{ fontWeight: 700 }}>
-                            {healthMetrics.grade}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            HEALTH
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Grid>
-                
-                <Grid size={{ xs: 12, md: 9 }}>
-                  <Stack spacing={2}>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Company Health Score: {healthMetrics.score}/100
+        {error && (
+          <Paper sx={{ p: 2, mb: 3, borderRadius: 2, bgcolor: alpha(theme.palette.error.main, 0.06) }}>
+            <Typography color="error">{error}</Typography>
+          </Paper>
+        )}
+
+        {data && (
+          <Grid container spacing={3}>
+            {/* ---------- Needs your attention ---------- */}
+            <Grid size={{ xs: 12, lg: 7 }}>
+              <SectionCard>
+                <CardContent>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                      Needs your attention
                     </Typography>
-                    <Grid container spacing={2}>
-                      {healthMetrics.factors.map((factor, index) => (
-                        <Grid key={index}>
-                          <Chip
-                            icon={factor.severity === 'error' ? <ErrorIcon /> : factor.severity === 'warning' ? <WarningIcon /> : <InfoIcon />}
-                            label={factor.issue}
-                            color={factor.severity}
-                            size="small"
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
+                    {attentionItems.length > 0 && (
+                      <Chip size="small" color="error" label={attentionItems.length} sx={{ fontWeight: 700 }} />
+                    )}
                   </Stack>
+                  {attentionItems.length === 0 ? (
+                    <Stack alignItems="center" spacing={1} sx={{ py: 4 }}>
+                      <CheckCircleOutlineIcon color="success" sx={{ fontSize: 44 }} />
+                      <Typography color="text.secondary">All clear — nothing overdue, no unread alerts.</Typography>
+                    </Stack>
+                  ) : (
+                    <Stack divider={<Divider flexItem />} sx={{ maxHeight: 360, overflowY: 'auto' }}>
+                      {attentionItems.slice(0, 12).map(item => (
+                        <AttentionRow key={item.key} direction="row" spacing={1.5} alignItems="center" onClick={item.onClick}>
+                          {item.icon}
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>{item.primary}</Typography>
+                            {item.secondary && (
+                              <Typography variant="caption" color="text.secondary" noWrap display="block">
+                                {item.secondary}
+                              </Typography>
+                            )}
+                          </Box>
+                          <NavigateNextIcon sx={{ opacity: 0.4 }} fontSize="small" />
+                        </AttentionRow>
+                      ))}
+                    </Stack>
+                  )}
+                </CardContent>
+              </SectionCard>
+            </Grid>
+
+            {/* ---------- This week ---------- */}
+            <Grid size={{ xs: 12, lg: 5 }}>
+              <SectionCard>
+                <CardContent>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <CalendarMonthIcon color="primary" fontSize="small" />
+                      <Typography variant="h6" sx={{ fontWeight: 700 }}>This week</Typography>
+                    </Stack>
+                    <Tooltip title="Completed vs created, last 7 days">
+                      <Chip
+                        size="small"
+                        icon={<SpeedIcon />}
+                        label={`${data.tasks.velocity.completedLast7} done / ${data.tasks.velocity.createdLast7} new`}
+                        variant="outlined"
+                      />
+                    </Tooltip>
+                  </Stack>
+                  {Object.keys(weekGroups).length === 0 ? (
+                    <Typography color="text.secondary" sx={{ py: 3, textAlign: 'center' }}>
+                      Nothing due in the next 7 days.
+                    </Typography>
+                  ) : (
+                    <Stack spacing={1.5} sx={{ maxHeight: 330, overflowY: 'auto' }}>
+                      {Object.entries(weekGroups).map(([day, tasks]) => (
+                        <Box key={day}>
+                          <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary' }}>
+                            {day} · {tasks.length}
+                          </Typography>
+                          {tasks.map(t => (
+                            <AttentionRow key={t._id} direction="row" spacing={1} alignItems="center" onClick={() => openTask(t)}>
+                              <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: 'text.secondary', minWidth: 56 }}>
+                                {t.taskKey}
+                              </Typography>
+                              <Typography variant="body2" noWrap sx={{ flex: 1 }}>{t.title}</Typography>
+                              {t.assignee?.name && (
+                                <Avatar sx={{ width: 20, height: 20, fontSize: '0.65rem' }}>{t.assignee.name[0]}</Avatar>
+                              )}
+                            </AttentionRow>
+                          ))}
+                        </Box>
+                      ))}
+                    </Stack>
+                  )}
+                </CardContent>
+              </SectionCard>
+            </Grid>
+
+            {/* ---------- Your businesses (portfolio strip) ---------- */}
+            {businesses.length > 0 && (
+              <Grid size={{ xs: 12 }}>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+                  <AccountTreeIcon color="secondary" fontSize="small" />
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>Your businesses</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {data.tasks.openCount} open tasks across {businesses.length} epics
+                  </Typography>
+                </Stack>
+                <Grid container spacing={2}>
+                  {businesses.map(epic => (
+                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2.4 }} key={epic._id}>
+                      <SectionCard>
+                        <CardActionArea onClick={() => openEpic(epic._id)} sx={{ height: '100%' }}>
+                          <CardContent sx={{ p: 2 }}>
+                            <Stack spacing={1}>
+                              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#9c27b0' }}>
+                                  {epic.taskKey}
+                                </Typography>
+                                {epic.discussionDay && (
+                                  <Tooltip title={`Weekly discussion: ${epic.discussionDay}`}>
+                                    <Chip
+                                      icon={<EventRepeatIcon sx={{ fontSize: '0.7rem' }} />}
+                                      label={epic.discussionDay.slice(0, 3)}
+                                      size="small"
+                                      sx={{ height: 18, fontSize: '0.6rem', fontWeight: 700 }}
+                                    />
+                                  </Tooltip>
+                                )}
+                              </Stack>
+                              <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.25, minHeight: 34 }}>
+                                {epicShortName(epic.title)}
+                              </Typography>
+                              <Box>
+                                <Stack direction="row" justifyContent="space-between">
+                                  <Typography variant="caption" color="text.secondary">
+                                    {epic.childCompleted}/{epic.childTotal} done
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                                    {epic.percentComplete}%
+                                  </Typography>
+                                </Stack>
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={epic.percentComplete}
+                                  sx={{ height: 6, borderRadius: 3, mt: 0.5 }}
+                                />
+                              </Box>
+                              <Stack direction="row" spacing={1}>
+                                <Chip label={`${epic.childOpen} open`} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+                                {epic.childOverdue > 0 && (
+                                  <Chip label={`${epic.childOverdue} overdue`} size="small" color="error" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }} />
+                                )}
+                              </Stack>
+                            </Stack>
+                          </CardContent>
+                        </CardActionArea>
+                      </SectionCard>
+                    </Grid>
+                  ))}
                 </Grid>
               </Grid>
-            </CardContent>
-          </Card>
-        </Fade>
+            )}
 
-        {/* Key Metrics Grid */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Financial Metrics */}
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Grow in timeout={600}>
+            {/* ---------- Money / Team / Fundraising / Growth ---------- */}
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/financials')} sx={{ height: '100%' }}>
                   <CardContent>
-                    <Stack spacing={2.5}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                        <Box>
-                          <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600 }}>
-                            FINANCES
-                          </Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 700, mt: 1 }}>
-                            {loading.financial ? <Skeleton width={100} /> : formatCurrency(data.financial.totalBalance)}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Total Balance
-                          </Typography>
-                        </Box>
-                        <Avatar sx={{ bgcolor: 'primary.main', width: 48, height: 48 }}>
-                          <AccountBalanceIcon />
-                        </Avatar>
-                      </Stack>
-                      
-                      <Divider />
-                      
-                      <Stack spacing={1}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
+                      <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 700 }}>MONEY</Typography>
+                      <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.12), color: 'primary.main', width: 36, height: 36 }}>
+                        <AccountBalanceIcon fontSize="small" />
+                      </Avatar>
+                    </Stack>
+                    {data.finance.hasData ? (
+                      <Stack spacing={0.75}>
+                        <Typography variant="h5" sx={{ fontWeight: 800 }}>{formatINR(data.finance.totalBalance)}</Typography>
+                        <Typography variant="caption" color="text.secondary">in {data.finance.bankAccountCount} account{data.finance.bankAccountCount === 1 ? '' : 's'}</Typography>
+                        <Divider sx={{ my: 0.5 }} />
                         <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Burn Rate</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.financial ? <Skeleton width={60} /> : formatCurrency(data.financial.burnRate)}
-                          </Typography>
+                          <Typography variant="body2" color="text.secondary">Burn /mo</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatINR(data.finance.monthlyBurn)}</Typography>
                         </Stack>
                         <Stack direction="row" justifyContent="space-between">
                           <Typography variant="body2" color="text.secondary">Runway</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: data.financial.runway < 6 ? 'error.main' : 'text.primary' }}>
-                            {loading.financial ? <Skeleton width={60} /> : `${data.financial.runway} months`}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Revenue</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.financial ? <Skeleton width={60} /> : formatCurrency(data.financial.monthlyRevenue)}
+                          <Typography variant="body2" sx={{ fontWeight: 700, color: data.finance.runwayMonths !== null && data.finance.runwayMonths < 6 ? 'error.main' : 'text.primary' }}>
+                            {data.finance.runwayMonths !== null ? `${data.finance.runwayMonths} mo` : '—'}
                           </Typography>
                         </Stack>
                       </Stack>
-                    </Stack>
+                    ) : (
+                      <Stack spacing={1} sx={{ py: 1 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Add bank accounts and expenses to unlock burn &amp; runway.
+                        </Typography>
+                        <Chip label="Set up financials →" size="small" color="primary" variant="outlined" />
+                      </Stack>
+                    )}
                   </CardContent>
                 </CardActionArea>
               </SectionCard>
-            </Grow>
-          </Grid>
+            </Grid>
 
-          {/* Growth Metrics */}
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Grow in timeout={700}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/kpis')} sx={{ height: '100%' }}>
                   <CardContent>
-                    <Stack spacing={2.5}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                        <Box>
-                          <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600 }}>
-                            GROWTH
-                          </Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 700, mt: 1 }}>
-                            {loading.kpis ? <Skeleton width={100} /> : formatNumber(data.kpis.totalUsers)}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Total Users
-                          </Typography>
-                        </Box>
-                        <Avatar sx={{ bgcolor: 'success.main', width: 48, height: 48 }}>
-                          <GroupsIcon />
-                        </Avatar>
-                      </Stack>
-                      
-                      <Divider />
-                      
-                      <Stack spacing={1}>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">DAU</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.kpis ? <Skeleton width={60} /> : formatNumber(data.kpis.dau)}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">MAU</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.kpis ? <Skeleton width={60} /> : formatNumber(data.kpis.mau)}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Growth</Typography>
-                          <Stack direction="row" spacing={0.5} alignItems="center">
-                            {data.kpis.userGrowth > 0 ? <TrendingUpIcon fontSize="small" color="success" /> : <TrendingDownIcon fontSize="small" color="error" />}
-                            <Typography variant="body2" sx={{ fontWeight: 600, color: data.kpis.userGrowth > 0 ? 'success.main' : 'error.main' }}>
-                              {loading.kpis ? <Skeleton width={40} /> : `${data.kpis.userGrowth}%`}
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </Stack>
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
+                      <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 700 }}>GROWTH</Typography>
+                      <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.12), color: 'success.main', width: 36, height: 36 }}>
+                        <GroupsIcon fontSize="small" />
+                      </Avatar>
                     </Stack>
+                    {data.kpis.hasData ? (
+                      <Stack spacing={0.75}>
+                        <Typography variant="h5" sx={{ fontWeight: 800 }}>
+                          {(data.kpis.latest.totalRegisteredUsers || 0).toLocaleString('en-IN')}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          total users · {format(new Date(data.kpis.latest.snapshotDate), 'MMM d')}
+                        </Typography>
+                        <Divider sx={{ my: 0.5 }} />
+                        <Stack direction="row" justifyContent="space-between">
+                          <Typography variant="body2" color="text.secondary">DAU / MAU</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            {(data.kpis.latest.dau || 0).toLocaleString()} / {(data.kpis.latest.mau || 0).toLocaleString()}
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                    ) : (
+                      <Stack spacing={1} sx={{ py: 1 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Log your first KPI snapshot to see growth here.
+                        </Typography>
+                        <Chip label="Add KPI snapshot →" size="small" color="success" variant="outlined" />
+                      </Stack>
+                    )}
                   </CardContent>
                 </CardActionArea>
               </SectionCard>
-            </Grow>
-          </Grid>
+            </Grid>
 
-          {/* Fundraising Metrics */}
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Grow in timeout={800}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/fundraising')} sx={{ height: '100%' }}>
                   <CardContent>
-                    <Stack spacing={2.5}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                        <Box>
-                          <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600 }}>
-                            FUNDRAISING
-                          </Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 700, mt: 1 }}>
-                            {loading.fundraising ? <Skeleton width={100} /> : formatCurrency(data.fundraising.currentValuation)}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Valuation
-                          </Typography>
-                        </Box>
-                        <Avatar sx={{ bgcolor: 'secondary.main', width: 48, height: 48 }}>
-                          <BusinessCenterIcon />
-                        </Avatar>
-                      </Stack>
-                      
-                      <Divider />
-                      
-                      <Stack spacing={1}>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Total Raised</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.fundraising ? <Skeleton width={60} /> : formatCurrency(data.fundraising.totalRaised)}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Investors</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.fundraising ? <Skeleton width={40} /> : data.fundraising.activeInvestors}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">ESOP Pool</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.fundraising ? <Skeleton width={50} /> : `${data.fundraising.employeeOwnership?.toFixed(1) || 0}%`}
-                          </Typography>
-                        </Stack>
-                      </Stack>
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
+                      <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 700 }}>FUNDRAISING</Typography>
+                      <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.12), color: 'secondary.main', width: 36, height: 36 }}>
+                        <BusinessCenterIcon fontSize="small" />
+                      </Avatar>
                     </Stack>
+                    {data.fundraising.hasData ? (
+                      <Stack spacing={0.75}>
+                        <Typography variant="h5" sx={{ fontWeight: 800 }}>{formatINR(data.fundraising.totalRaised)}</Typography>
+                        <Typography variant="caption" color="text.secondary">raised across {data.fundraising.roundCount} round{data.fundraising.roundCount === 1 ? '' : 's'}</Typography>
+                        <Divider sx={{ my: 0.5 }} />
+                        <Stack direction="row" justifyContent="space-between">
+                          <Typography variant="body2" color="text.secondary">
+                            {data.fundraising.openRound ? `Open: ${data.fundraising.openRound.name}` : 'Investors'}
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            {data.fundraising.openRound
+                              ? formatINR(data.fundraising.openRound.targetAmount)
+                              : data.fundraising.investorCount}
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                    ) : (
+                      <Stack spacing={1} sx={{ py: 1 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Create a round to track investors and progress.
+                        </Typography>
+                        <Chip label="Set up fundraising →" size="small" color="secondary" variant="outlined" />
+                      </Stack>
+                    )}
                   </CardContent>
                 </CardActionArea>
               </SectionCard>
-            </Grow>
-          </Grid>
+            </Grid>
 
-          {/* Team Metrics */}
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Grow in timeout={900}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/headcount')} sx={{ height: '100%' }}>
                   <CardContent>
-                    <Stack spacing={2.5}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                        <Box>
-                          <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600 }}>
-                            TEAM
-                          </Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 700, mt: 1 }}>
-                            {loading.team ? <Skeleton width={60} /> : data.team.totalHeadcount}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Employees
-                          </Typography>
-                        </Box>
-                        <Avatar sx={{ bgcolor: 'warning.main', width: 48, height: 48 }}>
-                          <PeopleIcon />
-                        </Avatar>
-                      </Stack>
-                      
-                      <Divider />
-                      
-                      <Stack spacing={1}>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Open Roles</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.team ? <Skeleton width={30} /> : data.team.openPositions}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Annual Cost</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.team ? <Skeleton width={60} /> : formatCurrency(data.team.annualCost)}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">Avg Salary</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {loading.team ? <Skeleton width={60} /> : formatCurrency(data.team.averageSalary)}
-                          </Typography>
-                        </Stack>
-                      </Stack>
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
+                      <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 700 }}>TEAM</Typography>
+                      <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.12), color: 'warning.main', width: 36, height: 36 }}>
+                        <PeopleIcon fontSize="small" />
+                      </Avatar>
                     </Stack>
+                    {data.team.hasData ? (
+                      <Stack spacing={0.75}>
+                        <Typography variant="h5" sx={{ fontWeight: 800 }}>{data.team.active}</Typography>
+                        <Typography variant="caption" color="text.secondary">active of {data.team.total} on record</Typography>
+                        <Divider sx={{ my: 0.5 }} />
+                        <Stack direction="row" justifyContent="space-between">
+                          <Typography variant="body2" color="text.secondary">Annual cost</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatINR(data.team.annualCost)}</Typography>
+                        </Stack>
+                      </Stack>
+                    ) : (
+                      <Stack spacing={1} sx={{ py: 1 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Add teammates to track cost and structure.
+                        </Typography>
+                        <Chip label="Add team →" size="small" color="warning" variant="outlined" />
+                      </Stack>
+                    )}
                   </CardContent>
                 </CardActionArea>
               </SectionCard>
-            </Grow>
-          </Grid>
-        </Grid>
+            </Grid>
 
-        {/* Alerts Section */}
-        {alerts.length > 0 && (
-          <Fade in timeout={1000}>
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                Action Items
-              </Typography>
-              <Grid container spacing={2}>
-                {alerts.map((alert) => (
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }} key={alert.id}>
-                    <AlertCard severity={alert.severity} onClick={() => navigate(alert.action)}>
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <Box>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                            {alert.title}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {alert.message}
-                          </Typography>
-                        </Box>
-                        <NavigateNextIcon sx={{ opacity: 0.5 }} />
-                      </Stack>
-                    </AlertCard>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </Fade>
-        )}
-
-        {/* Charts Section */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Revenue & Expense Trend */}
-          <Grid size={{ xs: 12, md: 8 }}>
-            <SectionCard>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Revenue & Expense Trend
-                  </Typography>
-                  <Button
-                    size="small"
-                    endIcon={<NavigateNextIcon />}
-                    onClick={() => navigate('/financials')}
-                  >
-                    View Details
-                  </Button>
-                </Stack>
-                
-                <Box sx={{ height: { xs: 250, md: 350 } }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={revenueExpenseData}>
-                      <defs>
-                        <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={theme.palette.success.main} stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor={theme.palette.success.main} stopOpacity={0.1}/>
-                        </linearGradient>
-                        <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={theme.palette.error.main} stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor={theme.palette.error.main} stopOpacity={0.1}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.2)} />
-                      <XAxis dataKey="name" />
-                      <YAxis tickFormatter={(value) => `₹${value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}`} />
-                      <RechartsTooltip formatter={(value) => `₹${value.toLocaleString()}`} />
-                      <Bar dataKey="revenue" fill="url(#revenueGradient)" name="Revenue" />
-                      <Bar dataKey="expense" fill="url(#expenseGradient)" name="Expenses" />
-                      <Line type="monotone" dataKey="profit" stroke={theme.palette.primary.main} name="Net Income" strokeWidth={3} />
-                    </ComposedChart>
-                  </ResponsiveContainer>
-                </Box>
-              </CardContent>
-            </SectionCard>
-          </Grid>
-
-          {/* Product Status */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <SectionCard>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Product Status
-                  </Typography>
-                  <Button
-                    size="small"
-                    endIcon={<NavigateNextIcon />}
-                    onClick={() => navigate('/product-milestones')}
-                  >
-                    View All
-                  </Button>
-                </Stack>
-                
-                <Stack spacing={3}>
-                  <Box sx={{ textAlign: 'center', py: 2 }}>
-                    <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                      <CircularProgress
-                        variant="determinate"
-                        value={100}
-                        size={120}
-                        thickness={4}
-                        sx={{ color: alpha(theme.palette.grey[300], 0.2) }}
-                      />
-                      <CircularProgress
-                        variant="determinate"
-                        value={data.product.avgCompletion || 0}
-                        size={120}
-                        thickness={4}
-                        sx={{ position: 'absolute', left: 0, color: theme.palette.primary.main }}
-                      />
-                      <Box
-                        sx={{
-                          top: 0,
-                          left: 0,
-                          bottom: 0,
-                          right: 0,
-                          position: 'absolute',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Stack>
-                          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                            {loading.product ? <Skeleton width={60} /> : `${Math.round(data.product.avgCompletion || 0)}%`}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Progress
-                          </Typography>
-                        </Stack>
+            {/* ---------- Setup progress (only while incomplete) ---------- */}
+            {setupDone < setupSteps.length && (
+              <Grid size={{ xs: 12 }}>
+                <SectionCard>
+                  <CardContent>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                        Workspace setup · {setupDone}/{setupSteps.length}
+                      </Typography>
+                      <Box sx={{ width: 160 }}>
+                        <LinearProgress variant="determinate" value={(setupDone / setupSteps.length) * 100} sx={{ height: 8, borderRadius: 4 }} />
                       </Box>
-                    </Box>
-                  </Box>
-                  
-                  <Stack spacing={2}>
-                    <MetricCard>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Box>
-                          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                            {loading.product ? <Skeleton width={30} /> : data.product.activeMilestones}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Active Milestones
-                          </Typography>
-                        </Box>
-                        <RocketLaunchIcon color="primary" />
-                      </Stack>
-                    </MetricCard>
-                    
-                    <MetricCard>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Box>
-                          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                            {loading.product ? <Skeleton width={30} /> : data.product.completedMilestones}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Completed
-                          </Typography>
-                        </Box>
-                        <CheckCircleIcon color="success" />
-                      </Stack>
-                    </MetricCard>
-                  </Stack>
-                </Stack>
-              </CardContent>
-            </SectionCard>
-          </Grid>
-        </Grid>
-
-        {/* Bottom Row */}
-        <Grid container spacing={3}>
-          {/* User Growth */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <SectionCard>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                  User Growth
-                </Typography>
-                <Box sx={{ height: { xs: 200, md: 250 } }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={userGrowthData}>
-                      <defs>
-                        <linearGradient id="dauGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={theme.palette.primary.main} stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor={theme.palette.primary.main} stopOpacity={0.1}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.2)} />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <RechartsTooltip />
-                      <Area type="monotone" dataKey="dau" stroke={theme.palette.primary.main} fill="url(#dauGradient)" name="DAU" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </Box>
-              </CardContent>
-            </SectionCard>
-          </Grid>
-
-          {/* Team Distribution */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <SectionCard>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                  Team Distribution
-                </Typography>
-                <Box sx={{ height: { xs: 200, md: 250 } }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={departmentData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={2}
-                        dataKey="value"
-                      >
-                        {departmentData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={theme.palette[index % 2 === 0 ? 'primary' : 'secondary'].main} />
-                        ))}
-                      </Pie>
-                      <RechartsTooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </Box>
-                <Stack spacing={1} sx={{ mt: 2 }}>
-                  {departmentData.slice(0, 3).map((dept, index) => (
-                    <Stack key={dept.name} direction="row" justifyContent="space-between" alignItems="center">
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            borderRadius: 1,
-                            bgcolor: theme.palette[index % 2 === 0 ? 'primary' : 'secondary'].main
-                          }}
-                        />
-                        <Typography variant="body2">{dept.name}</Typography>
-                      </Stack>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{dept.value}</Typography>
                     </Stack>
-                  ))}
-                </Stack>
-              </CardContent>
-            </SectionCard>
-          </Grid>
+                    <Stack direction="row" flexWrap="wrap" sx={{ gap: 1 }}>
+                      {setupSteps.map(step => (
+                        <Chip
+                          key={step.label}
+                          icon={step.done ? <CheckCircleOutlineIcon /> : undefined}
+                          label={step.label}
+                          color={step.done ? 'success' : 'default'}
+                          variant={step.done ? 'filled' : 'outlined'}
+                          onClick={step.done ? undefined : () => navigate(step.link)}
+                          clickable={!step.done}
+                        />
+                      ))}
+                    </Stack>
+                  </CardContent>
+                </SectionCard>
+              </Grid>
+            )}
 
-          {/* Quick Actions */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <SectionCard>
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                  Quick Actions
-                </Typography>
-                <Stack spacing={2}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<AttachMoneyIcon />}
-                    onClick={() => navigate('/financials')}
-                    sx={{ justifyContent: 'flex-start', borderRadius: 2 }}
-                  >
-                    Add Transaction
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<PeopleIcon />}
-                    onClick={() => navigate('/headcount')}
-                    sx={{ justifyContent: 'flex-start', borderRadius: 2 }}
-                  >
-                    Manage Team
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<RocketLaunchIcon />}
-                    onClick={() => navigate('/product-milestones')}
-                    sx={{ justifyContent: 'flex-start', borderRadius: 2 }}
-                  >
-                    Update Milestones
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<AssessmentIcon />}
-                    onClick={() => navigate('/kpis')}
-                    sx={{ justifyContent: 'flex-start', borderRadius: 2 }}
-                  >
-                    Add KPI Snapshot
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<FolderIcon />}
-                    onClick={() => navigate('/documents')}
-                    sx={{ justifyContent: 'flex-start', borderRadius: 2 }}
-                  >
-                    Upload Document
-                  </Button>
-                </Stack>
-              </CardContent>
-            </SectionCard>
+            {/* ---------- Quick actions ---------- */}
+            <Grid size={{ xs: 12 }}>
+              <Stack direction="row" flexWrap="wrap" sx={{ gap: 1.5 }}>
+                <Button variant="outlined" size="small" startIcon={<AddTaskIcon />} onClick={() => navigate('/tasks')} sx={{ borderRadius: 2 }}>New task</Button>
+                <Button variant="outlined" size="small" startIcon={<UploadFileIcon />} onClick={() => navigate('/tasks')} sx={{ borderRadius: 2 }}>Import tasks</Button>
+                <Button variant="outlined" size="small" startIcon={<AccountBalanceIcon />} onClick={() => navigate('/financials')} sx={{ borderRadius: 2 }}>Add expense</Button>
+                <Button variant="outlined" size="small" startIcon={<GroupsIcon />} onClick={() => navigate('/kpis')} sx={{ borderRadius: 2 }}>Log KPIs</Button>
+                <Button variant="outlined" size="small" startIcon={<BusinessCenterIcon />} onClick={() => navigate('/fundraising')} sx={{ borderRadius: 2 }}>Fundraising</Button>
+              </Stack>
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </Container>
-    </ExecutiveDashboard>
+    </Page>
   );
 };
 

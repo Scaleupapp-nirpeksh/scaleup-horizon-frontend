@@ -627,12 +627,18 @@ const TasksPage = () => {
     }
   };
 
-  // Deep link: /tasks?task=<id> opens the task detail (used by notifications)
+  // Deep links: /tasks?task=<id> opens the task detail (notifications),
+  // /tasks?epic=<id> filters the board to that epic (dashboard portfolio)
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     const taskId = searchParams.get('task');
+    const epicId = searchParams.get('epic');
     if (taskId) {
       handleTaskClick({ _id: taskId });
+      setSearchParams({}, { replace: true });
+    } else if (epicId) {
+      setFilters(prev => ({ ...prev, parentTask: epicId, page: 1 }));
+      setActiveFilter(true);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams, handleTaskClick]);

@@ -651,6 +651,9 @@ export const getTaskStats = (params) => api.get('/tasks/stats', { params });
 export const bulkUpdateTasks = (data) => api.post('/tasks/bulk', data); // { taskIds, action, updates }
 export const importTasksCsv = (data) => api.post('/tasks/import', data); // { csv, dryRun, defaultParentKey }
 
+// Dashboard (command center)
+export const getCommandCenter = () => api.get('/dashboard/command-center');
+
 // Notifications
 export const getNotifications = (params) => api.get('/notifications', { params });
 export const markNotificationRead = (id) => api.post(`/notifications/${id}/read`);
