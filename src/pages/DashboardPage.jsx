@@ -31,7 +31,8 @@ import AddTaskIcon from '@mui/icons-material/AddTask';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 
-import { getCommandCenter } from '../services/api';
+import { getCommandCenter, sendBriefingNow } from '../services/api';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 
 // ---------- styled ----------
 const Page = styled(Box)(({ theme }) => ({
@@ -92,6 +93,22 @@ const DashboardPage = () => {
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [updatedAt, setUpdatedAt] = useState(null);
+  const [briefingBusy, setBriefingBusy] = useState(false);
+  const [briefingMsg, setBriefingMsg] = useState('');
+
+  const handleSendBriefing = async () => {
+    setBriefingBusy(true);
+    setBriefingMsg('');
+    try {
+      const res = await sendBriefingNow();
+      setBriefingMsg(res.data.msg || 'Briefing sent — check your inbox.');
+    } catch (err) {
+      setBriefingMsg(err.response?.data?.msg || 'Could not send the briefing.');
+    } finally {
+      setBriefingBusy(false);
+      setTimeout(() => setBriefingMsg(''), 6000);
+    }
+  };
 
   const fetchData = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true); else setLoading(true);
@@ -318,12 +335,32 @@ const DashboardPage = () => {
             {/* ---------- Your businesses (portfolio strip) ---------- */}
             {businesses.length > 0 && (
               <Grid size={{ xs: 12 }}>
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" sx={{ mb: 1.5, rowGap: 1 }}>
                   <AccountTreeIcon color="secondary" fontSize="small" />
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>Your businesses</Typography>
                   <Typography variant="caption" color="text.secondary">
                     {data.tasks.openCount} open tasks across {businesses.length} epics
                   </Typography>
+                  <Box sx={{ flex: 1 }} />
+                  {briefingMsg && (
+                    <Typography variant="caption" color="success.main" sx={{ fontWeight: 600 }}>
+                      {briefingMsg}
+                    </Typography>
+                  )}
+                  <Tooltip title="Email today's briefing for all businesses to every member — the same one that arrives automatically each morning at 7:30 on each business's discussion day">
+                    <span>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<MarkEmailReadIcon />}
+                        onClick={handleSendBriefing}
+                        disabled={briefingBusy}
+                        sx={{ borderRadius: 2 }}
+                      >
+                        {briefingBusy ? 'Sending…' : 'Send briefing now'}
+                      </Button>
+                    </span>
+                  </Tooltip>
                 </Stack>
                 <Grid container spacing={2}>
                   {businesses.map(epic => (

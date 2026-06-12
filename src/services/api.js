@@ -653,6 +653,8 @@ export const importTasksCsv = (data) => api.post('/tasks/import', data); // { cs
 
 // Dashboard (command center)
 export const getCommandCenter = () => api.get('/dashboard/command-center');
+export const previewBriefing = () => api.get('/dashboard/briefing/preview');
+export const sendBriefingNow = () => api.post('/dashboard/briefing/send');
 
 // Notifications
 export const getNotifications = (params) => api.get('/notifications', { params });
