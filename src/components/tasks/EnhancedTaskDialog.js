@@ -60,6 +60,7 @@ const EnhancedTaskDialog = ({
   members = [],
   epics = [],
   existingTask = null,
+  defaultDueDate = null,
   loading = false
 }) => {
   const theme = useTheme();
@@ -114,7 +115,7 @@ const EnhancedTaskDialog = ({
         setCustomSubcategory(isCustomSubcategory ? subcategory : '');
         setShowCustomSubcategory(isCustomSubcategory);
       } else {
-        // Reset form for new task
+        // Reset form for new task (calendar clicks pass a default due date)
         setTaskForm({
           title: '',
           description: '',
@@ -124,7 +125,7 @@ const EnhancedTaskDialog = ({
           priority: 'medium',
           taskType: 'task',
           assignee: null,
-          dueDate: null,
+          dueDate: defaultDueDate ? new Date(defaultDueDate) : null,
           parentTask: null,
           blockedBy: []
         });
@@ -134,7 +135,7 @@ const EnhancedTaskDialog = ({
       setErrors({});
       setActiveTab(0);
     }
-  }, [open, existingTask]);
+  }, [open, existingTask, defaultDueDate]);
 
   // Check if members are loading
   useEffect(() => {

@@ -6,7 +6,7 @@ import {
   Container, Grid, Paper, Typography, Box, Stack, useTheme, alpha,
   IconButton, Button, Chip, Avatar, Tooltip, Fab, Menu, MenuItem,
   TextField, Select, FormControl, InputLabel, Divider, Dialog,
-  DialogTitle, DialogContent, Card,
+  DialogTitle, DialogContent, DialogActions, Card,
   LinearProgress, Skeleton, Collapse, Checkbox,
   ToggleButton, ToggleButtonGroup,
   InputAdornment, AvatarGroup, Autocomplete,
@@ -43,12 +43,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 // Component imports
 import EnhancedTaskDialog from '../components/tasks/EnhancedTaskDialog';
 import ImprovedKanbanBoard from '../components/tasks/ImprovedKanbanBoard';
 import TaskAnalytics from '../components/tasks/TaskAnalytics';
 import ImportTasksDialog from '../components/tasks/ImportTasksDialog';
+import TaskCalendar from '../components/tasks/TaskCalendar';
 
 // API imports
 import {
@@ -321,6 +323,10 @@ const TasksPage = () => {
   const [bulkBusy, setBulkBusy] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
 
+  // Calendar: "create a task on this day?" flow
+  const [dayPrompt, setDayPrompt] = useState(null); // Date | null
+  const [createDefaultDueDate, setCreateDefaultDueDate] = useState(null);
+
   // Debounced search input (filters.search updates 400ms after typing stops)
   const [searchInput, setSearchInput] = useState('');
   useEffect(() => {
@@ -357,8 +363,8 @@ const TasksPage = () => {
 
     try {
       const params = formatTaskFilters(filters);
-      // The kanban board has no pagination controls — fetch the full set
-      if (viewMode === 'kanban') {
+      // Kanban and calendar have no pagination controls — fetch the full set
+      if (viewMode === 'kanban' || viewMode === 'calendar') {
         params.page = 1;
         params.limit = KANBAN_FETCH_LIMIT;
       }
@@ -453,6 +459,7 @@ const TasksPage = () => {
       await createTask(taskData);
       setSuccess('Task created successfully!');
       setCreateTaskOpen(false);
+      setCreateDefaultDueDate(null);
       fetchTasks(true);
     } catch (err) {
       console.error('Error creating task:', err);
@@ -1629,6 +1636,10 @@ const TasksPage = () => {
               <ViewListIcon sx={{ mr: 1 }} />
               List
             </ToggleButton>
+            <ToggleButton value="calendar">
+              <CalendarMonthIcon sx={{ mr: 1 }} />
+              Calendar
+            </ToggleButton>
             <ToggleButton value="analytics">
               <AnalyticsIcon sx={{ mr: 1 }} />
               Analytics
@@ -1663,6 +1674,14 @@ const TasksPage = () => {
           </>
         )}
         
+        {viewMode === 'calendar' && (
+          <TaskCalendar
+            tasks={tasks}
+            onTaskClick={handleTaskClick}
+            onCreateForDay={(day) => setDayPrompt(day)}
+          />
+        )}
+
         {viewMode === 'analytics' && (
           <TaskAnalytics
             tasks={analyticsTasks}
@@ -1673,13 +1692,44 @@ const TasksPage = () => {
         {/* Dialogs */}
         {renderTaskDetail()}
         
+        {/* Calendar day → create task prompt */}
+        <Dialog open={!!dayPrompt} onClose={() => setDayPrompt(null)} maxWidth="xs">
+          {dayPrompt && (
+            <>
+              <DialogTitle sx={{ fontWeight: 700 }}>
+                Create a task for {format(dayPrompt, 'EEEE, MMM d')}?
+              </DialogTitle>
+              <DialogContent>
+                <Typography variant="body2" color="text.secondary">
+                  A new task will open with its due date set to {format(dayPrompt, 'MMM d, yyyy')}.
+                </Typography>
+              </DialogContent>
+              <DialogActions sx={{ p: 2 }}>
+                <Button onClick={() => setDayPrompt(null)}>Cancel</Button>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => {
+                    setCreateDefaultDueDate(dayPrompt);
+                    setDayPrompt(null);
+                    setCreateTaskOpen(true);
+                  }}
+                >
+                  Create Task
+                </Button>
+              </DialogActions>
+            </>
+          )}
+        </Dialog>
+
         {/* Create Task Dialog */}
         <EnhancedTaskDialog
           open={createTaskOpen}
-          onClose={() => setCreateTaskOpen(false)}
+          onClose={() => { setCreateTaskOpen(false); setCreateDefaultDueDate(null); }}
           onSubmit={handleCreateTask}
           members={members}
           epics={epics}
+          defaultDueDate={createDefaultDueDate}
           loading={createLoading}
         />
         
