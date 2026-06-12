@@ -21,6 +21,8 @@ import InvestorsSection from '../components/fundraising/InvestorsSection';
 import InvestorPipeline from '../components/fundraising/InvestorPipeline';
 import InvestorUpdatesTab from '../components/fundraising/InvestorUpdatesTab';
 import DataRoomTab from '../components/fundraising/DataRoomTab';
+import OutreachTab from '../components/fundraising/OutreachTab';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
@@ -185,6 +187,7 @@ const FundraisingPage = () => {
     { label: 'ESOP Grants', icon: <CardMembershipIcon sx={{ fontSize: 24 }} />, color: '#f5576c' },
     { label: 'Investor Updates', icon: <ForwardToInboxIcon sx={{ fontSize: 24 }} />, color: '#4f46e5' },
     { label: 'Data Room', icon: <FolderSharedIcon sx={{ fontSize: 24 }} />, color: '#0e7490' },
+    { label: 'Outreach', icon: <TravelExploreIcon sx={{ fontSize: 24 }} />, color: '#9333ea' },
   ];
 
   return (
@@ -428,6 +431,9 @@ const FundraisingPage = () => {
               </TabPanel>
               <TabPanel value={activeTab} index={6}>
                 <DataRoomTab />
+              </TabPanel>
+              <TabPanel value={activeTab} index={7}>
+                <OutreachTab />
               </TabPanel>
             </Box>
           </StyledTabsContainer>

@@ -158,6 +158,17 @@ export const updateMemberRole = (memberUserId, roleData) => api.put(`/organizati
 export const removeMemberFromOrganization = (memberUserId) => api.delete(`/organizations/my/members/${memberUserId}`);
 
 
+// --- Personalized Outreach ---
+export const getOutreachProfile = () => api.get('/outreach/profile');
+export const updateOutreachProfile = (data) => api.put('/outreach/profile', data);
+export const getOutreachTargets = (params) => api.get('/outreach/targets', { params });
+export const createOutreachTarget = (data) => api.post('/outreach/targets', data);
+export const updateOutreachTarget = (id, data) => api.put(`/outreach/targets/${id}`, data);
+export const deleteOutreachTarget = (id) => api.delete(`/outreach/targets/${id}`);
+export const researchOutreachTarget = (id) => api.post(`/outreach/targets/${id}/research`, {}, { timeout: 120000 });
+export const draftOutreachEmail = (id, data) => api.post(`/outreach/targets/${id}/draft`, data, { timeout: 120000 });
+export const markOutreachSent = (id, data) => api.post(`/outreach/targets/${id}/mark-sent`, data);
+
 // --- Investor Data Rooms ---
 export const getDataRooms = () => api.get('/data-rooms');
 export const createDataRoom = (data) => api.post('/data-rooms', data);
