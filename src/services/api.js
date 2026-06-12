@@ -652,6 +652,7 @@ export const bulkUpdateTasks = (data) => api.post('/tasks/bulk', data); // { tas
 export const importTasksCsv = (data) => api.post('/tasks/import', data); // { csv, dryRun, defaultParentKey }
 
 // Investor pipeline CRM
+export const createInvestorProspect = (data) => api.post('/fundraising/investors/prospect', data); // { name*, entityName?, email?, ... }
 export const patchInvestorPipeline = (id, data) => api.patch(`/fundraising/investors/${id}/pipeline`, data); // { status?, nextFollowUpDate? }
 export const addInvestorInteraction = (id, data) => api.post(`/fundraising/investors/${id}/interactions`, data); // { type, summary, nextFollowUpDate? }
 

@@ -16,8 +16,14 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import ChatIcon from '@mui/icons-material/Chat';
 import NotesIcon from '@mui/icons-material/Notes';
 import SendIcon from '@mui/icons-material/Send';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions, Grid
+} from '@mui/material';
 import { format, isBefore, startOfDay, formatDistanceToNow } from 'date-fns';
-import { getInvestors, patchInvestorPipeline, addInvestorInteraction } from '../../services/api';
+import {
+  getInvestors, patchInvestorPipeline, addInvestorInteraction, createInvestorProspect
+} from '../../services/api';
 
 const STAGES = ['Lead', 'Contacted', 'Introduced', 'Pitched', 'Follow-up',
   'Negotiating', 'Soft Committed', 'Hard Committed', 'Invested'];
@@ -56,6 +62,35 @@ const InvestorPipeline = () => {
   const [intType, setIntType] = useState('call');
   const [intSummary, setIntSummary] = useState('');
   const [saving, setSaving] = useState(false);
+
+  // Quick-add prospect dialog
+  const EMPTY_PROSPECT = {
+    name: '', entityName: '', email: '', phone: '', investorType: 'Angel',
+    source: '', expectedAmount: '', status: 'Lead', nextFollowUpDate: '',
+  };
+  const [prospectOpen, setProspectOpen] = useState(false);
+  const [prospect, setProspect] = useState(EMPTY_PROSPECT);
+  const [prospectSaving, setProspectSaving] = useState(false);
+
+  const handleAddProspect = async () => {
+    if (!prospect.name.trim()) return;
+    setProspectSaving(true);
+    try {
+      await createInvestorProspect({
+        ...prospect,
+        expectedAmount: prospect.expectedAmount ? Number(prospect.expectedAmount) : undefined,
+        nextFollowUpDate: prospect.nextFollowUpDate || undefined,
+      });
+      setMessage({ type: 'success', text: `${prospect.name.trim()} added to the pipeline` });
+      setProspectOpen(false);
+      setProspect(EMPTY_PROSPECT);
+      fetchInvestors();
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.msg || 'Could not add prospect' });
+    } finally {
+      setProspectSaving(false);
+    }
+  };
 
   const fetchInvestors = useCallback(async () => {
     try {
@@ -160,17 +195,44 @@ const InvestorPipeline = () => {
     return <Stack alignItems="center" sx={{ py: 8 }}><CircularProgress /></Stack>;
   }
 
+  const active = investors.filter(i => !PARKED.includes(i.status));
+  const totalExpected = active.filter(i => !['Invested'].includes(i.status))
+    .reduce((s, i) => s + (i.expectedAmount || i.totalCommittedAmount || 0), 0);
+  const totalCommitted = active.filter(i => ['Soft Committed', 'Hard Committed', 'Invested'].includes(i.status))
+    .reduce((s, i) => s + (i.totalCommittedAmount || 0), 0);
+
   return (
     <Box>
+      {/* Header: pipeline value + quick add */}
+      <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" sx={{ mb: 2, rowGap: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          {active.length} in pipeline
+          {totalExpected > 0 && <> · <b>{fmtINR(totalExpected)}</b> in conversations</>}
+          {totalCommitted > 0 && <> · <b>{fmtINR(totalCommitted)}</b> committed</>}
+        </Typography>
+        <Button
+          variant="contained"
+          size="small"
+          startIcon={<PersonAddIcon />}
+          onClick={() => setProspectOpen(true)}
+          sx={{ borderRadius: 2 }}
+        >
+          Add Prospect
+        </Button>
+      </Stack>
+
       {investors.length === 0 ? (
         <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 2 }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
             No investors in your pipeline yet
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Add investors from the Investors tab — they appear here automatically,
-            organised by stage from Lead to Invested.
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Add a prospect with just a name — deal terms can come later,
+            when the conversation gets real.
           </Typography>
+          <Button variant="outlined" startIcon={<PersonAddIcon />} onClick={() => setProspectOpen(true)}>
+            Add your first prospect
+          </Button>
         </Paper>
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -236,7 +298,11 @@ const InvestorPipeline = () => {
                                 )}
                                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 0.75 }}>
                                   <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                                    {inv.totalCommittedAmount ? fmtINR(inv.totalCommittedAmount) : '—'}
+                                    {inv.totalCommittedAmount
+                                      ? fmtINR(inv.totalCommittedAmount)
+                                      : inv.expectedAmount
+                                        ? `~${fmtINR(inv.expectedAmount)}`
+                                        : '—'}
                                   </Typography>
                                   {followUpChip(inv)}
                                 </Stack>
@@ -301,8 +367,23 @@ const InvestorPipeline = () => {
                 <Typography variant="body2" color="text.secondary">
                   {selected.totalCommittedAmount ? `${fmtINR(selected.totalCommittedAmount)} committed` : ''}
                   {selected.totalReceivedAmount ? ` · ${fmtINR(selected.totalReceivedAmount)} received` : ''}
+                  {!selected.totalCommittedAmount && selected.expectedAmount ? `~${fmtINR(selected.expectedAmount)} expected` : ''}
                 </Typography>
               </Stack>
+              {!selected.roundId && (
+                <Chip
+                  size="small"
+                  variant="outlined"
+                  color="warning"
+                  label="Prospect — attach a round & deal terms (Investors tab) before marking Invested"
+                  sx={{ mt: 1.5, height: 'auto', '& .MuiChip-label': { whiteSpace: 'normal', py: 0.5 } }}
+                />
+              )}
+              {selected.source && (
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                  Source: {selected.source}
+                </Typography>
+              )}
             </Box>
 
             <Box sx={{ p: 2.5, borderBottom: 1, borderColor: 'divider' }}>
@@ -380,6 +461,83 @@ const InvestorPipeline = () => {
           </Box>
         )}
       </Drawer>
+
+      {/* Quick-add prospect dialog: name is the only required field */}
+      <Dialog open={prospectOpen} onClose={() => !prospectSaving && setProspectOpen(false)} maxWidth="sm" fullWidth
+        PaperProps={{ sx: { borderRadius: 3 } }}>
+        <DialogTitle sx={{ fontWeight: 700 }}>
+          Add Prospect
+          <Typography variant="body2" color="text.secondary">
+            Only the name is required — deal terms come later, when the deal is real.
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 0 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField label="Name" required fullWidth size="small" autoFocus
+                value={prospect.name}
+                onChange={(e) => setProspect({ ...prospect, name: e.target.value })} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField label="Firm / Entity" fullWidth size="small"
+                value={prospect.entityName}
+                onChange={(e) => setProspect({ ...prospect, entityName: e.target.value })} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField label="Email" fullWidth size="small"
+                value={prospect.email}
+                onChange={(e) => setProspect({ ...prospect, email: e.target.value })} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField label="Phone" fullWidth size="small"
+                value={prospect.phone}
+                onChange={(e) => setProspect({ ...prospect, phone: e.target.value })} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField select label="Type" fullWidth size="small"
+                value={prospect.investorType}
+                onChange={(e) => setProspect({ ...prospect, investorType: e.target.value })}>
+                {['Angel', 'VC Firm', 'Corporate VC', 'Family Office', 'Accelerator', 'Incubator', 'Individual', 'Other'].map(t => (
+                  <MenuItem key={t} value={t}>{t}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField select label="Stage" fullWidth size="small"
+                value={prospect.status}
+                onChange={(e) => setProspect({ ...prospect, status: e.target.value })}>
+                {['Lead', 'Contacted', 'Introduced', 'Pitched', 'Follow-up', 'Negotiating'].map(s => (
+                  <MenuItem key={s} value={s}>{s}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField label="Expected amount (₹, rough)" type="number" fullWidth size="small"
+                value={prospect.expectedAmount}
+                onChange={(e) => setProspect({ ...prospect, expectedAmount: e.target.value })} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField label="Next follow-up" type="date" fullWidth size="small"
+                InputLabelProps={{ shrink: true }}
+                value={prospect.nextFollowUpDate}
+                onChange={(e) => setProspect({ ...prospect, nextFollowUpDate: e.target.value })} />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <TextField label="How you met / who introduced" fullWidth size="small"
+                value={prospect.source}
+                onChange={(e) => setProspect({ ...prospect, source: e.target.value })} />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button onClick={() => setProspectOpen(false)} disabled={prospectSaving}>Cancel</Button>
+          <Button variant="contained" onClick={handleAddProspect}
+            disabled={!prospect.name.trim() || prospectSaving}
+            startIcon={prospectSaving ? <CircularProgress size={16} /> : <PersonAddIcon />}>
+            Add to Pipeline
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar open={!!message} autoHideDuration={4000} onClose={() => setMessage(null)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
