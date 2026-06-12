@@ -1,6 +1,8 @@
 // src/components/tasks/TaskCalendar.jsx
-// Month calendar of tasks by due date. Clicking a task opens it; clicking
-// the empty area of a day offers to create a task due that day.
+// Month calendar of tasks by due date. Every day cell is strictly equal
+// width; tasks render as a collapsed summary (priority dot + key) that
+// opens a day popup with the full list. Clicking the empty area of a day
+// offers to create a task due that day.
 import React, { useState, useMemo } from 'react';
 import {
   Box, Paper, Typography, Stack, IconButton, Tooltip, useTheme,
@@ -22,12 +24,15 @@ const PRIORITY_COLORS = {
   low: '#4caf50',
 };
 
-const MAX_VISIBLE = 3;
+// Equal columns no matter how wide the content is — minmax(0, 1fr) stops
+// chip text from inflating its track
+const GRID_7 = { display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))' };
+const MAX_COMPACT_ROWS = 3;
 
 const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
   const theme = useTheme();
   const [cursor, setCursor] = useState(new Date());
-  const [dayDialog, setDayDialog] = useState(null); // { date, tasks } for "+N more"
+  const [dayDialog, setDayDialog] = useState(null); // { date, tasks }
 
   // Index tasks by due date (yyyy-MM-dd)
   const tasksByDay = useMemo(() => {
@@ -66,50 +71,50 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
   }, [cursor]);
 
   const today = startOfDay(new Date());
+  const isClosed = (t) => ['completed', 'cancelled'].includes(t.status);
+  const isOverdue = (t) => !isClosed(t) && t.dueDate && isBefore(new Date(t.dueDate), today);
 
-  const renderTaskChip = (task) => {
-    const closed = ['completed', 'cancelled'].includes(task.status);
-    const overdue = !closed && task.dueDate && isBefore(new Date(task.dueDate), today);
-    return (
-      <Tooltip
-        key={task._id}
-        title={`${task.taskKey ? task.taskKey + ' — ' : ''}${task.title}${task.assignee?.name ? ` · ${task.assignee.name}` : ''}`}
+  // Full task row — used inside the day popup only
+  const renderTaskRow = (task) => (
+    <Box
+      key={task._id}
+      onClick={() => { setDayDialog(null); onTaskClick(task); }}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        px: 1.25,
+        py: 0.75,
+        borderRadius: 1.5,
+        cursor: 'pointer',
+        bgcolor: isOverdue(task) ? alpha(theme.palette.error.main, 0.06) : 'transparent',
+        '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08) },
+      }}
+    >
+      <Box sx={{
+        width: 8, height: 8, flexShrink: 0, borderRadius: '50%',
+        bgcolor: isClosed(task) ? theme.palette.grey[400] : (PRIORITY_COLORS[task.priority] || theme.palette.grey[400]),
+      }} />
+      <Typography
+        variant="caption"
+        sx={{ fontFamily: 'ui-monospace, Menlo, monospace', fontWeight: 700, color: 'text.secondary', flexShrink: 0 }}
       >
-        <Box
-          onClick={(e) => { e.stopPropagation(); onTaskClick(task); }}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5,
-            px: 0.75,
-            py: 0.25,
-            mb: 0.5,
-            borderRadius: 1,
-            cursor: 'pointer',
-            bgcolor: overdue
-              ? alpha(theme.palette.error.main, 0.08)
-              : alpha(theme.palette.primary.main, closed ? 0.03 : 0.06),
-            borderLeft: `3px solid ${closed ? theme.palette.grey[400] : (PRIORITY_COLORS[task.priority] || theme.palette.grey[400])}`,
-            opacity: closed ? 0.55 : 1,
-            '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.14) },
-          }}
-        >
-          <Typography
-            variant="caption"
-            noWrap
-            sx={{
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              color: overdue ? 'error.main' : 'text.primary',
-              textDecoration: closed ? 'line-through' : 'none',
-            }}
-          >
-            {task.taskKey ? `${task.taskKey} ` : ''}{task.title}
-          </Typography>
-        </Box>
-      </Tooltip>
-    );
-  };
+        {task.taskKey}
+      </Typography>
+      <Typography
+        variant="body2"
+        noWrap
+        sx={{
+          minWidth: 0,
+          color: isOverdue(task) ? 'error.main' : 'text.primary',
+          textDecoration: isClosed(task) ? 'line-through' : 'none',
+          opacity: isClosed(task) ? 0.6 : 1,
+        }}
+      >
+        {task.title}
+      </Typography>
+    </Box>
+  );
 
   return (
     <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
@@ -132,7 +137,7 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
       </Stack>
 
       {/* Weekday header */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderTop: 1, borderColor: 'divider' }}>
+      <Box sx={{ ...GRID_7, borderTop: 1, borderColor: 'divider' }}>
         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
           <Typography
             key={d}
@@ -146,19 +151,22 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
 
       {/* Grid */}
       {weeks.map((week, wi) => (
-        <Box key={wi} sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+        <Box key={wi} sx={GRID_7}>
           {week.map(day => {
             const key = format(day, 'yyyy-MM-dd');
             const dayTasks = tasksByDay[key] || [];
             const inMonth = isSameMonth(day, cursor);
-            const visible = dayTasks.slice(0, MAX_VISIBLE);
-            const hiddenCount = dayTasks.length - visible.length;
+            const compact = dayTasks.slice(0, MAX_COMPACT_ROWS);
+            const hiddenCount = dayTasks.length - compact.length;
+            const anyOverdue = dayTasks.some(isOverdue);
             return (
               <Box
                 key={key}
                 onClick={() => onCreateForDay(day)}
                 sx={{
-                  minHeight: 118,
+                  minWidth: 0,
+                  overflow: 'hidden',
+                  minHeight: 104,
                   p: 0.75,
                   borderTop: 1,
                   borderRight: 1,
@@ -168,11 +176,11 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                     ? alpha(theme.palette.primary.main, 0.05)
                     : inMonth ? 'background.paper' : alpha(theme.palette.action.hover, 0.4),
                   transition: 'background-color 0.15s ease',
-                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08) },
-                  '&:last-of-type': { borderRight: 0 },
+                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.07) },
+                  '&:nth-of-type(7n)': { borderRight: 0 },
                 }}
               >
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
+                <Stack direction="row" justifyContent="flex-start" sx={{ mb: 0.5 }}>
                   <Typography
                     variant="caption"
                     sx={{
@@ -192,27 +200,58 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                   >
                     {format(day, 'd')}
                   </Typography>
-                  {dayTasks.length > 0 && (
-                    <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.disabled' }}>
-                      {dayTasks.length}
-                    </Typography>
-                  )}
                 </Stack>
-                {visible.map(renderTaskChip)}
-                {hiddenCount > 0 && (
-                  <Typography
-                    variant="caption"
-                    onClick={(e) => { e.stopPropagation(); setDayDialog({ date: day, tasks: dayTasks }); }}
-                    sx={{
-                      fontSize: '0.68rem',
-                      fontWeight: 700,
-                      color: 'primary.main',
-                      cursor: 'pointer',
-                      '&:hover': { textDecoration: 'underline' },
-                    }}
-                  >
-                    +{hiddenCount} more
-                  </Typography>
+
+                {/* Collapsed task summary — click opens the day popup */}
+                {dayTasks.length > 0 && (
+                  <Tooltip title={`${dayTasks.length} task${dayTasks.length === 1 ? '' : 's'} — click to view`}>
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setDayDialog({ date: day, tasks: dayTasks }); }}
+                      sx={{
+                        borderRadius: 1,
+                        p: 0.5,
+                        bgcolor: anyOverdue
+                          ? alpha(theme.palette.error.main, 0.07)
+                          : alpha(theme.palette.primary.main, 0.06),
+                        border: `1px solid ${anyOverdue
+                          ? alpha(theme.palette.error.main, 0.2)
+                          : alpha(theme.palette.primary.main, 0.12)}`,
+                        '&:hover': {
+                          bgcolor: anyOverdue
+                            ? alpha(theme.palette.error.main, 0.12)
+                            : alpha(theme.palette.primary.main, 0.12),
+                        },
+                      }}
+                    >
+                      {compact.map(t => (
+                        <Stack key={t._id} direction="row" spacing={0.5} alignItems="center" sx={{ minWidth: 0, py: 0.1 }}>
+                          <Box sx={{
+                            width: 6, height: 6, flexShrink: 0, borderRadius: '50%',
+                            bgcolor: isClosed(t) ? theme.palette.grey[400] : (PRIORITY_COLORS[t.priority] || theme.palette.grey[400]),
+                          }} />
+                          <Typography
+                            variant="caption"
+                            noWrap
+                            sx={{
+                              minWidth: 0,
+                              fontSize: '0.66rem',
+                              fontFamily: 'ui-monospace, Menlo, monospace',
+                              fontWeight: 700,
+                              color: isOverdue(t) ? 'error.main' : 'text.secondary',
+                              textDecoration: isClosed(t) ? 'line-through' : 'none',
+                            }}
+                          >
+                            {t.taskKey || t.title}
+                          </Typography>
+                        </Stack>
+                      ))}
+                      {hiddenCount > 0 && (
+                        <Typography variant="caption" sx={{ fontSize: '0.64rem', fontWeight: 700, color: 'primary.main', pl: 1 }}>
+                          +{hiddenCount} more
+                        </Typography>
+                      )}
+                    </Box>
+                  </Tooltip>
                 )}
               </Box>
             );
@@ -220,20 +259,20 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
         </Box>
       ))}
 
-      {/* Day overflow dialog */}
-      <Dialog open={!!dayDialog} onClose={() => setDayDialog(null)} maxWidth="xs" fullWidth>
+      {/* Day popup: full task list */}
+      <Dialog open={!!dayDialog} onClose={() => setDayDialog(null)} maxWidth="xs" fullWidth
+        PaperProps={{ sx: { borderRadius: 3 } }}>
         {dayDialog && (
           <>
             <DialogTitle sx={{ fontWeight: 700 }}>
-              {format(dayDialog.date, 'EEEE, MMM d')} · {dayDialog.tasks.length} tasks
+              {format(dayDialog.date, 'EEEE, MMM d')}
+              <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                {dayDialog.tasks.length} task{dayDialog.tasks.length === 1 ? '' : 's'}
+              </Typography>
             </DialogTitle>
-            <DialogContent dividers>
-              <Stack spacing={0.5}>
-                {dayDialog.tasks.map(t => (
-                  <Box key={t._id} onClick={() => { setDayDialog(null); onTaskClick(t); }}>
-                    {renderTaskChip(t)}
-                  </Box>
-                ))}
+            <DialogContent dividers sx={{ p: 1.5 }}>
+              <Stack spacing={0.25}>
+                {dayDialog.tasks.map(renderTaskRow)}
               </Stack>
               <Divider sx={{ my: 1.5 }} />
               <Button
