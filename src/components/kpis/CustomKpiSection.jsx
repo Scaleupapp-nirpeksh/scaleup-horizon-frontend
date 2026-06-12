@@ -115,9 +115,91 @@ const categoryColors = {
   custom: '#3b82f6'
 };
 
-// Mock sparkline data generator
-const generateSparklineData = () => {
-  return Array.from({ length: 7 }, () => Math.floor(Math.random() * 100) + 50);
+// Ready-made KPI definitions a founder can start from. Shapes match what
+// CustomKpiForm expects to load (filter.value carries constants).
+const KPI_TEMPLATES = [
+  {
+    name: 'monthly_burn_rate',
+    displayName: 'Monthly Burn Rate',
+    description: 'How much cash you spent (net of revenue) this month.',
+    category: 'Financial',
+    formula: 'expenses - revenue',
+    formulaVariables: [
+      { variable: 'expenses', source: 'expense', aggregation: 'sum', timeframe: 'current_month' },
+      { variable: 'revenue', source: 'revenue', aggregation: 'sum', timeframe: 'current_month' },
+    ],
+    displayFormat: { type: 'currency', decimals: 0, prefix: '₹', suffix: '' },
+    visualization: { chartType: 'line', color: '#ef4444' },
+    isPinned: true,
+  },
+  {
+    name: 'runway_months',
+    displayName: 'Runway (months)',
+    description: 'Months of cash left at last month’s net burn.',
+    category: 'Financial',
+    formula: 'cash / max(burn - revenue, 1)',
+    formulaVariables: [
+      { variable: 'cash', source: 'bank_balance', aggregation: 'latest', timeframe: 'all_time' },
+      { variable: 'burn', source: 'expense', aggregation: 'sum', timeframe: 'last_month' },
+      { variable: 'revenue', source: 'revenue', aggregation: 'sum', timeframe: 'last_month' },
+    ],
+    displayFormat: { type: 'number', decimals: 1, prefix: '', suffix: ' mo' },
+    visualization: { chartType: 'gauge', color: '#f59e0b' },
+    isPinned: true,
+  },
+  {
+    name: 'gross_margin_pct',
+    displayName: 'Gross Margin %',
+    description: 'Share of this month’s revenue left after expenses.',
+    category: 'Financial',
+    formula: '(revenue - expenses) / max(revenue, 1) * 100',
+    formulaVariables: [
+      { variable: 'revenue', source: 'revenue', aggregation: 'sum', timeframe: 'current_month' },
+      { variable: 'expenses', source: 'expense', aggregation: 'sum', timeframe: 'current_month' },
+    ],
+    displayFormat: { type: 'percentage', decimals: 1, prefix: '', suffix: '' },
+    visualization: { chartType: 'line', color: '#10b981' },
+  },
+  {
+    name: 'revenue_growth_pct',
+    displayName: 'Revenue Growth %',
+    description: 'This month’s revenue vs last month’s.',
+    category: 'Growth',
+    formula: '(current - previous) / max(previous, 1) * 100',
+    formulaVariables: [
+      { variable: 'current', source: 'revenue', aggregation: 'sum', timeframe: 'current_month' },
+      { variable: 'previous', source: 'revenue', aggregation: 'sum', timeframe: 'last_month' },
+    ],
+    displayFormat: { type: 'percentage', decimals: 1, prefix: '', suffix: '' },
+    visualization: { chartType: 'bar', color: '#6366f1' },
+  },
+  {
+    name: 'avg_daily_spend',
+    displayName: 'Average Daily Spend',
+    description: 'Average spend per day over the last 30 days.',
+    category: 'Financial',
+    formula: 'spend / days',
+    formulaVariables: [
+      { variable: 'spend', source: 'expense', aggregation: 'sum', timeframe: 'last_30_days' },
+      { variable: 'days', source: 'constant', filter: { value: 30 }, aggregation: 'latest', timeframe: 'all_time' },
+    ],
+    displayFormat: { type: 'currency', decimals: 0, prefix: '₹', suffix: '/day' },
+    visualization: { chartType: 'area', color: '#8b5cf6' },
+  },
+];
+
+// Derive real sparkline/trend display data from the KPI's calculation cache.
+// Sparkline needs at least 2 historical points to be meaningful.
+const decorateKpi = (kpi) => {
+  const history = kpi.cache?.historicalValues || [];
+  const values = history.slice(-14).map(h => h.value).filter(v => typeof v === 'number' && isFinite(v));
+  const trendNumber = typeof kpi.cache?.trend === 'number' && isFinite(kpi.cache.trend) ? kpi.cache.trend : null;
+  return {
+    ...kpi,
+    sparklineData: values.length >= 2 ? values : null,
+    trend: trendNumber === null ? null : (trendNumber >= 0 ? 'up' : 'down'),
+    trendValue: trendNumber === null ? null : Math.abs(Math.round(trendNumber * 10) / 10),
+  };
 };
 
 const CustomKpiSection = ({ embedded = false }) => {
@@ -140,15 +222,8 @@ const CustomKpiSection = ({ embedded = false }) => {
   const fetchCustomKpis = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await getCustomKpis(); 
-      // Add mock sparkline data for demo
-      const kpisWithSparkline = (response.data || []).map(kpi => ({
-        ...kpi,
-        sparklineData: generateSparklineData(),
-        trend: Math.random() > 0.5 ? 'up' : 'down',
-        trendValue: Math.floor(Math.random() * 30) + 1
-      }));
-      setCustomKpis(kpisWithSparkline);
+      const response = await getCustomKpis();
+      setCustomKpis((response.data || []).map(decorateKpi));
     } catch (error) {
       console.error("Error fetching custom KPIs:", error);
       setMessage({ type: 'error', text: 'Could not load custom KPIs.' });
@@ -199,39 +274,28 @@ const CustomKpiSection = ({ embedded = false }) => {
   };
 
   const handleCalculateKpi = async (kpiId) => {
+    if (calculatingKpiId) return; // one calculation at a time
     setCalculatingKpiId(kpiId);
     try {
       const response = await calculateCustomKpiValue(kpiId);
-      const result = {
-        ...response.data,
-        sparklineData: generateSparklineData(),
-        trend: Math.random() > 0.5 ? 'up' : 'down',
-        trendValue: Math.floor(Math.random() * 30) + 1
-      };
-      
-      setCalculationResults(prev => ({...prev, [kpiId]: result}));
-      
-      const kpiIndex = customKpis.findIndex(k => k._id === kpiId);
-      if (kpiIndex !== -1) {
-        const updatedKpis = [...customKpis];
-        updatedKpis[kpiIndex] = {
-          ...updatedKpis[kpiIndex], 
-          cache: response.data,
-          sparklineData: result.sparklineData,
-          trend: result.trend,
-          trendValue: result.trendValue
-        };
-        setCustomKpis(updatedKpis);
+      setCalculationResults(prev => ({ ...prev, [kpiId]: response.data }));
+
+      const warnings = response.data.warnings || [];
+      if (warnings.length > 0) {
+        setMessage({ type: 'warning', text: `Calculated ${response.data.formattedValue} with issues: ${warnings[0]}` });
+      } else {
+        setMessage({ type: 'success', text: `KPI calculated: ${response.data.formattedValue}` });
       }
-      
-      setMessage({type: 'success', text: `KPI calculated: ${response.data.formattedValue}`});
+
+      // Refresh from the server so the cache/history-derived sparkline is real
+      await fetchCustomKpis();
     } catch (error) {
       console.error("Error calculating KPI value:", error);
-      setMessage({type: 'error', text: `Failed to calculate KPI: ${error.response?.data?.msg || error.message}`});
-      setCalculationResults(prev => ({...prev, [kpiId]: { error: 'Calculation failed' }}));
+      setMessage({ type: 'error', text: `Failed to calculate KPI: ${error.response?.data?.msg || error.message}` });
+      setCalculationResults(prev => ({ ...prev, [kpiId]: { error: 'Calculation failed' } }));
     } finally {
       setCalculatingKpiId(null);
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      setTimeout(() => setMessage({ type: '', text: '' }), 5000);
     }
   };
 
@@ -257,6 +321,7 @@ const CustomKpiSection = ({ embedded = false }) => {
             <CardHeader
               avatar={
                 <Badge
+                  invisible={kpi.trend === null || kpi.trend === undefined}
                   badgeContent={kpi.trend === 'up' ? <TrendingUpIcon sx={{ fontSize: 14 }} /> : <TrendingDownIcon sx={{ fontSize: 14 }} />}
                   color={kpi.trend === 'up' ? 'success' : 'error'}
                   overlap="circular"
@@ -672,41 +737,107 @@ const CustomKpiSection = ({ embedded = false }) => {
         </MenuItem>
       </Menu>
 
-      {/* Form Dialog */}
+      {/* Form Dialog — template chooser first for new KPIs, then the form */}
       <Dialog
         open={showFormDialog}
-        onClose={() => { 
-          setShowFormDialog(false); 
-          setKpiToEdit(null); 
+        onClose={() => {
+          setShowFormDialog(false);
+          setKpiToEdit(null);
         }}
-        maxWidth="md" 
+        maxWidth="md"
         fullWidth
-        PaperProps={{ 
-          sx: { 
+        PaperProps={{
+          sx: {
             borderRadius: 3,
             backdropFilter: 'blur(10px)',
             backgroundColor: alpha(theme.palette.background.paper, 0.95)
-          } 
+          }
         }}
       >
-        <DialogTitle sx={{ 
-          pb: 1, 
+        <DialogTitle sx={{
+          pb: 1,
           fontWeight: 700,
           fontSize: '1.5rem',
-          borderBottom: `1px solid ${theme.palette.divider}` 
+          borderBottom: `1px solid ${theme.palette.divider}`
         }}>
-          {kpiToEdit ? 'Edit Custom KPI' : 'Create New Custom KPI'}
+          {kpiToEdit?._id ? 'Edit Custom KPI' : (kpiToEdit ? `New KPI: ${kpiToEdit.displayName}` : 'Create New KPI')}
         </DialogTitle>
         <DialogContent sx={{ pt: '24px !important' }}>
-          <CustomKpiForm 
-            onKpiSaved={handleKpiSaved} 
-            kpiToEdit={kpiToEdit}
-            onCancelEdit={() => { 
-              setShowFormDialog(false); 
-              setKpiToEdit(null); 
-            }}
-            key={kpiToEdit?._id || 'new-custom-kpi'} 
-          />
+          {!kpiToEdit ? (
+            <Stack spacing={2}>
+              <Typography variant="body2" color="text.secondary">
+                Start from a ready-made KPI — every value is computed live from your
+                ScaleUp Horizon data — or build your own formula from scratch.
+              </Typography>
+              <Grid container spacing={2}>
+                {KPI_TEMPLATES.map(template => (
+                  <Grid size={{ xs: 12, sm: 6 }} key={template.name}>
+                    <Card
+                      variant="outlined"
+                      sx={{
+                        borderRadius: 2,
+                        cursor: 'pointer',
+                        height: '100%',
+                        transition: 'all 0.15s ease',
+                        '&:hover': { borderColor: 'primary.main', boxShadow: 2 }
+                      }}
+                      onClick={() => setKpiToEdit({ ...template })}
+                    >
+                      <CardContent>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                          {template.displayName}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          {template.description}
+                        </Typography>
+                        <Chip
+                          label={template.formula}
+                          size="small"
+                          sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 2,
+                      cursor: 'pointer',
+                      height: '100%',
+                      borderStyle: 'dashed',
+                      transition: 'all 0.15s ease',
+                      '&:hover': { borderColor: 'primary.main', boxShadow: 2 }
+                    }}
+                    onClick={() => setKpiToEdit({ blank: true })}
+                  >
+                    <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                      <Stack alignItems="center" spacing={1}>
+                        <AddIcon color="primary" />
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                          Start from scratch
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Write your own formula and variables
+                        </Typography>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Stack>
+          ) : (
+            <CustomKpiForm
+              onKpiSaved={handleKpiSaved}
+              kpiToEdit={kpiToEdit.blank ? null : kpiToEdit}
+              onCancelEdit={() => {
+                setShowFormDialog(false);
+                setKpiToEdit(null);
+              }}
+              key={kpiToEdit?._id || kpiToEdit?.name || 'new-custom-kpi'}
+            />
+          )}
         </DialogContent>
       </Dialog>
 

@@ -30,7 +30,6 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import InsightsIcon from '@mui/icons-material/Insights';
 import SpeedIcon from '@mui/icons-material/Speed';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import AddchartIcon from '@mui/icons-material/Addchart';
@@ -440,7 +439,7 @@ const KpisPage = () => {
             <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
               <StyledTab label="Analytics Dashboard" icon={<AnalyticsIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
               <StyledTab label="Snapshot History" icon={<CalendarTodayIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
-              
+              <StyledTab label="Custom KPIs" icon={<TrendingUpIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
             </Tabs>
 
             {/* Analytics Dashboard Tab */}
@@ -766,37 +765,6 @@ const KpisPage = () => {
               </Fade>
             )}
 
-            {/* Insights Tab */}
-            {activeTab === 3 && (
-              <Fade in>
-                <Box>
-                  {/* Empty state for insights when no data is available */}
-                  {snapshots.length === 0 ? (
-                    <Box sx={{ textAlign: 'center', py: 8 }}>
-                      <InsightsIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-                      <Typography variant="h6" color="text.secondary" gutterBottom>
-                        No insights available yet
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Add more snapshots to see trends and insights
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <Box sx={{ mt: 4, p: 3, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-                      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                        Metrics Overview
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Based on your {snapshots.length} snapshot{snapshots.length > 1 ? 's' : ''}, 
-                        you have {latestSnapshot?.totalRegisteredUsers || 0} total users 
-                        with {latestSnapshot?.dau || 0} daily active users 
-                        and {latestSnapshot?.mau || 0} monthly active users.
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
-              </Fade>
-            )}
           </CardContent>
         </GlassCard>
 
