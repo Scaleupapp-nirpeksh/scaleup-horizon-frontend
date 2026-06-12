@@ -23,6 +23,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import BusinessIcon from '@mui/icons-material/Business';
 import TaskIcon from '@mui/icons-material/Task';
+import ForumIcon from '@mui/icons-material/Forum';
 
 // Animations
 const subtleShimmer = keyframes`
@@ -172,6 +173,7 @@ const authenticatedNavItems = [
   { name: 'Headcount', path: '/headcount', icon: <PeopleOutlineIcon />, status: null },
   { name: 'Documents', path: '/documents', icon: <FolderIcon />, status: null },
   { name: 'Task Tracking', path: '/tasks', icon: <TaskIcon />, status: 'new' },
+  { name: 'Meetings', path: '/meetings', icon: <ForumIcon />, status: 'new' },
   { name: 'Live Investor View', path: '/investor-dashboard', icon: <VisibilityIcon />, status: null },
   { name: 'Investor Meetings', path: '/investor-meetings', icon: <EventNoteIcon />, status: null },
 ];

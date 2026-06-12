@@ -158,6 +158,19 @@ export const updateMemberRole = (memberUserId, roleData) => api.put(`/organizati
 export const removeMemberFromOrganization = (memberUserId) => api.delete(`/organizations/my/members/${memberUserId}`);
 
 
+// --- Founder Meetings & Decision Log ---
+export const startMeeting = (data) => api.post('/meetings', data);
+export const getMeetings = (params) => api.get('/meetings', { params });
+export const getMeetingById = (id) => api.get(`/meetings/${id}`);
+export const updateMeeting = (id, data) => api.patch(`/meetings/${id}`, data);
+export const addMeetingDecision = (id, data) => api.post(`/meetings/${id}/decisions`, data);
+export const addFounderMeetingActionItem = (id, data) => api.post(`/meetings/${id}/action-items`, data);
+export const endMeeting = (id, data) => api.post(`/meetings/${id}/end`, data);
+export const getDecisions = (params) => api.get('/meetings/decisions/log', { params });
+export const createDecision = (data) => api.post('/meetings/decisions/log', data);
+export const updateDecision = (id, data) => api.put(`/meetings/decisions/${id}`, data);
+export const deleteDecision = (id) => api.delete(`/meetings/decisions/${id}`);
+
 // --- Commitments & Pending Payments ---
 export const getCommitments = (params) => api.get('/financials/commitments', { params });
 export const createCommitment = (data) => api.post('/financials/commitments', data);

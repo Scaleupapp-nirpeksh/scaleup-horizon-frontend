@@ -31,6 +31,7 @@ const LiveInvestorDashboardPage = lazy(() => import('./pages/LiveInvestorDashboa
 const ProductMilestonesPage = lazy(() => import('./pages/ProductMilestonesPage'));
 const InvestorPresentationPage = lazy(() => import('./pages/InvestorPresentationPage'));
 const TasksPage = lazy(() => import('./pages/TasksPage'));
+const MeetingsPage = lazy(() => import('./pages/MeetingsPage'));
 // Onboarding Wrapper Component
 function OnboardingWrapper() {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ function OnboardingWrapper() {
           <Route path="budgets" element={<BudgetPage />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="tasks" element={<TasksPage />} />
+          <Route path="meetings" element={<MeetingsPage />} />
           
           {/* Settings Routes */}
           <Route path="settings" element={<SettingsPage />} /> 
