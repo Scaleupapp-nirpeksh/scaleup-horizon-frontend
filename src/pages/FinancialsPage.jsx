@@ -40,6 +40,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AlertMessage from '../components/common/AlertMessage';
+import CommitmentsTab from '../components/financials/CommitmentsTab';
 
 // Recharts imports for data visualization
 import {
@@ -952,6 +953,7 @@ const FinancialsPage = () => {
                 <StyledTab label="Overview" icon={<ReceiptLongIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
                 <StyledTab label="Bank Accounts" icon={<AccountBalanceIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
                 <StyledTab label="Recurring" icon={<AutorenewIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
+                <StyledTab label="Commitments" icon={<PaymentsIcon sx={{ fontSize: 20 }} />} iconPosition="start" />
               </Tabs>
 
               {/* Enhanced Overview Tab */}
@@ -1664,6 +1666,15 @@ const FinancialsPage = () => {
                         </Grid>
                       )}
                     </Grid>
+                  </Box>
+                </Fade>
+              )}
+
+              {/* Commitments & Pending Payments Tab */}
+              {activeTab === 3 && (
+                <Fade in>
+                  <Box>
+                    <CommitmentsTab />
                   </Box>
                 </Fade>
               )}

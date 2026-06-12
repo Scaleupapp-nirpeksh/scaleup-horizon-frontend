@@ -158,6 +158,14 @@ export const updateMemberRole = (memberUserId, roleData) => api.put(`/organizati
 export const removeMemberFromOrganization = (memberUserId) => api.delete(`/organizations/my/members/${memberUserId}`);
 
 
+// --- Commitments & Pending Payments ---
+export const getCommitments = (params) => api.get('/financials/commitments', { params });
+export const createCommitment = (data) => api.post('/financials/commitments', data);
+export const updateCommitment = (id, data) => api.put(`/financials/commitments/${id}`, data);
+export const deleteCommitment = (id) => api.delete(`/financials/commitments/${id}`);
+export const addCommitmentPayment = (id, data) => api.post(`/financials/commitments/${id}/payments`, data);
+export const deleteCommitmentPayment = (id, paymentId) => api.delete(`/financials/commitments/${id}/payments/${paymentId}`);
+
 // --- Existing Financials (from /financials routes) ---
 export const addExpense = (expenseData) => api.post('/financials/expenses', expenseData);
 export const getExpenses = (params) => api.get('/financials/expenses', { params });

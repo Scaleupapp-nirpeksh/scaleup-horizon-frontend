@@ -444,6 +444,24 @@ const DashboardPage = () => {
                             {data.finance.runwayMonths !== null ? `${data.finance.runwayMonths} mo` : '—'}
                           </Typography>
                         </Stack>
+                        {data.finance.commitmentsOutstanding > 0 && (
+                          <>
+                            <Stack direction="row" justifyContent="space-between">
+                              <Typography variant="body2" color="text.secondary">Pending dues</Typography>
+                              <Typography variant="body2" sx={{ fontWeight: 700, color: 'warning.main' }}>
+                                {formatINR(data.finance.commitmentsOutstanding)}
+                              </Typography>
+                            </Stack>
+                            {data.finance.adjustedRunwayMonths !== null && (
+                              <Stack direction="row" justifyContent="space-between">
+                                <Typography variant="body2" color="text.secondary">Honest runway</Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 700, color: data.finance.adjustedRunwayMonths < 6 ? 'error.main' : 'text.primary' }}>
+                                  {data.finance.adjustedRunwayMonths} mo
+                                </Typography>
+                              </Stack>
+                            )}
+                          </>
+                        )}
                       </Stack>
                     ) : (
                       <Stack spacing={1} sx={{ py: 1 }}>
