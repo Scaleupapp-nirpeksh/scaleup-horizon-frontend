@@ -651,6 +651,15 @@ export const getTaskStats = (params) => api.get('/tasks/stats', { params });
 export const bulkUpdateTasks = (data) => api.post('/tasks/bulk', data); // { taskIds, action, updates }
 export const importTasksCsv = (data) => api.post('/tasks/import', data); // { csv, dryRun, defaultParentKey }
 
+// Investor pipeline CRM
+export const patchInvestorPipeline = (id, data) => api.patch(`/fundraising/investors/${id}/pipeline`, data); // { status?, nextFollowUpDate? }
+export const addInvestorInteraction = (id, data) => api.post(`/fundraising/investors/${id}/interactions`, data); // { type, summary, nextFollowUpDate? }
+
+// Investor updates (one-click monthly update emails)
+export const buildInvestorUpdateDraft = (data) => api.post('/investor-updates/draft', data); // { intro?, asks? }
+export const sendInvestorUpdate = (data) => api.post('/investor-updates/send', data); // { subject?, intro?, asks?, recipients }
+export const getInvestorUpdates = () => api.get('/investor-updates');
+
 // Dashboard (command center)
 export const getCommandCenter = () => api.get('/dashboard/command-center');
 export const previewBriefing = () => api.get('/dashboard/briefing/preview');
