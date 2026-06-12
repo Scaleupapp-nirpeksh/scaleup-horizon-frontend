@@ -60,7 +60,8 @@ const CustomKpiForm = ({ onKpiSaved, kpiToEdit, onCancelEdit }) => {
                 source: v.source || variableSources[0],
                 filterField: v.filter?.field || '',
                 filterOperator: v.filter?.operator || '',
-                filterValue: v.filter?.value || '',
+                // Saved constants live in v.value; templates may pass filter.value
+                filterValue: v.filter?.value ?? (v.source === 'constant' ? v.value : '') ?? '',
                 aggregation: v.aggregation || aggregations[0],
                 timeframe: v.timeframe || timeframes[0],
                 customTimeframeStart: v.customTimeframe?.start ? new Date(v.customTimeframe.start).toISOString().split('T')[0] : '',
