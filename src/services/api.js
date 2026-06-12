@@ -165,6 +165,8 @@ export const getDataRoomById = (id) => api.get(`/data-rooms/${id}`);
 export const updateDataRoom = (id, data) => api.put(`/data-rooms/${id}`, data);
 export const regenerateDataRoomLink = (id) => api.post(`/data-rooms/${id}/regenerate-link`);
 export const deleteDataRoom = (id) => api.delete(`/data-rooms/${id}`);
+export const getDataRoomLinkLibrary = () => api.get('/data-rooms/links/library');
+export const deleteSavedLink = (id) => api.delete(`/data-rooms/links/library/${id}`);
 
 // --- Portfolio ---
 export const getPortfolio = () => api.get('/dashboard/portfolio');

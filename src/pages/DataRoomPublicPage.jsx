@@ -15,6 +15,8 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import ImageIcon from '@mui/icons-material/Image';
 import DownloadIcon from '@mui/icons-material/Download';
 import LockIcon from '@mui/icons-material/Lock';
+import LanguageIcon from '@mui/icons-material/Language';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001/api/horizon';
 const pub = axios.create({ baseURL: API_BASE_URL });
@@ -71,6 +73,18 @@ const DataRoomPublicPage = () => {
     if (meta && !meta.requireEmail && !room) enter();
   }, [meta, room, enter]);
 
+  const visitLink = async (link) => {
+    setDownloading(`link-${link.id}`);
+    try {
+      const res = await pub.post(`/public/data-rooms/${token}/links/${link.id}/visit`, email ? { email } : {});
+      window.open(res.data.url, '_blank', 'noopener');
+    } catch (e) {
+      setGateError(e.response?.data?.msg || 'Could not open the link — try again');
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   const download = async (doc) => {
     setDownloading(doc.id);
     try {
@@ -110,7 +124,8 @@ const DataRoomPublicPage = () => {
             {!room ? (
               <Box>
                 <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                  {meta.documentCount} document{meta.documentCount === 1 ? '' : 's'} shared with you
+                  {meta.documentCount} document{meta.documentCount === 1 ? '' : 's'}
+                  {meta.linkCount > 0 ? ` and ${meta.linkCount} link${meta.linkCount === 1 ? '' : 's'}` : ''} shared with you
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                   Enter your email to view the documents.
@@ -131,6 +146,32 @@ const DataRoomPublicPage = () => {
             ) : (
               <Box>
                 {gateError && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setGateError('')}>{gateError}</Alert>}
+                {(room.links || []).length > 0 && (
+                  <>
+                    <List disablePadding>
+                      {room.links.map(link => (
+                        <ListItem
+                          key={link.id} disableGutters divider
+                          secondaryAction={
+                            <Button
+                              size="small" variant="outlined"
+                              startIcon={downloading === `link-${link.id}` ? <CircularProgress size={14} /> : <OpenInNewIcon />}
+                              onClick={() => visitLink(link)} disabled={!!downloading}
+                            >
+                              Visit
+                            </Button>
+                          }
+                        >
+                          <ListItemIcon sx={{ minWidth: 40 }}><LanguageIcon color="primary" /></ListItemIcon>
+                          <ListItemText
+                            primary={<Typography variant="body2" sx={{ fontWeight: 600 }}>{link.title}</Typography>}
+                            secondary={<Typography variant="caption" color="text.secondary" component="span">{link.url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</Typography>}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </>
+                )}
                 <List disablePadding>
                   {(room.documents || []).map(doc => (
                     <ListItem
@@ -157,9 +198,9 @@ const DataRoomPublicPage = () => {
                     </ListItem>
                   ))}
                 </List>
-                {(room.documents || []).length === 0 && (
+                {(room.documents || []).length === 0 && (room.links || []).length === 0 && (
                   <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 3 }}>
-                    No documents in this room yet.
+                    Nothing in this room yet.
                   </Typography>
                 )}
               </Box>
