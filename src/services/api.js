@@ -158,6 +158,13 @@ export const updateMemberRole = (memberUserId, roleData) => api.put(`/organizati
 export const removeMemberFromOrganization = (memberUserId) => api.delete(`/organizations/my/members/${memberUserId}`);
 
 
+// --- Portfolio ---
+export const getPortfolio = () => api.get('/dashboard/portfolio');
+
+// --- AI Chief of Staff ---
+export const getChiefBrief = () => api.get('/chief-of-staff/brief');
+export const askChief = (data) => api.post('/chief-of-staff/ask', data);
+
 // --- Founder Meetings & Decision Log ---
 export const startMeeting = (data) => api.post('/meetings', data);
 export const getMeetings = (params) => api.get('/meetings', { params });

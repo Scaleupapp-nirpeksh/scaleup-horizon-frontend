@@ -24,6 +24,7 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import BusinessIcon from '@mui/icons-material/Business';
 import TaskIcon from '@mui/icons-material/Task';
 import ForumIcon from '@mui/icons-material/Forum';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 // Animations
 const subtleShimmer = keyframes`
@@ -165,6 +166,8 @@ const FooterSection = styled(Box)(({ theme }) => ({
 // Navigation items (keeping your existing items)
 const authenticatedNavItems = [
   { name: 'Dashboard', path: '/dashboard', icon: <DashboardIcon />, status: null },
+  { name: 'Chief of Staff', path: '/chief-of-staff', icon: <AutoAwesomeIcon />, status: 'new' },
+  { name: 'Portfolio', path: '/portfolio', icon: <BusinessIcon />, status: 'new' },
   { name: 'Financials', path: '/financials', icon: <AttachMoneyIcon />, status: null },
   { name: 'Fundraising', path: '/fundraising', icon: <BusinessCenterIcon />, status: null },
   { name: 'KPIs', path: '/kpis', icon: <BarChartIcon />, status: null },
