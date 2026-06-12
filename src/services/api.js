@@ -158,6 +158,14 @@ export const updateMemberRole = (memberUserId, roleData) => api.put(`/organizati
 export const removeMemberFromOrganization = (memberUserId) => api.delete(`/organizations/my/members/${memberUserId}`);
 
 
+// --- Investor Data Rooms ---
+export const getDataRooms = () => api.get('/data-rooms');
+export const createDataRoom = (data) => api.post('/data-rooms', data);
+export const getDataRoomById = (id) => api.get(`/data-rooms/${id}`);
+export const updateDataRoom = (id, data) => api.put(`/data-rooms/${id}`, data);
+export const regenerateDataRoomLink = (id) => api.post(`/data-rooms/${id}/regenerate-link`);
+export const deleteDataRoom = (id) => api.delete(`/data-rooms/${id}`);
+
 // --- Portfolio ---
 export const getPortfolio = () => api.get('/dashboard/portfolio');
 

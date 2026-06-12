@@ -34,6 +34,7 @@ const TasksPage = lazy(() => import('./pages/TasksPage'));
 const MeetingsPage = lazy(() => import('./pages/MeetingsPage'));
 const ChiefOfStaffPage = lazy(() => import('./pages/ChiefOfStaffPage'));
 const PortfolioPage = lazy(() => import('./pages/PortfolioPage'));
+const DataRoomPublicPage = lazy(() => import('./pages/DataRoomPublicPage'));
 // Onboarding Wrapper Component
 function OnboardingWrapper() {
   const navigate = useNavigate();
@@ -77,6 +78,7 @@ function OnboardingWrapper() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register-owner" element={<RegisterPage />} /> 
       <Route path="/complete-setup/:setupToken" element={<CompleteSetupPage />} />
+      <Route path="/room/:token" element={<DataRoomPublicPage />} />
 
       {/* Investor Presentation Route - Outside of AppLayout for full screen */}
       <Route element={<ProtectedRoute />}>

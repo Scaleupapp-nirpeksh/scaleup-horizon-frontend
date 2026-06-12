@@ -20,8 +20,10 @@ import RoundsSection from '../components/fundraising/RoundsSection';
 import InvestorsSection from '../components/fundraising/InvestorsSection';
 import InvestorPipeline from '../components/fundraising/InvestorPipeline';
 import InvestorUpdatesTab from '../components/fundraising/InvestorUpdatesTab';
+import DataRoomTab from '../components/fundraising/DataRoomTab';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
+import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import CapTableSection from '../components/fundraising/CapTableSection';
 import EsopSection from '../components/fundraising/EsopSection';
 
@@ -182,6 +184,7 @@ const FundraisingPage = () => {
     { label: 'Cap Table', icon: <PieChartOutlineIcon sx={{ fontSize: 24 }} />, color: '#f093fb' },
     { label: 'ESOP Grants', icon: <CardMembershipIcon sx={{ fontSize: 24 }} />, color: '#f5576c' },
     { label: 'Investor Updates', icon: <ForwardToInboxIcon sx={{ fontSize: 24 }} />, color: '#4f46e5' },
+    { label: 'Data Room', icon: <FolderSharedIcon sx={{ fontSize: 24 }} />, color: '#0e7490' },
   ];
 
   return (
@@ -422,6 +425,9 @@ const FundraisingPage = () => {
               </TabPanel>
               <TabPanel value={activeTab} index={5}>
                 <InvestorUpdatesTab />
+              </TabPanel>
+              <TabPanel value={activeTab} index={6}>
+                <DataRoomTab />
               </TabPanel>
             </Box>
           </StyledTabsContainer>
