@@ -232,7 +232,7 @@ const EsopSection = () => {
 
         {/* Summary Metrics */}
         <Grid container spacing={2}>
-          <Grid item xs={6} sm={3}>
+          <Grid size={{ xs: 6, sm: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -252,7 +252,7 @@ const EsopSection = () => {
               </Stack>
             </MetricCard>
           </Grid>
-          <Grid item xs={6} sm={3}>
+          <Grid size={{ xs: 6, sm: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -272,7 +272,7 @@ const EsopSection = () => {
               </Stack>
             </MetricCard>
           </Grid>
-          <Grid item xs={6} sm={3}>
+          <Grid size={{ xs: 6, sm: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -292,7 +292,7 @@ const EsopSection = () => {
               </Stack>
             </MetricCard>
           </Grid>
-          <Grid item xs={6} sm={3}>
+          <Grid size={{ xs: 6, sm: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -338,7 +338,7 @@ const EsopSection = () => {
       {loading && (
         <Grid container spacing={3}>
           {[1, 2, 3, 4].map((i) => (
-            <Grid item xs={12} sm={6} md={4} key={i}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
               <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3 }} />
             </Grid>
           ))}
@@ -401,7 +401,7 @@ const EsopSection = () => {
               : 0;
             
             return (
-              <Grid item xs={12} sm={6} md={4} key={grant._id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={grant._id}>
                 <Grow in timeout={200 + index * 100}>
                   <StyledEsopCard>
                     <CardContent sx={{ p: 3 }}>

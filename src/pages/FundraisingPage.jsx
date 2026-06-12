@@ -244,7 +244,7 @@ const FundraisingPage = () => {
 
               {/* Quick Stats Cards */}
               <Grid container spacing={3} sx={{ mt: 2 }}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Grow in timeout={700}>
                     <HeroCard>
                       <Stack direction="row" alignItems="center" spacing={2}>
@@ -272,7 +272,7 @@ const FundraisingPage = () => {
                     </HeroCard>
                   </Grow>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Grow in timeout={900}>
                     <HeroCard>
                       <Stack direction="row" alignItems="center" spacing={2}>
@@ -300,7 +300,7 @@ const FundraisingPage = () => {
                     </HeroCard>
                   </Grow>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Grow in timeout={1100}>
                     <HeroCard>
                       <Stack direction="row" alignItems="center" spacing={2}>
@@ -328,7 +328,7 @@ const FundraisingPage = () => {
                     </HeroCard>
                   </Grow>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Grow in timeout={1300}>
                     <HeroCard>
                       <Stack direction="row" alignItems="center" spacing={2}>

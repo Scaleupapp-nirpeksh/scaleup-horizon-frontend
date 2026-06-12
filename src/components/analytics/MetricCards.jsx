@@ -60,7 +60,7 @@ const MetricCards = ({
   return (
     <Grid container spacing={3} sx={{ mb: 4 }}>
       {metrics.map((metric, index) => (
-        <Grid item xs={12} sm={6} md={3} key={index}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}

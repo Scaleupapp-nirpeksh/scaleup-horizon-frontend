@@ -375,7 +375,7 @@ const KpisPage = () => {
 
         {/* Key Metrics */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={500}>
               <Box>
                 <KpiMetric
@@ -389,7 +389,7 @@ const KpisPage = () => {
               </Box>
             </Grow>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={700}>
               <Box>
                 <KpiMetric
@@ -403,7 +403,7 @@ const KpisPage = () => {
               </Box>
             </Grow>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={900}>
               <Box>
                 <KpiMetric
@@ -417,7 +417,7 @@ const KpisPage = () => {
               </Box>
             </Grow>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={1100}>
               <Box>
                 <KpiMetric
@@ -524,7 +524,7 @@ const KpisPage = () => {
 
                   {/* Summary Stats */}
                   <Grid container spacing={3}>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <Paper
                         elevation={0}
                         sx={{
@@ -557,7 +557,7 @@ const KpisPage = () => {
                       </Paper>
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <Paper
                         elevation={0}
                         sx={{
@@ -590,7 +590,7 @@ const KpisPage = () => {
                       </Paper>
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <Paper
                         elevation={0}
                         sx={{
@@ -656,7 +656,7 @@ const KpisPage = () => {
                   {loading.snapshots ? (
                     <Grid container spacing={2}>
                       {[...Array(6)].map((_, i) => (
-                        <Grid item xs={12} sm={6} md={4} key={i}>
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
                           <Skeleton variant="rectangular" height={150} sx={{ borderRadius: 2 }} />
                         </Grid>
                       ))}
@@ -674,7 +674,7 @@ const KpisPage = () => {
                   ) : (
                     <Grid container spacing={2}>
                       {filteredSnapshots.map((snap, index) => (
-                        <Grid item xs={12} sm={6} md={4} key={snap._id}>
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={snap._id}>
                           <Grow in timeout={index * 100}>
                             <SnapshotCard>
                               <Stack spacing={2}>
@@ -715,7 +715,7 @@ const KpisPage = () => {
                                 </Stack>
                                 <Divider />
                                 <Grid container spacing={1}>
-                                  <Grid item xs={4}>
+                                  <Grid size={{ xs: 4 }}>
                                     <Box textAlign="center">
                                       <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
                                         {snap.dau?.toLocaleString() || 'N/A'}
@@ -725,7 +725,7 @@ const KpisPage = () => {
                                       </Typography>
                                     </Box>
                                   </Grid>
-                                  <Grid item xs={4}>
+                                  <Grid size={{ xs: 4 }}>
                                     <Box textAlign="center">
                                       <Typography variant="h6" color="success.main" sx={{ fontWeight: 700 }}>
                                         {snap.mau?.toLocaleString() || 'N/A'}
@@ -735,7 +735,7 @@ const KpisPage = () => {
                                       </Typography>
                                     </Box>
                                   </Grid>
-                                  <Grid item xs={4}>
+                                  <Grid size={{ xs: 4 }}>
                                     <Box textAlign="center">
                                       <Typography variant="h6" color="info.main" sx={{ fontWeight: 700 }}>
                                         {snap.totalRegisteredUsers?.toLocaleString() || 'N/A'}

@@ -209,52 +209,52 @@ const CustomKpiForm = ({ onKpiSaved, kpiToEdit, onCancelEdit }) => {
         <AlertMessage message={message.text} severity={message.type || 'info'} />
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <Grid container spacing={2.5}>
-            <Grid item xs={12} sm={6}><TextField name="name" label="Internal Name (snake_case)" value={formData.name} onChange={handleInputChange} fullWidth required helperText="Unique identifier, e.g., monthly_recurring_revenue" /></Grid>
-            <Grid item xs={12} sm={6}><TextField name="displayName" label="Display Name" value={formData.displayName} onChange={handleInputChange} fullWidth required  helperText="How it appears on dashboards, e.g., Monthly Recurring Revenue"/></Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}><TextField name="name" label="Internal Name (snake_case)" value={formData.name} onChange={handleInputChange} fullWidth required helperText="Unique identifier, e.g., monthly_recurring_revenue" /></Grid>
+            <Grid size={{ xs: 12, sm: 6 }}><TextField name="displayName" label="Display Name" value={formData.displayName} onChange={handleInputChange} fullWidth required  helperText="How it appears on dashboards, e.g., Monthly Recurring Revenue"/></Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth><InputLabel>Category</InputLabel>
                     <Select name="category" value={formData.category} label="Category" onChange={handleInputChange}>
                     {kpiCategories.map(cat => <MenuItem key={cat} value={cat}>{cat}</MenuItem>)}
                     </Select>
                 </FormControl>
             </Grid>
-            <Grid item xs={12}><TextField name="description" label="Description (Optional)" value={formData.description} onChange={handleInputChange} fullWidth multiline rows={2} /></Grid>
-            <Grid item xs={12}><TextField name="formula" label="Formula" value={formData.formula} onChange={handleInputChange} fullWidth required placeholder="e.g., (revenue - expenses) / revenue * 100" helperText="Use variable names defined below."/></Grid>
+            <Grid size={{ xs: 12 }}><TextField name="description" label="Description (Optional)" value={formData.description} onChange={handleInputChange} fullWidth multiline rows={2} /></Grid>
+            <Grid size={{ xs: 12 }}><TextField name="formula" label="Formula" value={formData.formula} onChange={handleInputChange} fullWidth required placeholder="e.g., (revenue - expenses) / revenue * 100" helperText="Use variable names defined below."/></Grid>
             
-            <Grid item xs={12}><Typography variant="subtitle1" sx={{mt:2, mb:1, fontWeight: 500}}>Formula Variables</Typography></Grid>
+            <Grid size={{ xs: 12 }}><Typography variant="subtitle1" sx={{mt:2, mb:1, fontWeight: 500}}>Formula Variables</Typography></Grid>
             {formData.formulaVariables.map((variable, index) => (
-                <Grid item xs={12} key={index}>
+                <Grid size={{ xs: 12 }} key={index}>
                     <Paper elevation={0} sx={{p:2, border: '1px solid #e0e0e0', borderRadius: '8px'}}>
                         <Grid container spacing={2} alignItems="center">
-                            <Grid item xs={12} sm={3}><TextField name="variable" label="Variable Name in Formula" value={variable.variable} onChange={e => handleVariableChange(index, e)} fullWidth required placeholder="e.g., revenue"/></Grid>
-                            <Grid item xs={12} sm={3}>
+                            <Grid size={{ xs: 12, sm: 3 }}><TextField name="variable" label="Variable Name in Formula" value={variable.variable} onChange={e => handleVariableChange(index, e)} fullWidth required placeholder="e.g., revenue"/></Grid>
+                            <Grid size={{ xs: 12, sm: 3 }}>
                                 <FormControl fullWidth><InputLabel>Source</InputLabel>
                                 <Select name="source" value={variable.source} label="Source" onChange={e => handleVariableChange(index, e)}>
                                     {variableSources.map(src => <MenuItem key={src} value={src}>{src}</MenuItem>)}
                                 </Select></FormControl>
                             </Grid>
                             {variable.source === 'custom_metric' && (
-                                <Grid item xs={12} sm={6}><TextField name="metricName" label="Referenced KPI Name (snake_case)" value={variable.metricName} onChange={e => handleVariableChange(index, e)} fullWidth placeholder="e.g., burn_rate"/></Grid>
+                                <Grid size={{ xs: 12, sm: 6 }}><TextField name="metricName" label="Referenced KPI Name (snake_case)" value={variable.metricName} onChange={e => handleVariableChange(index, e)} fullWidth placeholder="e.g., burn_rate"/></Grid>
                             )}
                             {variable.source === 'constant' && (
-                                <Grid item xs={12} sm={6}><TextField name="filterValue" label="Constant Value" type="number" value={variable.filterValue} onChange={e => handleVariableChange(index, e)} fullWidth /></Grid>
+                                <Grid size={{ xs: 12, sm: 6 }}><TextField name="filterValue" label="Constant Value" type="number" value={variable.filterValue} onChange={e => handleVariableChange(index, e)} fullWidth /></Grid>
                             )}
                             {(variable.source === 'revenue' || variable.source === 'expense') && (
                                 <>
-                                <Grid item xs={12} sm={3}><TextField name="filterField" label="Filter Field (Optional)" value={variable.filterField} onChange={e => handleVariableChange(index, e)} fullWidth placeholder="e.g., category"/></Grid>
-                                <Grid item xs={12} sm={3}><TextField name="filterOperator" label="Filter Operator" value={variable.filterOperator} onChange={e => handleVariableChange(index, e)} fullWidth placeholder="e.g., equals, contains"/></Grid>
-                                <Grid item xs={12} sm={3}><TextField name="filterValue" label="Filter Value" value={variable.filterValue} onChange={e => handleVariableChange(index, e)} fullWidth placeholder="e.g., Marketing"/></Grid>
+                                <Grid size={{ xs: 12, sm: 3 }}><TextField name="filterField" label="Filter Field (Optional)" value={variable.filterField} onChange={e => handleVariableChange(index, e)} fullWidth placeholder="e.g., category"/></Grid>
+                                <Grid size={{ xs: 12, sm: 3 }}><TextField name="filterOperator" label="Filter Operator" value={variable.filterOperator} onChange={e => handleVariableChange(index, e)} fullWidth placeholder="e.g., equals, contains"/></Grid>
+                                <Grid size={{ xs: 12, sm: 3 }}><TextField name="filterValue" label="Filter Value" value={variable.filterValue} onChange={e => handleVariableChange(index, e)} fullWidth placeholder="e.g., Marketing"/></Grid>
                                 </>
                             )}
                              {(variable.source !== 'constant' && variable.source !== 'custom_metric') && (
                                 <>
-                                <Grid item xs={12} sm={3}>
+                                <Grid size={{ xs: 12, sm: 3 }}>
                                     <FormControl fullWidth><InputLabel>Aggregation</InputLabel>
                                     <Select name="aggregation" value={variable.aggregation} label="Aggregation" onChange={e => handleVariableChange(index, e)}>
                                         {aggregations.map(agg => <MenuItem key={agg} value={agg}>{agg}</MenuItem>)}
                                     </Select></FormControl>
                                 </Grid>
-                                <Grid item xs={12} sm={3}>
+                                <Grid size={{ xs: 12, sm: 3 }}>
                                     <FormControl fullWidth><InputLabel>Timeframe</InputLabel>
                                     <Select name="timeframe" value={variable.timeframe} label="Timeframe" onChange={e => handleVariableChange(index, e)}>
                                         {timeframes.map(tf => <MenuItem key={tf} value={tf}>{tf}</MenuItem>)}
@@ -262,34 +262,34 @@ const CustomKpiForm = ({ onKpiSaved, kpiToEdit, onCancelEdit }) => {
                                 </Grid>
                                 {variable.timeframe === 'custom' && (
                                     <>
-                                    <Grid item xs={12} sm={3}><TextField name="customTimeframeStart" label="Custom Start" type="date" InputLabelProps={{ shrink: true }} value={variable.customTimeframeStart} onChange={e => handleVariableChange(index, e)} fullWidth/></Grid>
-                                    <Grid item xs={12} sm={3}><TextField name="customTimeframeEnd" label="Custom End" type="date" InputLabelProps={{ shrink: true }} value={variable.customTimeframeEnd} onChange={e => handleVariableChange(index, e)} fullWidth/></Grid>
+                                    <Grid size={{ xs: 12, sm: 3 }}><TextField name="customTimeframeStart" label="Custom Start" type="date" InputLabelProps={{ shrink: true }} value={variable.customTimeframeStart} onChange={e => handleVariableChange(index, e)} fullWidth/></Grid>
+                                    <Grid size={{ xs: 12, sm: 3 }}><TextField name="customTimeframeEnd" label="Custom End" type="date" InputLabelProps={{ shrink: true }} value={variable.customTimeframeEnd} onChange={e => handleVariableChange(index, e)} fullWidth/></Grid>
                                     </>
                                 )}
                                 </>
                              )}
-                            <Grid item xs={12} sm={12} sx={{textAlign: 'right'}}>
+                            <Grid size={{ xs: 12, sm: 12 }} sx={{textAlign: 'right'}}>
                                 <Tooltip title="Remove Variable"><span><IconButton onClick={() => removeVariableField(index)} color="error" disabled={formData.formulaVariables.length <=1}><DeleteIcon /></IconButton></span></Tooltip>
                             </Grid>
                         </Grid>
                     </Paper>
                 </Grid>
             ))}
-            <Grid item xs={12}><Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={addVariableField} sx={{mt:-1}}>Add Variable</Button></Grid>
+            <Grid size={{ xs: 12 }}><Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={addVariableField} sx={{mt:-1}}>Add Variable</Button></Grid>
 
-            <Grid item xs={12}><Typography variant="subtitle1" sx={{mt:2, mb:1, fontWeight: 500}}>Display & Visualization</Typography></Grid>
-            <Grid item xs={12} sm={3}><FormControl fullWidth><InputLabel>Display Type</InputLabel><Select name="type" label="Display Type" value={formData.displayFormat.type} onChange={handleDisplayFormatChange}>{displayFormatTypes.map(df => <MenuItem key={df} value={df}>{df}</MenuItem>)}</Select></FormControl></Grid>
-            <Grid item xs={12} sm={2}><TextField name="decimals" label="Decimals" type="number" value={formData.displayFormat.decimals} onChange={handleDisplayFormatChange} fullWidth /></Grid>
-            <Grid item xs={12} sm={2}><TextField name="prefix" label="Prefix (e.g. ₹)" value={formData.displayFormat.prefix} onChange={handleDisplayFormatChange} fullWidth /></Grid>
-            <Grid item xs={12} sm={2}><TextField name="suffix" label="Suffix (e.g. %)" value={formData.displayFormat.suffix} onChange={handleDisplayFormatChange} fullWidth /></Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12 }}><Typography variant="subtitle1" sx={{mt:2, mb:1, fontWeight: 500}}>Display & Visualization</Typography></Grid>
+            <Grid size={{ xs: 12, sm: 3 }}><FormControl fullWidth><InputLabel>Display Type</InputLabel><Select name="type" label="Display Type" value={formData.displayFormat.type} onChange={handleDisplayFormatChange}>{displayFormatTypes.map(df => <MenuItem key={df} value={df}>{df}</MenuItem>)}</Select></FormControl></Grid>
+            <Grid size={{ xs: 12, sm: 2 }}><TextField name="decimals" label="Decimals" type="number" value={formData.displayFormat.decimals} onChange={handleDisplayFormatChange} fullWidth /></Grid>
+            <Grid size={{ xs: 12, sm: 2 }}><TextField name="prefix" label="Prefix (e.g. ₹)" value={formData.displayFormat.prefix} onChange={handleDisplayFormatChange} fullWidth /></Grid>
+            <Grid size={{ xs: 12, sm: 2 }}><TextField name="suffix" label="Suffix (e.g. %)" value={formData.displayFormat.suffix} onChange={handleDisplayFormatChange} fullWidth /></Grid>
+            <Grid size={{ xs: 12, sm: 3 }}>
                 <FormControlLabel control={<Switch name="isPinned" checked={formData.isPinned} onChange={handleInputChange} />} label="Pin to Dashboard" />
             </Grid>
-            <Grid item xs={12} sm={6}> <FormControl fullWidth><InputLabel>Chart Type</InputLabel><Select name="chartType" label="Chart Type" value={formData.visualization.chartType} onChange={handleVisualizationChange}>{chartTypes.map(ct => <MenuItem key={ct} value={ct}>{ct}</MenuItem>)}</Select></FormControl></Grid>
-            <Grid item xs={12} sm={6}><TextField name="color" label="Chart Color (Hex)" value={formData.visualization.color} onChange={handleVisualizationChange} fullWidth /></Grid>
+            <Grid size={{ xs: 12, sm: 6 }}> <FormControl fullWidth><InputLabel>Chart Type</InputLabel><Select name="chartType" label="Chart Type" value={formData.visualization.chartType} onChange={handleVisualizationChange}>{chartTypes.map(ct => <MenuItem key={ct} value={ct}>{ct}</MenuItem>)}</Select></FormControl></Grid>
+            <Grid size={{ xs: 12, sm: 6 }}><TextField name="color" label="Chart Color (Hex)" value={formData.visualization.color} onChange={handleVisualizationChange} fullWidth /></Grid>
 
 
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt:2 }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt:2 }}>
               {isEditing && <Button variant="outlined" onClick={onCancelEdit || resetForm} disabled={isLoading}>Cancel</Button>}
               <Button type="submit" variant="contained" color="primary" disabled={isLoading} startIcon={isLoading ? <CircularProgress size={20} color="inherit"/> : <SaveIcon />}>
                 {isLoading ? 'Saving...' : (isEditing ? 'Update KPI' : 'Create KPI')}

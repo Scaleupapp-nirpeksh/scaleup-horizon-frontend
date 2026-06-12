@@ -95,7 +95,7 @@ const CashFlowDetails = ({
       )}
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Paper sx={{ p: 3, borderRadius: 2, height: 450 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
               <Typography variant="h6">
@@ -236,7 +236,7 @@ const CashFlowDetails = ({
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={2}>
             <PredictionCard severity="info">
               <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
@@ -388,7 +388,7 @@ const CashFlowDetails = ({
             Scenario Analysis
           </Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Paper 
                 sx={{ 
                   p: 2, 
@@ -419,7 +419,7 @@ const CashFlowDetails = ({
               </Paper>
             </Grid>
             
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Paper 
                 sx={{ 
                   p: 2, 
@@ -450,7 +450,7 @@ const CashFlowDetails = ({
               </Paper>
             </Grid>
             
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Paper 
                 sx={{ 
                   p: 2, 

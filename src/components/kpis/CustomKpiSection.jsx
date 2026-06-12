@@ -251,7 +251,7 @@ const CustomKpiSection = ({ embedded = false }) => {
     const isCalculating = calculatingKpiId === kpi._id;
     
     return (
-      <Grid item xs={12} sm={6} md={4} key={kpi._id}>
+      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={kpi._id}>
         <Grow in timeout={200 + index * 100}>
           <KpiMetricCard colorType={kpi.category === 'revenue' ? 'success' : kpi.category === 'users' ? 'primary' : 'info'}>
             <CardHeader
@@ -564,7 +564,7 @@ const CustomKpiSection = ({ embedded = false }) => {
               {loading && (
                 <Grid container spacing={3}>
                   {[...Array(6)].map((_, i) => (
-                    <Grid item xs={12} sm={6} md={4} key={i}>
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
                       <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 2 }} />
                     </Grid>
                   ))}

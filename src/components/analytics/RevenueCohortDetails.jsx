@@ -180,7 +180,7 @@ const RevenueCohortDetails = ({
       )}
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Paper sx={{ p: 3, borderRadius: 2, height: 450 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
               <Typography variant="h6">
@@ -411,7 +411,7 @@ const RevenueCohortDetails = ({
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={2}>
             <PredictionCard severity="info">
               <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
@@ -613,7 +613,7 @@ const RevenueCohortDetails = ({
 
           {activeTab === 0 && (
             <Grid container spacing={2}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
                   Historical Performance Data
                 </Typography>
@@ -621,32 +621,32 @@ const RevenueCohortDetails = ({
                   <Box sx={{ overflowX: 'auto' }}>
                     <Box sx={{ minWidth: 800 }}>
                       <Grid container>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Period
                           </Typography>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Active Users
                           </Typography>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Retention Rate
                           </Typography>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Revenue
                           </Typography>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             ARPU
                           </Typography>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Cumulative Revenue
                           </Typography>
@@ -654,32 +654,32 @@ const RevenueCohortDetails = ({
                       </Grid>
                       {historicalMetrics.map((metric, index) => (
                         <Grid container key={index} sx={{ '&:nth-of-type(odd)': { bgcolor: 'rgba(0,0,0,0.03)' } }}>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {metric.periodLabel || `Period ${metric.periodNumber}`}
                             </Typography>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {metric.activeUsers}
                             </Typography>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {formatPercentage(metric.retentionRate || 0)}
                             </Typography>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {formatCurrency(metric.revenue || 0)}
                             </Typography>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {formatCurrency(metric.averageRevenuePerUser || 0)}
                             </Typography>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {formatCurrency(metric.cumulativeRevenue || 0)}
                             </Typography>
@@ -699,7 +699,7 @@ const RevenueCohortDetails = ({
 
           {activeTab === 1 && hasProjections && (
             <Grid container spacing={2}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                     Projected Performance
@@ -717,37 +717,37 @@ const RevenueCohortDetails = ({
                   <Box sx={{ overflowX: 'auto' }}>
                     <Box sx={{ minWidth: 800 }}>
                       <Grid container>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Period
                           </Typography>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Active Users
                           </Typography>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Retention Rate
                           </Typography>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Revenue
                           </Typography>
                         </Grid>
-                        <Grid item xs={1}>
+                        <Grid size={{ xs: 1 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             ARPU
                           </Typography>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid size={{ xs: 2 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Cumulative Revenue
                           </Typography>
                         </Grid>
-                        <Grid item xs={1}>
+                        <Grid size={{ xs: 1 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600, p: 1, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                             Confidence
                           </Typography>
@@ -755,37 +755,37 @@ const RevenueCohortDetails = ({
                       </Grid>
                       {projectedMetrics.map((metric, index) => (
                         <Grid container key={index} sx={{ '&:nth-of-type(odd)': { bgcolor: 'rgba(0,0,0,0.03)' } }}>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {metric.periodLabel || `Period ${metric.periodNumber}`}
                             </Typography>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {metric.activeUsers}
                             </Typography>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {formatPercentage(metric.retentionRate || 0)}
                             </Typography>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {formatCurrency(metric.revenue || 0)}
                             </Typography>
                           </Grid>
-                          <Grid item xs={1}>
+                          <Grid size={{ xs: 1 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {formatCurrency(metric.averageRevenuePerUser || 0)}
                             </Typography>
                           </Grid>
-                          <Grid item xs={2}>
+                          <Grid size={{ xs: 2 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {formatCurrency(metric.cumulativeRevenue || 0)}
                             </Typography>
                           </Grid>
-                          <Grid item xs={1}>
+                          <Grid size={{ xs: 1 }}>
                             <Typography variant="body2" sx={{ p: 1 }}>
                               {formatPercentage(metric.confidenceLevel || 0)}
                             </Typography>
@@ -805,7 +805,7 @@ const RevenueCohortDetails = ({
 
           {activeTab === hasProjections ? 2 : 1 && (
             <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Paper 
                   sx={{ 
                     p: 2, 
@@ -846,7 +846,7 @@ const RevenueCohortDetails = ({
                 </Paper>
               </Grid>
               
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Paper 
                   sx={{ 
                     p: 2, 
@@ -887,7 +887,7 @@ const RevenueCohortDetails = ({
                 </Paper>
               </Grid>
               
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Paper 
                   sx={{ 
                     p: 2, 

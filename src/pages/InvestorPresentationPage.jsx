@@ -1045,7 +1045,7 @@ const OverviewSlide = ({ data }) => {
         
         <Grid container spacing={4} justifyContent="center">
           {highlights.map((item, index) => (
-            <Grid item xs={12} sm={6} md={3} key={item.label}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item.label}>
               <motion.div
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -1136,7 +1136,7 @@ const OverviewSlide = ({ data }) => {
               </Typography>
               <Grid container spacing={4} justifyContent="center">
                 {data.talkingPoints.slice(0, 3).map((point, index) => (
-                  <Grid item xs={12} md={4} key={index}>
+                  <Grid size={{ xs: 12, md: 4 }} key={index}>
                     <motion.div
                       initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -1225,7 +1225,7 @@ const FinancialsSlide = ({ data }) => {
         
         <Grid container spacing={4} justifyContent="center">
           {/* Cash Flow Visualization */}
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <MagicalCard glowColor="#38ef7d">
               <CardContent sx={{ p: 5 }}>
                 <Typography variant="h4" sx={{ mb: 4, fontWeight: 700, color: 'white', textAlign: 'center' }}>
@@ -1265,9 +1265,9 @@ const FinancialsSlide = ({ data }) => {
           </Grid>
           
           {/* Key Metrics */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Grid container spacing={4} justifyContent="center">
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <GlowingMetricCard color="primary">
                   <Stack spacing={3} alignItems="center">
                     <Box sx={{ position: 'relative', display: 'inline-flex' }}>
@@ -1311,7 +1311,7 @@ const FinancialsSlide = ({ data }) => {
                 </GlowingMetricCard>
               </Grid>
               
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <GlowingMetricCard color="info">
                   <Stack spacing={3} alignItems="center">
                     <Avatar sx={{
@@ -1332,7 +1332,7 @@ const FinancialsSlide = ({ data }) => {
                 </GlowingMetricCard>
               </Grid>
               
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <GlowingMetricCard color="secondary">
                   <Stack spacing={3} alignItems="center">
                     <Avatar sx={{
@@ -1390,10 +1390,10 @@ const MetricsSlide = ({ data }) => {
         <Grid container spacing={4} justifyContent="center">
           {/* User Metrics */}
           {userMetrics && (
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Box sx={{ textAlign: 'center', mb: 6 }}>
                 <Grid container spacing={4} justifyContent="center">
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
@@ -1410,7 +1410,7 @@ const MetricsSlide = ({ data }) => {
                       </MagicalCard>
                     </motion.div>
                   </Grid>
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
@@ -1427,7 +1427,7 @@ const MetricsSlide = ({ data }) => {
                       </MagicalCard>
                     </motion.div>
                   </Grid>
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 2, repeat: Infinity, delay: 1 }}
@@ -1451,13 +1451,13 @@ const MetricsSlide = ({ data }) => {
           
           {/* KPIs */}
           {kpis && kpis.length > 0 && (
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant="h3" sx={{ textAlign: 'center', mb: 4, fontWeight: 700, color: 'white' }}>
                 Key Performance Indicators
               </Typography>
               <Grid container spacing={3} justifyContent="center">
                 {kpis.map((kpi, index) => (
-                  <Grid item xs={12} sm={6} md={3} key={kpi.kpiId}>
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }} key={kpi.kpiId}>
                     <motion.div
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -1538,7 +1538,7 @@ const CustomerInsightsSlide = ({ data }) => {
         {customerInsights.length > 0 ? (
           <Grid container spacing={4} justifyContent="center">
             {customerInsights.map((insight, index) => (
-              <Grid item xs={12} md={6} key={index}>
+              <Grid size={{ xs: 12, md: 6 }} key={index}>
                 <motion.div
                   initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -1581,7 +1581,7 @@ const CustomerInsightsSlide = ({ data }) => {
                     User Base Overview
                   </Typography>
                   <Grid container spacing={4} justifyContent="center" sx={{ mt: 2 }}>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <Typography variant="h2" sx={{ fontWeight: 800, color: '#f093fb' }}>
                         <CountUp end={userMetrics.totalRegisteredUsers || 0} duration={2} separator="," />
                       </Typography>
@@ -1589,7 +1589,7 @@ const CustomerInsightsSlide = ({ data }) => {
                         Total Users
                       </Typography>
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <Typography variant="h2" sx={{ fontWeight: 800, color: '#fa709a' }}>
                         <CountUp end={userMetrics.newUsersThisMonth || 0} duration={2} separator="," />
                       </Typography>
@@ -1597,7 +1597,7 @@ const CustomerInsightsSlide = ({ data }) => {
                         New This Month
                       </Typography>
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <Typography variant="h2" sx={{ fontWeight: 800, color: '#f5576c' }}>
                         <CountUp end={userMetrics.churnedUsers || 0} duration={2} separator="," />
                       </Typography>
@@ -1662,7 +1662,7 @@ const TeamSlide = ({ data }) => {
         </Typography>
         
         <Grid container spacing={6} alignItems="center" justifyContent="center">
-          <Grid item xs={12} md={5}>
+          <Grid size={{ xs: 12, md: 5 }}>
             <Stack spacing={4} alignItems="center">
               <motion.div
                 animate={{ 
@@ -1701,7 +1701,7 @@ const TeamSlide = ({ data }) => {
               </Typography>
               
               <Grid container spacing={3} sx={{ mt: 2 }}>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Card3D>
                     <GlowingMetricCard color="success">
                       <Stack spacing={1} alignItems="center">
@@ -1716,7 +1716,7 @@ const TeamSlide = ({ data }) => {
                     </GlowingMetricCard>
                   </Card3D>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Card3D>
                     <GlowingMetricCard color="warning">
                       <Stack spacing={1} alignItems="center">
@@ -1736,7 +1736,7 @@ const TeamSlide = ({ data }) => {
           </Grid>
           
           {departmentData.length > 0 && (
-            <Grid item xs={12} md={7}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <MagicalCard glowColor="#764ba2">
                 <CardContent sx={{ p: 5 }}>
                   <Typography variant="h4" sx={{ mb: 4, fontWeight: 700, color: 'white', textAlign: 'center' }}>
@@ -1809,7 +1809,7 @@ const ProductSlide = ({ data }) => {
         
         <Grid container spacing={4} justifyContent="center">
           {milestones.map((milestone, index) => (
-            <Grid item xs={12} md={6} key={milestone.milestoneId || index}>
+            <Grid size={{ xs: 12, md: 6 }} key={milestone.milestoneId || index}>
               <motion.div
                 initial={{ opacity: 0, y: 40, rotateX: -30 }}
                 animate={{ opacity: 1, y: 0, rotateX: 0 }}
@@ -1974,7 +1974,7 @@ const ChallengesSlide = ({ data }) => {
         <Grid container spacing={6} justifyContent="center">
           {/* Challenges */}
           {challenges.length > 0 && (
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="h3" sx={{ mb: 4, fontWeight: 700, color: 'white', textAlign: 'center' }}>
                 Current Challenges
               </Typography>
@@ -2018,7 +2018,7 @@ const ChallengesSlide = ({ data }) => {
           
           {/* Opportunities */}
           {opportunities.length > 0 && (
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="h3" sx={{ mb: 4, fontWeight: 700, color: 'white', textAlign: 'center' }}>
                 Key Opportunities
               </Typography>
@@ -2122,7 +2122,7 @@ const AsksSlide = ({ data }) => {
             if (!hasItems) return null;
             
             return (
-              <Grid item xs={12} md={4} key={category.title}>
+              <Grid size={{ xs: 12, md: 4 }} key={category.title}>
                 <motion.div
                   initial={{ opacity: 0, y: 40, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}

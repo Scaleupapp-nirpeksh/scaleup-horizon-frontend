@@ -37,7 +37,7 @@ const RevenueCohortDialog = ({
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={3} sx={{ mt: 0 }}>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               label="Cohort Name"
@@ -47,7 +47,7 @@ const RevenueCohortDialog = ({
               placeholder="e.g., Jan 2025 Signups"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <DatePicker
               label="Cohort Start Date"
               value={formData.cohortStartDate}
@@ -56,7 +56,7 @@ const RevenueCohortDialog = ({
             />
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Cohort Type</InputLabel>
               <Select
@@ -75,7 +75,7 @@ const RevenueCohortDialog = ({
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               label="Initial Users"
@@ -89,14 +89,14 @@ const RevenueCohortDialog = ({
             />
           </Grid>
           
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Divider sx={{ my: 1 }} />
             <Typography variant="subtitle2" sx={{ mb: 2 }}>
               Acquisition Details
             </Typography>
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Acquisition Channel</InputLabel>
               <Select
@@ -115,7 +115,7 @@ const RevenueCohortDialog = ({
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               label="Acquisition Cost"
@@ -128,14 +128,14 @@ const RevenueCohortDialog = ({
             />
           </Grid>
           
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Divider sx={{ my: 1 }} />
             <Typography variant="subtitle2" sx={{ mb: 2 }}>
               Product Details
             </Typography>
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Product Type</InputLabel>
               <Select
@@ -152,7 +152,7 @@ const RevenueCohortDialog = ({
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Payment Frequency</InputLabel>
               <Select
@@ -169,7 +169,7 @@ const RevenueCohortDialog = ({
           </Grid>
           
           {!editMode && (
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Alert severity="info">
                 After creating the cohort, you'll be able to add historical metrics and generate projections for future performance.
               </Alert>

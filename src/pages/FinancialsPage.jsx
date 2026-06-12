@@ -773,7 +773,7 @@ const FinancialsPage = () => {
 
           {/* Key Metrics */}
 <Grid container spacing={3} sx={{ mb: 4 }}>
-  <Grid item xs={12} sm={6} lg={2.4}>
+  <Grid size={{ xs: 12, sm: 6 }} lg={2.4}>
     <Grow in timeout={500}>
       <Box>
         <MetricDisplay
@@ -787,7 +787,7 @@ const FinancialsPage = () => {
     </Grow>
   </Grid>
   
-  <Grid item xs={12} sm={6} lg={2.4}>
+  <Grid size={{ xs: 12, sm: 6 }} lg={2.4}>
     <Grow in timeout={600}>
       <Box>
         <MetricDisplay
@@ -801,7 +801,7 @@ const FinancialsPage = () => {
     </Grow>
   </Grid>
   
-  <Grid item xs={12} sm={6} lg={2.4}>
+  <Grid size={{ xs: 12, sm: 6 }} lg={2.4}>
     <Grow in timeout={700}>
       <Box>
         <MetricDisplay
@@ -816,7 +816,7 @@ const FinancialsPage = () => {
     </Grow>
   </Grid>
   
-  <Grid item xs={12} sm={6} lg={2.4}>
+  <Grid size={{ xs: 12, sm: 6 }} lg={2.4}>
     <Grow in timeout={900}>
       <Box>
         <MetricDisplay
@@ -831,7 +831,7 @@ const FinancialsPage = () => {
     </Grow>
   </Grid>
   
-  <Grid item xs={12} sm={6} lg={2.4}>
+  <Grid size={{ xs: 12, sm: 6 }} lg={2.4}>
     <Grow in timeout={1100}>
       <Box>
         <MetricDisplay
@@ -850,7 +850,7 @@ const FinancialsPage = () => {
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Quick Actions</Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <QuickActionCard
                   title="Add Expense"
                   description="Record a new expense"
@@ -859,7 +859,7 @@ const FinancialsPage = () => {
                   onClick={() => setShowForms({ expense: true, revenue: false, recurring: false, bankAccount: false })}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <QuickActionCard
                   title="Add Revenue"
                   description="Record new income"
@@ -868,7 +868,7 @@ const FinancialsPage = () => {
                   onClick={() => setShowForms({ expense: false, revenue: true, recurring: false, bankAccount: false })}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <QuickActionCard
                   title="Recurring Transaction"
                   description="Set up recurring items"
@@ -877,7 +877,7 @@ const FinancialsPage = () => {
                   onClick={() => setShowForms({ expense: false, revenue: false, recurring: true, bankAccount: false })}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <QuickActionCard
                   title="Add Bank Account"
                   description="Link a new account"
@@ -894,7 +894,7 @@ const FinancialsPage = () => {
             <Box sx={{ mb: 4 }}>
               <Grid container spacing={3}>
                 {showForms.expense && (
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Zoom in>
                       <Box>
                         <ExpenseForm onExpenseAdded={() => {
@@ -906,7 +906,7 @@ const FinancialsPage = () => {
                   </Grid>
                 )}
                 {showForms.revenue && (
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Zoom in>
                       <Box>
                         <RevenueForm onRevenueAdded={() => {
@@ -918,7 +918,7 @@ const FinancialsPage = () => {
                   </Grid>
                 )}
                 {showForms.recurring && (
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Zoom in>
                       <Box>
                         <RecurringTransactionForm onTransactionAdded={() => {
@@ -930,7 +930,7 @@ const FinancialsPage = () => {
                   </Grid>
                 )}
                 {showForms.bankAccount && (
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Zoom in>
                       <Box>
                         <BankAccountForm onAccountAdded={() => {
@@ -982,7 +982,7 @@ const FinancialsPage = () => {
                         {/* Analytics Filters */}
                         <Paper sx={{ p: 3, mb: 4, bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
                           <Grid container spacing={3} alignItems="center">
-                            <Grid item xs={12} md={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                               <Stack spacing={2}>
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                   <DateRangeIcon color="action" />
@@ -1007,7 +1007,7 @@ const FinancialsPage = () => {
                               </Stack>
                             </Grid>
 
-                            <Grid item xs={12} md={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                               <Stack spacing={2}>
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                   <CategoryIcon color="action" />
@@ -1041,7 +1041,7 @@ const FinancialsPage = () => {
                               </Stack>
                             </Grid>
 
-                            <Grid item xs={12} md={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                               <Stack spacing={2}>
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                   <TrendingUpIcon color="action" />
@@ -1075,7 +1075,7 @@ const FinancialsPage = () => {
                               </Stack>
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                               <Button 
                                 variant="text" 
                                 onClick={() => {
@@ -1093,7 +1093,7 @@ const FinancialsPage = () => {
 
                         {/* Analytics Summary Cards */}
                         <Grid container spacing={3} sx={{ mb: 4 }}>
-                          <Grid item xs={12} md={4}>
+                          <Grid size={{ xs: 12, md: 4 }}>
                             <StatCard elevation={0}>
                               <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                                 Filtered Revenue
@@ -1109,7 +1109,7 @@ const FinancialsPage = () => {
                               />
                             </StatCard>
                           </Grid>
-                          <Grid item xs={12} md={4}>
+                          <Grid size={{ xs: 12, md: 4 }}>
                             <StatCard elevation={0}>
                               <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                                 Filtered Expenses
@@ -1125,7 +1125,7 @@ const FinancialsPage = () => {
                               />
                             </StatCard>
                           </Grid>
-                          <Grid item xs={12} md={4}>
+                          <Grid size={{ xs: 12, md: 4 }}>
                             <StatCard elevation={0}>
                               <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                                 Net Position
@@ -1148,7 +1148,7 @@ const FinancialsPage = () => {
                         {/* Charts Section */}
                         <Grid container spacing={4}>
                           {/* Trend Chart with Granularity Toggle */}
-                          <Grid item xs={12}>
+                          <Grid size={{ xs: 12 }}>
                             <AnalyticsCard elevation={0}>
                               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -1206,7 +1206,7 @@ const FinancialsPage = () => {
                           </Grid>
 
                           {/* Expense Categories Pie Chart */}
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             <AnalyticsCard elevation={0}>
                               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                                 Expense Distribution
@@ -1237,7 +1237,7 @@ const FinancialsPage = () => {
                                   <Box sx={{ mt: 3 }}>
                                     <Grid container spacing={2}>
                                       {calculateAnalytics.categoryData.slice(0, 6).map((cat, index) => (
-                                        <Grid item xs={6} key={index}>
+                                        <Grid size={{ xs: 6 }} key={index}>
                                           <Stack direction="row" alignItems="center" justifyContent="space-between">
                                             <Stack direction="row" alignItems="center" spacing={1}>
                                               <Box sx={{ 
@@ -1266,7 +1266,7 @@ const FinancialsPage = () => {
                           </Grid>
 
                           {/* Revenue Sources Bar Chart */}
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             <AnalyticsCard elevation={0}>
                               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                                 Revenue Sources
@@ -1441,13 +1441,13 @@ const FinancialsPage = () => {
                     <Grid container spacing={3}>
                       {loading.bankAccounts ? (
                         [...Array(3)].map((_, i) => (
-                          <Grid item xs={12} md={4} key={i}>
+                          <Grid size={{ xs: 12, md: 4 }} key={i}>
                             <Skeleton variant="rectangular" height={150} sx={{ borderRadius: 2 }} />
                           </Grid>
                         ))
                       ) : bankAccounts.length > 0 ? (
                         bankAccounts.map(acc => (
-                          <Grid item xs={12} md={4} key={acc._id}>
+                          <Grid size={{ xs: 12, md: 4 }} key={acc._id}>
                             <GlassCard>
                               <Stack spacing={2}>
                                 <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -1496,7 +1496,7 @@ const FinancialsPage = () => {
                           </Grid>
                         ))
                       ) : (
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                           <Box sx={{ textAlign: 'center', py: 6 }}>
                             <AccountBalanceIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
                             <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -1523,7 +1523,7 @@ const FinancialsPage = () => {
                   <Box>
                     {recurringSummary && (
                       <Grid container spacing={2} sx={{ mb: 3 }}>
-                        <Grid item xs={12} sm={4}>
+                        <Grid size={{ xs: 12, sm: 4 }}>
                           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: alpha(theme.palette.success.main, 0.05) }}>
                             <Typography variant="h6" color="success.main">
                               ₹{recurringSummary.totalMonthlyIncome?.toLocaleString() || 0}
@@ -1533,7 +1533,7 @@ const FinancialsPage = () => {
                             </Typography>
                           </Paper>
                         </Grid>
-                        <Grid item xs={12} sm={4}>
+                        <Grid size={{ xs: 12, sm: 4 }}>
                           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: alpha(theme.palette.error.main, 0.05) }}>
                             <Typography variant="h6" color="error.main">
                               ₹{recurringSummary.totalMonthlyExpense?.toLocaleString() || 0}
@@ -1543,7 +1543,7 @@ const FinancialsPage = () => {
                             </Typography>
                           </Paper>
                         </Grid>
-                        <Grid item xs={12} sm={4}>
+                        <Grid size={{ xs: 12, sm: 4 }}>
                           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
                             <Typography variant="h6" color="primary.main">
                               {recurringSummary.activeCount || 0}
@@ -1559,13 +1559,13 @@ const FinancialsPage = () => {
                     <Grid container spacing={3}>
                       {loading.recurring ? (
                         [...Array(3)].map((_, i) => (
-                          <Grid item xs={12} md={4} key={i}>
+                          <Grid size={{ xs: 12, md: 4 }} key={i}>
                             <Skeleton variant="rectangular" height={180} sx={{ borderRadius: 2 }} />
                           </Grid>
                         ))
                       ) : recurring.length > 0 ? (
                         recurring.map(rt => (
-                          <Grid item xs={12} md={4} key={rt._id}>
+                          <Grid size={{ xs: 12, md: 4 }} key={rt._id}>
                             <GlassCard sx={{ 
                               opacity: rt.isPaused ? 0.7 : 1,
                               position: 'relative',
@@ -1647,7 +1647,7 @@ const FinancialsPage = () => {
                           </Grid>
                         ))
                       ) : (
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                           <Box sx={{ textAlign: 'center', py: 6 }}>
                             <AutorenewIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
                             <Typography variant="h6" color="text.secondary" gutterBottom>

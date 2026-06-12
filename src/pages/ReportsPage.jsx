@@ -50,7 +50,7 @@ const ReportsPage = () => {
 
       <Grid container spacing={3}>
         {availableModules.map((mod) => (
-          <Grid item xs={12} sm={6} md={4} key={mod.path}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={mod.path}>
             <Paper
               sx={{
                 p: 3,

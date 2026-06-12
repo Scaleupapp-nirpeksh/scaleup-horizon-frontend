@@ -21,7 +21,7 @@ const SettingsPage = () => {
 
       <Grid container spacing={3}>
         {/* Organization Management - available now */}
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <Paper
             sx={{
               p: 3,
@@ -57,7 +57,7 @@ const SettingsPage = () => {
         </Grid>
 
         {/* Coming soon placeholder */}
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <Paper
             sx={{
               p: 3,

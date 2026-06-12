@@ -383,7 +383,7 @@ const HeadcountSummary = () => {
           </Stack>
           <Grid container spacing={3}>
             {[1, 2, 3, 4].map(i => (
-              <Grid item xs={12} sm={6} md={3} key={i}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
                 <Skeleton
                   variant="rounded"
                   height={140}
@@ -527,7 +527,7 @@ const HeadcountSummary = () => {
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {metricCardsData.map((metric, index) => (
-            <Grid item xs={12} sm={6} md={3} key={metric.title}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={metric.title}>
               <Grow in={animateIn} style={{ transformOrigin: '0 0 0' }} timeout={500 + index * 150}>
                 <MetricCard color={metric.color} elevation={0}>
                   <Stack spacing={1} flexGrow={1} justifyContent="space-between"> {/* Ensure content fills card */}
@@ -591,7 +591,7 @@ const HeadcountSummary = () => {
             </Stack>
 
             <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center"> {/* Increased spacing on md+ */}
-              <Grid item xs={12} md={5} lg={4}>
+              <Grid size={{ xs: 12, md: 5, lg: 4 }}>
                 <Box sx={{ height: { xs: 220, sm: 250 }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}> {/* Responsive height */}
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -621,7 +621,7 @@ const HeadcountSummary = () => {
                 </Box>
               </Grid>
 
-              <Grid item xs={12} md={7} lg={8}>
+              <Grid size={{ xs: 12, md: 7, lg: 8 }}>
                 <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Typography
                     variant="subtitle2" color="text.secondary"

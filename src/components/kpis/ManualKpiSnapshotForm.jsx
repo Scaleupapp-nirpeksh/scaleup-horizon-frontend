@@ -124,7 +124,7 @@ const ManualKpiSnapshotForm = ({ onSnapshotSaved, snapshotToEdit }) => {
         <AlertMessage message={message.text} severity={message.type || 'info'} />
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <TextField
                 name="snapshotDate"
                 label="Snapshot Date"
@@ -136,7 +136,7 @@ const ManualKpiSnapshotForm = ({ onSnapshotSaved, snapshotToEdit }) => {
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <TextField
                 name="totalRegisteredUsers"
                 label="Total Registered Users"
@@ -146,7 +146,7 @@ const ManualKpiSnapshotForm = ({ onSnapshotSaved, snapshotToEdit }) => {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <TextField
                 name="newUsersToday"
                 label="New Users (Period)"
@@ -156,7 +156,7 @@ const ManualKpiSnapshotForm = ({ onSnapshotSaved, snapshotToEdit }) => {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <TextField
                 name="dau"
                 label="Daily Active Users (DAU)"
@@ -166,7 +166,7 @@ const ManualKpiSnapshotForm = ({ onSnapshotSaved, snapshotToEdit }) => {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <TextField
                 name="mau"
                 label="Monthly Active Users (MAU)"
@@ -177,26 +177,26 @@ const ManualKpiSnapshotForm = ({ onSnapshotSaved, snapshotToEdit }) => {
               />
             </Grid>
             
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <Typography variant="subtitle1" gutterBottom sx={{mt:1}}>Feature Usage</Typography>
             </Grid>
-            <Grid item xs={6} sm={4} md={2}>
+            <Grid size={{ xs: 6, sm: 4, md: 2 }}>
               <TextField name="quizzesPlayed" label="Quizzes Played" type="number" value={formData.featureUsage.quizzesPlayed} onChange={handleFeatureUsageChange} fullWidth />
             </Grid>
-            <Grid item xs={6} sm={4} md={3}>
+            <Grid size={{ xs: 6, sm: 4, md: 3 }}>
               <TextField name="contentItemsCreated" label="Content Created" type="number" value={formData.featureUsage.contentItemsCreated} onChange={handleFeatureUsageChange} fullWidth />
             </Grid>
-             <Grid item xs={6} sm={4} md={3}>
+             <Grid size={{ xs: 6, sm: 4, md: 3 }}>
               <TextField name="learnListsCreated" label="Learn Lists Created" type="number" value={formData.featureUsage.learnListsCreated} onChange={handleFeatureUsageChange} fullWidth />
             </Grid>
-             <Grid item xs={6} sm={6} md={2}>
+             <Grid size={{ xs: 6, sm: 6, md: 2 }}>
               <TextField name="studyGroupMessagesSent" label="Group Msgs" type="number" value={formData.featureUsage.studyGroupMessagesSent} onChange={handleFeatureUsageChange} fullWidth />
             </Grid>
-             <Grid item xs={6} sm={6} md={2}>
+             <Grid size={{ xs: 6, sm: 6, md: 2 }}>
               <TextField name="directMessagesSent" label="Direct Msgs" type="number" value={formData.featureUsage.directMessagesSent} onChange={handleFeatureUsageChange} fullWidth />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 name="notes"
                 label="Notes (Optional)"
@@ -207,7 +207,7 @@ const ManualKpiSnapshotForm = ({ onSnapshotSaved, snapshotToEdit }) => {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button type="submit" variant="contained" disabled={isLoading} startIcon={isLoading ? <CircularProgress size={20} color="inherit"/> : null}>
                 {isLoading ? 'Saving...' : (isEditing ? 'Update Snapshot' : 'Save Snapshot')}
               </Button>

@@ -146,7 +146,7 @@ const RevenueCohortsList = ({
       {listView === 'grid' ? (
         <Grid container spacing={2}>
           {getPageItems().map((cohort) => (
-            <Grid item xs={12} sm={6} md={4} key={cohort._id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={cohort._id}>
               <HistoryCard>
                 <Box sx={{ p: 2 }}>
                   <Stack 

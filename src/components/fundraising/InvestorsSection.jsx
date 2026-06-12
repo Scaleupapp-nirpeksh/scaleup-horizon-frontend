@@ -166,19 +166,19 @@ const TrancheRow = ({ tranche, index, pricePerShare }) => {
       </Stack>
       
       <Grid container spacing={2} sx={{ mb: 1 }}>
-        <Grid item xs={4}>
+        <Grid size={{ xs: 4 }}>
           <Typography variant="caption" color="text.secondary">Agreed</Typography>
           <Typography variant="body2" fontWeight={600}>
             {formatCurrency(agreedAmount)}
           </Typography>
         </Grid>
-        <Grid item xs={4}>
+        <Grid size={{ xs: 4 }}>
           <Typography variant="caption" color="text.secondary">Received</Typography>
           <Typography variant="body2" fontWeight={600} color="success.main">
             {formatCurrency(receivedAmount)}
           </Typography>
         </Grid>
-        <Grid item xs={4}>
+        <Grid size={{ xs: 4 }}>
           <Typography variant="caption" color="text.secondary">Shares</Typography>
           <Typography variant="body2" fontWeight={600}>
             {calculatedShares.toLocaleString()}
@@ -291,7 +291,7 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
 
         {/* Key metrics */}
         <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <MetricItem>
               <Typography variant="caption" color="text.secondary">EQUITY ALLOCATED</Typography>
               <Typography variant="h6" color="primary.main" fontWeight={700}>
@@ -302,7 +302,7 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
               </Typography>
             </MetricItem>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <MetricItem>
               <Typography variant="caption" color="text.secondary">SHARES</Typography>
               <Typography variant="h6" fontWeight={700}>
@@ -402,19 +402,19 @@ const InvestorCard = ({ investor, onEdit, onDelete, onToggleExpand, isExpanded, 
                       Total Summary
                     </Typography>
                     <Grid container spacing={2}>
-                      <Grid item xs={4}>
+                      <Grid size={{ xs: 4 }}>
                         <Typography variant="caption" color="text.secondary">Total Committed</Typography>
                         <Typography variant="body2" fontWeight={600}>
                           {formatCurrency(investorTranches.reduce((sum, t) => sum + (t?.agreedAmount || 0), 0))}
                         </Typography>
                       </Grid>
-                      <Grid item xs={4}>
+                      <Grid size={{ xs: 4 }}>
                         <Typography variant="caption" color="text.secondary">Total Received</Typography>
                         <Typography variant="body2" fontWeight={600} color="success.main">
                           {formatCurrency(actualReceivedAmount)}
                         </Typography>
                       </Grid>
-                      <Grid item xs={4}>
+                      <Grid size={{ xs: 4 }}>
                         <Typography variant="caption" color="text.secondary">Total Shares</Typography>
                         <Typography variant="body2" fontWeight={600}>
                           {actualShares.toLocaleString()}
@@ -653,7 +653,7 @@ const InvestorsSection = () => {
 
         {/* ✅ FIX: Enhanced Summary Metrics with null safety */}
         <Grid container spacing={2}>
-          <Grid item xs={6} md={3}>
+          <Grid size={{ xs: 6, md: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -676,7 +676,7 @@ const InvestorsSection = () => {
               </Stack>
             </MetricCard>
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid size={{ xs: 6, md: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -699,7 +699,7 @@ const InvestorsSection = () => {
               </Stack>
             </MetricCard>
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid size={{ xs: 6, md: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -722,7 +722,7 @@ const InvestorsSection = () => {
               </Stack>
             </MetricCard>
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid size={{ xs: 6, md: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -836,7 +836,7 @@ const InvestorsSection = () => {
       {!loading && filteredInvestors.length > 0 && (
         <Grid container spacing={3}>
           {filteredInvestors.map((investor, index) => (
-            <Grid item xs={12} md={6} lg={4} key={investor?._id || `investor-${index}`}>
+            <Grid size={{ xs: 12, md: 6, lg: 4 }} key={investor?._id || `investor-${index}`}>
               <Grow in timeout={300 + index * 100}>
                 <div>
                   <InvestorCard

@@ -35,7 +35,7 @@ const CashFlowDialog = ({
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={3} sx={{ mt: 0 }}>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               label="Forecast Name"
@@ -44,7 +44,7 @@ const CashFlowDialog = ({
               required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Forecast Type</InputLabel>
               <Select
@@ -58,7 +58,7 @@ const CashFlowDialog = ({
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               fullWidth
               multiline
@@ -68,7 +68,7 @@ const CashFlowDialog = ({
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <DatePicker
               label="Forecast End Date"
               value={formData.endDate}
@@ -76,7 +76,7 @@ const CashFlowDialog = ({
               slotProps={{ textField: { fullWidth: true } }}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Granularity</InputLabel>
               <Select
@@ -90,7 +90,7 @@ const CashFlowDialog = ({
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Alert severity="info">
               This forecast will use your historical cash flow patterns and apply machine learning to predict future cash positions.
             </Alert>

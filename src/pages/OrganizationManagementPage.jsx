@@ -244,7 +244,7 @@ const LoadingSkeleton = () => (
     <Skeleton variant="text" width="40%" height={40} sx={{ mb: 2 }} />
     <Grid container spacing={3}>
       {[1, 2, 3, 4, 5, 6].map((item) => (
-        <Grid item xs={12} sm={6} key={item}>
+        <Grid size={{ xs: 12, sm: 6 }} key={item}>
           <Skeleton variant="rounded" height={56} />
         </Grid>
       ))}
@@ -457,7 +457,7 @@ const OrganizationDetailsSection = () => {
         </AnimatePresence>
         
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <StyledTextField
               label="Organization Name"
               name="name"
@@ -474,7 +474,7 @@ const OrganizationDetailsSection = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <StyledTextField
               label="Industry"
               name="industry"
@@ -489,7 +489,7 @@ const OrganizationDetailsSection = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth variant={isEditing ? "outlined" : "filled"} disabled={!isEditing}>
               <InputLabel id="org-currency-label" shrink={true}>Currency</InputLabel>
               <Select
@@ -512,7 +512,7 @@ const OrganizationDetailsSection = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <StyledTextField
               label="Timezone"
               name="timezone"
@@ -530,7 +530,7 @@ const OrganizationDetailsSection = () => {
             />
           </Grid>
           
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Divider sx={{ my: 2 }}>
               <Chip
                 icon={<SettingsIcon />}
@@ -540,7 +540,7 @@ const OrganizationDetailsSection = () => {
             </Divider>
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <StyledTextField
               label="Date Format"
               name="dateFormat"
@@ -555,7 +555,7 @@ const OrganizationDetailsSection = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid size={{ xs: 12, sm: 3 }}>
             <StyledTextField
               type="number"
               label="Financial Year Start Month"
@@ -569,7 +569,7 @@ const OrganizationDetailsSection = () => {
               inputProps={{ min: 1, max: 12 }}
             />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid size={{ xs: 12, sm: 3 }}>
             <StyledTextField
               type="number"
               label="Financial Year Start Day"
@@ -584,7 +584,7 @@ const OrganizationDetailsSection = () => {
             />
           </Grid>
           
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card sx={{ 
               background: theme => alpha(theme.palette.info.main, 0.05),
               borderRadius: 2,

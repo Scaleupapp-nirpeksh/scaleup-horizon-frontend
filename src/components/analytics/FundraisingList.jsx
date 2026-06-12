@@ -140,7 +140,7 @@ const FundraisingList = ({
       {listView === 'grid' ? (
         <Grid container spacing={2}>
           {getPageItems().map((prediction) => (
-            <Grid item xs={12} sm={6} md={4} key={prediction._id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={prediction._id}>
               <HistoryCard>
                 <Box sx={{ p: 2 }}>
                   <Stack 

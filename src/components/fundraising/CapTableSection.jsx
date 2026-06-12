@@ -450,7 +450,7 @@ const CapTableSection = () => {
 
         {/* ✅ FIX: Enhanced Summary Metrics WITH NULL SAFETY */}
         <Grid container spacing={2}>
-          <Grid item xs={6} md={3}>
+          <Grid size={{ xs: 6, md: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -473,7 +473,7 @@ const CapTableSection = () => {
               </Stack>
             </MetricCard>
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid size={{ xs: 6, md: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -498,7 +498,7 @@ const CapTableSection = () => {
               </Stack>
             </MetricCard>
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid size={{ xs: 6, md: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -523,7 +523,7 @@ const CapTableSection = () => {
               </Stack>
             </MetricCard>
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid size={{ xs: 6, md: 3 }}>
             <MetricCard elevation={0}>
               <Stack spacing={1} alignItems="center">
                 <Avatar sx={{ 
@@ -553,7 +553,7 @@ const CapTableSection = () => {
         {/* Value Breakdown Cards */}
         {currentRound && ((metrics.foundersValue || 0) > 0 || (metrics.investorsValue || 0) > 0) && (
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <ValueCard>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Box>
@@ -573,7 +573,7 @@ const CapTableSection = () => {
                 </Typography>
               </ValueCard>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <ValueCard>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Box>
@@ -602,10 +602,10 @@ const CapTableSection = () => {
       {/* Loading State */}
       {loading && (
         <Grid container spacing={3}>
-          <Grid item xs={12} md={5}>
+          <Grid size={{ xs: 12, md: 5 }}>
             <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 3 }} />
           </Grid>
-          <Grid item xs={12} md={7}>
+          <Grid size={{ xs: 12, md: 7 }}>
             <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 3 }} />
           </Grid>
         </Grid>
@@ -654,7 +654,7 @@ const CapTableSection = () => {
       {!loading && Array.isArray(capTableEntries) && capTableEntries.length > 0 && (
         <Grid container spacing={3}>
           {/* Chart Section */}
-          <Grid item xs={12} lg={5}>
+          <Grid size={{ xs: 12, lg: 5 }}>
             <Grow in timeout={300}>
               <StyledCapTableCard>
                 <CardHeader 
@@ -716,7 +716,7 @@ const CapTableSection = () => {
                       <Box sx={{ mt: 2 }}>
                         <Grid container spacing={1}>
                           {chartData.slice(0, 6).map((entry, index) => (
-                            <Grid item xs={12} sm={6} key={index}>
+                            <Grid size={{ xs: 12, sm: 6 }} key={index}>
                               <Stack direction="row" alignItems="center" spacing={1}>
                                 <Box sx={{
                                   width: 12,
@@ -736,7 +736,7 @@ const CapTableSection = () => {
                             </Grid>
                           ))}
                           {chartData.length > 6 && (
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                               <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
                                 +{chartData.length - 6} more shareholders
                               </Typography>
@@ -758,7 +758,7 @@ const CapTableSection = () => {
           </Grid>
 
           {/* ✅ FIX: Enhanced Table Section WITH NULL SAFETY */}
-          <Grid item xs={12} lg={7}>
+          <Grid size={{ xs: 12, lg: 7 }}>
             <Grow in timeout={500}>
               <StyledCapTableCard>
                 <CardHeader 

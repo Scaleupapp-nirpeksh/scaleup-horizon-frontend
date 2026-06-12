@@ -211,19 +211,19 @@ const InvestmentPreviewDialog = ({ open, onClose, round }) => {
           <Alert severity="info" sx={{ mb: 2 }}>
             <Typography variant="h6" gutterBottom>Investment Impact</Typography>
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid size={{ xs: 6 }}>
                 <Typography variant="body2" color="text.secondary">Shares Allocated</Typography>
                 <Typography variant="h6">{preview.sharesAllocated?.toLocaleString()}</Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid size={{ xs: 6 }}>
                 <Typography variant="body2" color="text.secondary">Equity Percentage</Typography>
                 <Typography variant="h6">{preview.equityPercentage?.toFixed(2)}%</Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid size={{ xs: 6 }}>
                 <Typography variant="body2" color="text.secondary">New Total Raised</Typography>
                 <Typography variant="h6">{formatCurrency(preview.newTotalRaised)}</Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid size={{ xs: 6 }}>
                 <Typography variant="body2" color="text.secondary">Progress</Typography>
                 <Typography variant="h6">{preview.newProgressPercentage?.toFixed(1)}%</Typography>
               </Grid>
@@ -398,7 +398,7 @@ const RoundsSection = () => {
         {/* Enhanced Summary Metrics from Dashboard */}
         {dashboardData?.overview && (
           <Grid container spacing={2}>
-            <Grid item xs={6} sm={3}>
+            <Grid size={{ xs: 6, sm: 3 }}>
               <MetricCard elevation={0}>
                 <Stack spacing={1} alignItems="center">
                   <Avatar sx={{ 
@@ -418,7 +418,7 @@ const RoundsSection = () => {
                 </Stack>
               </MetricCard>
             </Grid>
-            <Grid item xs={6} sm={3}>
+            <Grid size={{ xs: 6, sm: 3 }}>
               <MetricCard elevation={0}>
                 <Stack spacing={1} alignItems="center">
                   <Avatar sx={{ 
@@ -438,7 +438,7 @@ const RoundsSection = () => {
                 </Stack>
               </MetricCard>
             </Grid>
-            <Grid item xs={6} sm={3}>
+            <Grid size={{ xs: 6, sm: 3 }}>
               <MetricCard elevation={0}>
                 <Stack spacing={1} alignItems="center">
                   <Avatar sx={{ 
@@ -458,7 +458,7 @@ const RoundsSection = () => {
                 </Stack>
               </MetricCard>
             </Grid>
-            <Grid item xs={6} sm={3}>
+            <Grid size={{ xs: 6, sm: 3 }}>
               <MetricCard elevation={0}>
                 <Stack spacing={1} alignItems="center">
                   <Avatar sx={{ 
@@ -505,7 +505,7 @@ const RoundsSection = () => {
       {loading && (
         <Grid container spacing={3}>
           {[1, 2, 3].map((i) => (
-            <Grid item xs={12} sm={6} md={4} key={i}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
               <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3 }} />
             </Grid>
           ))}
@@ -555,7 +555,7 @@ const RoundsSection = () => {
       {!loading && rounds.length > 0 && (
         <Grid container spacing={3}>
           {rounds.map((round, index) => (
-            <Grid item xs={12} md={6} lg={4} key={round._id}>
+            <Grid size={{ xs: 12, md: 6, lg: 4 }} key={round._id}>
               <Grow in timeout={200 + index * 100}>
                 <StyledRoundCard>
                   <CardContent sx={{ p: 3 }}>
@@ -653,7 +653,7 @@ const RoundsSection = () => {
 
                     {/* Enhanced Details Grid */}
                     <Grid container spacing={2} sx={{ mb: 2 }}>
-                      <Grid item xs={6}>
+                      <Grid size={{ xs: 6 }}>
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <CalendarMonthIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                           <Box>
@@ -666,7 +666,7 @@ const RoundsSection = () => {
                           </Box>
                         </Stack>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={{ xs: 6 }}>
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <EventIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                           <Box>
@@ -691,7 +691,7 @@ const RoundsSection = () => {
                         mb: 2
                       }}>
                         <Grid container spacing={2}>
-                          <Grid item xs={6}>
+                          <Grid size={{ xs: 6 }}>
                             <Typography variant="caption" color="text.secondary">
                               Pre-Money
                             </Typography>
@@ -699,7 +699,7 @@ const RoundsSection = () => {
                               {round.formattedValuation.preMoney}
                             </Typography>
                           </Grid>
-                          <Grid item xs={6}>
+                          <Grid size={{ xs: 6 }}>
                             <Typography variant="caption" color="text.secondary">
                               Post-Money
                             </Typography>
@@ -708,7 +708,7 @@ const RoundsSection = () => {
                             </Typography>
                           </Grid>
                           {round.formattedValuation.pricePerShare !== '₹0' && (
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                               <Divider sx={{ my: 1 }} />
                               <Stack direction="row" justifyContent="space-between" alignItems="center">
                                 <Typography variant="caption" color="text.secondary">

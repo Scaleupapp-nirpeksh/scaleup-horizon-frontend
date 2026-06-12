@@ -57,7 +57,7 @@ const RunwayScenarioDialog = ({
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={3} sx={{ mt: 0 }}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="subtitle2" sx={{ mb: 2 }}>
               Quick Templates
             </Typography>
@@ -74,7 +74,7 @@ const RunwayScenarioDialog = ({
             </Stack>
           </Grid>
           
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               label="Scenario Name"
@@ -83,7 +83,7 @@ const RunwayScenarioDialog = ({
               required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Scenario Type</InputLabel>
               <Select
@@ -98,7 +98,7 @@ const RunwayScenarioDialog = ({
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               fullWidth
               multiline
@@ -108,7 +108,7 @@ const RunwayScenarioDialog = ({
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="subtitle2" sx={{ mb: 2 }}>
               Growth Assumptions
             </Typography>
@@ -164,7 +164,7 @@ const RunwayScenarioDialog = ({
               </Box>
             </Stack>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               fullWidth
               type="number"

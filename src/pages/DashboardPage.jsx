@@ -667,7 +667,7 @@ const DashboardPage = () => {
           <Card sx={{ mb: 4, borderRadius: 3, overflow: 'visible' }}>
             <CardContent sx={{ p: 3 }}>
               <Grid container spacing={3} alignItems="center">
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Box sx={{ textAlign: 'center' }}>
                     <Box sx={{ position: 'relative', display: 'inline-flex' }}>
                       <Box
@@ -705,14 +705,14 @@ const DashboardPage = () => {
                   </Box>
                 </Grid>
                 
-                <Grid item xs={12} md={9}>
+                <Grid size={{ xs: 12, md: 9 }}>
                   <Stack spacing={2}>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Company Health Score: {healthMetrics.score}/100
                     </Typography>
                     <Grid container spacing={2}>
                       {healthMetrics.factors.map((factor, index) => (
-                        <Grid item key={index}>
+                        <Grid key={index}>
                           <Chip
                             icon={factor.severity === 'error' ? <ErrorIcon /> : factor.severity === 'warning' ? <WarningIcon /> : <InfoIcon />}
                             label={factor.issue}
@@ -732,7 +732,7 @@ const DashboardPage = () => {
         {/* Key Metrics Grid */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {/* Financial Metrics */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={600}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/financials')} sx={{ height: '100%' }}>
@@ -785,7 +785,7 @@ const DashboardPage = () => {
           </Grid>
 
           {/* Growth Metrics */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={700}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/kpis')} sx={{ height: '100%' }}>
@@ -841,7 +841,7 @@ const DashboardPage = () => {
           </Grid>
 
           {/* Fundraising Metrics */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={800}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/fundraising')} sx={{ height: '100%' }}>
@@ -894,7 +894,7 @@ const DashboardPage = () => {
           </Grid>
 
           {/* Team Metrics */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={900}>
               <SectionCard>
                 <CardActionArea onClick={() => navigate('/headcount')} sx={{ height: '100%' }}>
@@ -956,7 +956,7 @@ const DashboardPage = () => {
               </Typography>
               <Grid container spacing={2}>
                 {alerts.map((alert) => (
-                  <Grid item xs={12} sm={6} md={3} key={alert.id}>
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }} key={alert.id}>
                     <AlertCard severity={alert.severity} onClick={() => navigate(alert.action)}>
                       <Stack direction="row" spacing={2} alignItems="center">
                         <Box>
@@ -980,7 +980,7 @@ const DashboardPage = () => {
         {/* Charts Section */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {/* Revenue & Expense Trend */}
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <SectionCard>
               <CardContent>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
@@ -1024,7 +1024,7 @@ const DashboardPage = () => {
           </Grid>
 
           {/* Product Status */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <SectionCard>
               <CardContent>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
@@ -1119,7 +1119,7 @@ const DashboardPage = () => {
         {/* Bottom Row */}
         <Grid container spacing={3}>
           {/* User Growth */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <SectionCard>
               <CardContent>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
@@ -1147,7 +1147,7 @@ const DashboardPage = () => {
           </Grid>
 
           {/* Team Distribution */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <SectionCard>
               <CardContent>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
@@ -1196,7 +1196,7 @@ const DashboardPage = () => {
           </Grid>
 
           {/* Quick Actions */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <SectionCard>
               <CardContent>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>

@@ -458,7 +458,7 @@ const CompleteSetupPage = () => {
               </PulsatingButton>
 
               <Grid container justifyContent="center">
-                <Grid item>
+                <Grid>
                   <Link component={RouterLink} to="/login" sx={{ color: theme.palette.primary.main, fontWeight: 500, textDecoration: 'none', position: 'relative',
                       '&::after': { content: '""', position: 'absolute', width: '0%', height: '2px', bottom: '-3px', left: '0',
                         background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,

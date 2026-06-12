@@ -330,7 +330,7 @@ const FilterPanel = ({ open, onClose, filters, setFilters, applyFilters }) => {
         </Stack>
         
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Department</InputLabel>
               <Select
@@ -360,7 +360,7 @@ const FilterPanel = ({ open, onClose, filters, setFilters, applyFilters }) => {
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Status</InputLabel>
               <Select
@@ -390,7 +390,7 @@ const FilterPanel = ({ open, onClose, filters, setFilters, applyFilters }) => {
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Employment Type</InputLabel>
               <Select
@@ -407,7 +407,7 @@ const FilterPanel = ({ open, onClose, filters, setFilters, applyFilters }) => {
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <DatePicker 
               label="Joined After" 
               value={filters.joinedAfter || null}
@@ -896,7 +896,7 @@ const HeadcountPage = () => {
 
   // Render card view item
   const renderHeadcountCard = (item) => (
-    <Grid item xs={12} sm={6} md={4} lg={3} key={item._id}>
+    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item._id}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -1204,7 +1204,7 @@ const HeadcountPage = () => {
           {loading && !summary ? (
             <Grid container spacing={2.5} sx={{ mb: 4 }}>
               {[1, 2, 3, 4].map((item) => (
-                <Grid item xs={12} sm={6} md={3} key={item}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item}>
                   <Skeleton 
                     variant="rectangular" 
                     height={120} 
@@ -1221,28 +1221,28 @@ const HeadcountPage = () => {
           ) : summary && (
             <Grow in timeout={500}>
               <Grid container spacing={2.5} sx={{ mb: 4 }}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <MetricDisplayCard color="primary">
                     <AnimatedAvatar className="metric-icon"><PeopleOutlineIcon /></AnimatedAvatar>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>{summary.totalHeadcount || 0}</Typography>
                     <Typography variant="body2" color="text.secondary">Active Headcount</Typography>
                   </MetricDisplayCard>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <MetricDisplayCard color="info" $pulse={summary.openPositions > 0}>
                     <AnimatedAvatar className="metric-icon"><HourglassTopIcon /></AnimatedAvatar>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>{summary.openPositions || 0}</Typography>
                     <Typography variant="body2" color="text.secondary">Open Requisitions</Typography>
                   </MetricDisplayCard>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <MetricDisplayCard color="success">
                     <AnimatedAvatar className="metric-icon"><AttachMoneyIcon /></AnimatedAvatar>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>₹{(summary.annualCost || 0).toLocaleString()}</Typography>
                     <Typography variant="body2" color="text.secondary">Total Annual Cost</Typography>
                   </MetricDisplayCard>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <MetricDisplayCard color="secondary">
                     <AnimatedAvatar className="metric-icon"><BusinessIcon /></AnimatedAvatar>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>{summary.departmentBreakdown?.length || 0}</Typography>
@@ -1257,7 +1257,7 @@ const HeadcountPage = () => {
           <GlassCard sx={{ mb: 3, overflow: 'visible' }}>
             <CardContent sx={{ p: 2.5 }}>
               <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <SearchBar 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -1265,7 +1265,7 @@ const HeadcountPage = () => {
                   />
                 </Grid>
                 
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                   <Stack direction="row" spacing={2} justifyContent="flex-end" alignItems="center">
                     <Button
                       startIcon={<FilterAltIcon />}
@@ -1747,7 +1747,7 @@ const HeadcountPage = () => {
             <Box sx={{ display: formStep === 0 ? 'block' : 'none' }}>
               {/* Basic Info */}
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="name" 
                     label="Full Name" 
@@ -1759,7 +1759,7 @@ const HeadcountPage = () => {
                     size="small" 
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="email" 
                     label="Email Address" 
@@ -1774,7 +1774,7 @@ const HeadcountPage = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="title" 
                     label="Job Title" 
@@ -1789,7 +1789,7 @@ const HeadcountPage = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth error={!!formErrors.department} size="small">
                     <InputLabel>Department</InputLabel>
                     <Select
@@ -1819,7 +1819,7 @@ const HeadcountPage = () => {
                     <FormHelperText>{formErrors.department}</FormHelperText>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <Autocomplete
                     options={availableManagers.filter(m => m._id !== editingHeadcount?._id)}
                     getOptionLabel={(option) => option.name || ''}
@@ -1847,7 +1847,7 @@ const HeadcountPage = () => {
                     size="small"
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth error={!!formErrors.level} size="small">
                     <InputLabel>Level</InputLabel>
                     <Select
@@ -1867,7 +1867,7 @@ const HeadcountPage = () => {
             <Box sx={{ display: formStep === 1 ? 'block' : 'none' }}>
               {/* Employment Details */}
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormControl fullWidth error={!!formErrors.status} size="small">
                     <InputLabel>Status</InputLabel>
                     <Select
@@ -1897,7 +1897,7 @@ const HeadcountPage = () => {
                     <FormHelperText>{formErrors.status}</FormHelperText>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormControl fullWidth error={!!formErrors.employmentType} size="small">
                     <InputLabel>Employment Type</InputLabel>
                     <Select
@@ -1912,7 +1912,7 @@ const HeadcountPage = () => {
                     <FormHelperText>{formErrors.employmentType}</FormHelperText>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormControl fullWidth size="small">
                     <InputLabel>Remote Status</InputLabel>
                     <Select
@@ -1926,7 +1926,7 @@ const HeadcountPage = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="location" 
                     label="Location (City, Country)" 
@@ -1939,7 +1939,7 @@ const HeadcountPage = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <DatePicker 
                     label="Start Date" 
                     value={currentFormData.startDate ? new Date(currentFormData.startDate) : null} 
@@ -1962,7 +1962,7 @@ const HeadcountPage = () => {
                   />
                 </Grid>
                 {currentFormData.status === 'Former' && (
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <DatePicker 
                       label="End Date" 
                       value={currentFormData.endDate ? new Date(currentFormData.endDate) : null} 
@@ -1987,7 +1987,7 @@ const HeadcountPage = () => {
                 )}
                 {['Open Requisition', 'Interviewing', 'Offer Extended'].includes(currentFormData.status) && (
                   <>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <DatePicker 
                         label="Requisition Open Date" 
                         value={currentFormData.requisitionOpenDate ? new Date(currentFormData.requisitionOpenDate) : null} 
@@ -1995,7 +1995,7 @@ const HeadcountPage = () => {
                         slotProps={{textField: {fullWidth: true, size: 'small'}}}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <DatePicker 
                         label="Target Hire Date" 
                         value={currentFormData.targetHireDate ? new Date(currentFormData.targetHireDate) : null} 
@@ -2011,7 +2011,7 @@ const HeadcountPage = () => {
             <Box sx={{ display: formStep === 2 ? 'block' : 'none' }}>
   {/* Compensation */}
   <Grid container spacing={2}>
-    <Grid item xs={12} sm={6} md={4}>
+    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
       <TextField 
         name="baseSalary" 
         label="Base Salary (Annual)" 
@@ -2027,7 +2027,7 @@ const HeadcountPage = () => {
         }}
       />
     </Grid>
-    <Grid item xs={12} sm={6} md={2}>
+    <Grid size={{ xs: 12, sm: 6, md: 2 }}>
       <FormControl fullWidth size="small" error={!!formErrors.currency}>
         <InputLabel>Currency</InputLabel>
         <Select
@@ -2041,7 +2041,7 @@ const HeadcountPage = () => {
         <FormHelperText>{formErrors.currency}</FormHelperText>
       </FormControl>
     </Grid>
-    <Grid item xs={12} sm={6} md={3}>
+    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
       <TextField 
         name="variableCompensation" 
         label="Variable (Annual)" 
@@ -2055,7 +2055,7 @@ const HeadcountPage = () => {
         }}
       />
     </Grid>
-    <Grid item xs={12} sm={6} md={3}>
+    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
       <FormControl fullWidth size="small">
         <InputLabel>Variable Freq.</InputLabel>
         <Select
@@ -2068,7 +2068,7 @@ const HeadcountPage = () => {
         </Select>
       </FormControl>
     </Grid>
-    <Grid item xs={12} sm={6} md={3}>
+    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
       <TextField 
         name="equityPercentage" 
         label="Equity (%)" 
@@ -2079,7 +2079,7 @@ const HeadcountPage = () => {
         size="small"
       />
     </Grid>
-    <Grid item xs={12} sm={6} md={6}>
+    <Grid size={{ xs: 12, sm: 6, md: 6 }}>
       <TextField 
         name="equityVestingSchedule" 
         label="Vesting Schedule" 
@@ -2089,7 +2089,7 @@ const HeadcountPage = () => {
         size="small"
       />
     </Grid>
-    <Grid item xs={12} sm={6} md={3}>
+    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
       <TextField 
         name="benefits" 
         label="Benefits (Monthly Cost)" 
@@ -2100,7 +2100,7 @@ const HeadcountPage = () => {
         size="small"
       />
     </Grid>
-    <Grid item xs={12}>
+    <Grid size={{ xs: 12 }}>
       <TextField 
         name="notes" 
         label="Compensation Notes" 
@@ -2114,7 +2114,7 @@ const HeadcountPage = () => {
     </Grid>
     
     {/* ========== ADD THIS NEW SECTION ========== */}
-    <Grid item xs={12}>
+    <Grid size={{ xs: 12 }}>
       <Divider sx={{ my: 2 }} />
       <Paper 
         elevation={0}
@@ -2181,12 +2181,12 @@ const HeadcountPage = () => {
               <Grid container spacing={2}>
                 {['Open Requisition', 'Interviewing', 'Offer Extended'].includes(currentFormData.status) && (
                   <>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                       <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
                         Hiring Details
                       </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <TextField 
                         name="requisitionId" 
                         label="Requisition ID" 
@@ -2196,7 +2196,7 @@ const HeadcountPage = () => {
                         size="small"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <FormControl fullWidth size="small">
                         <InputLabel>Hiring Priority</InputLabel>
                         <Select
@@ -2209,7 +2209,7 @@ const HeadcountPage = () => {
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <FormControl fullWidth size="small">
                         <InputLabel>Hiring Stage</InputLabel>
                         <Select
@@ -2222,7 +2222,7 @@ const HeadcountPage = () => {
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <TextField 
                         name="recruiter" 
                         label="Recruiter" 
@@ -2232,13 +2232,13 @@ const HeadcountPage = () => {
                         size="small"
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                       <Divider sx={{ my: 2 }} />
                     </Grid>
                   </>
                 )}
                 
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
                     Additional Notes
                   </Typography>

@@ -279,7 +279,7 @@ const DocumentList = ({ documents, loading, onDeleteDocument, onUploadClick }) =
       <Box>
         <Grid container spacing={3}>
           {[...Array(6)].map((_, i) => (
-            <Grid item xs={12} sm={6} md={4} key={i}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
               <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2 }} />
             </Grid>
           ))}
@@ -321,7 +321,7 @@ const DocumentList = ({ documents, loading, onDeleteDocument, onUploadClick }) =
   const renderGridView = () => (
     <Grid container spacing={3}>
       {processedDocuments.map((doc, index) => (
-        <Grid item xs={12} sm={6} md={4} key={doc._id}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={doc._id}>
           <Grow in timeout={300 + index * 50}>
             <StyledCard>
               <FileTypeChip 

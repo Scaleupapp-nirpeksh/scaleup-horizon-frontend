@@ -79,7 +79,7 @@ const FundraisingDialog = ({
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={3} sx={{ mt: 0 }}>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               label="Prediction Name"
@@ -88,7 +88,7 @@ const FundraisingDialog = ({
               required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Round Type</InputLabel>
               <Select
@@ -104,7 +104,7 @@ const FundraisingDialog = ({
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               type="number"
@@ -119,7 +119,7 @@ const FundraisingDialog = ({
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               type="number"
@@ -137,7 +137,7 @@ const FundraisingDialog = ({
           
           {/* Date Fields - Uncomment if you want to add specific date fields */}
           {/*
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <DatePicker
               label="Target Start Date"
               value={formData.predictedStartDate || null}
@@ -145,7 +145,7 @@ const FundraisingDialog = ({
               slotProps={{ textField: { fullWidth: true } }}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <DatePicker
               label="Target Close Date"
               value={formData.predictedCloseDate || null}
@@ -155,7 +155,7 @@ const FundraisingDialog = ({
           </Grid>
           */}
           
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="subtitle2" sx={{ mb: 2 }}>
               Key Milestones
             </Typography>

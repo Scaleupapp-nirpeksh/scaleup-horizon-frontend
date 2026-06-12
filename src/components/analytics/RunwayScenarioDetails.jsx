@@ -81,7 +81,7 @@ const RunwayScenarioDetails = ({
       </Stack>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Paper sx={{ p: 3, borderRadius: 2, height: 450 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
               <Typography variant="h6">
@@ -163,7 +163,7 @@ const RunwayScenarioDetails = ({
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={2}>
             <PredictionCard severity={selectedScenario?.totalRunwayMonths > 12 ? 'success' : 'warning'}>
               <Stack direction="row" spacing={2} alignItems="center">

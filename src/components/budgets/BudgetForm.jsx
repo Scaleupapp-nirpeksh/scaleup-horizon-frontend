@@ -157,10 +157,10 @@ const BudgetForm = ({ onBudgetSaved, budgetToEdit, onCancelEdit }) => {
         <AlertMessage message={message.text} severity={message.type || 'info'} />
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField name="name" label="Budget Name" value={formData.name} onChange={handleInputChange} fullWidth required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth required>
                 <InputLabel id="period-type-label">Period Type</InputLabel>
                 <Select labelId="period-type-label" name="periodType" value={formData.periodType} label="Period Type" onChange={handleInputChange}>
@@ -168,13 +168,13 @@ const BudgetForm = ({ onBudgetSaved, budgetToEdit, onCancelEdit }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField name="periodStartDate" label="Period Start Date" type="date" value={formData.periodStartDate} onChange={handleInputChange} InputLabelProps={{ shrink: true }} fullWidth required />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField name="periodEndDate" label="Period End Date" type="date" value={formData.periodEndDate} onChange={handleInputChange} InputLabelProps={{ shrink: true }} fullWidth required={formData.periodType !== 'Custom'} />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth required>
                 <InputLabel id="status-label">Status</InputLabel>
                 <Select labelId="status-label" name="status" value={formData.status} label="Status" onChange={handleInputChange}>
@@ -182,12 +182,12 @@ const BudgetForm = ({ onBudgetSaved, budgetToEdit, onCancelEdit }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, fontWeight: 500 }}>Budget Items</Typography>
               {formData.items.map((item, index) => (
                 <Paper key={index} elevation={1} sx={{ p: 2, mb: 2, borderRadius: '8px', border: '1px solid #eee' }}>
                   <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
                       <FormControl fullWidth>
                         <InputLabel id={`category-label-${index}`}>Category</InputLabel>
                         <Select labelId={`category-label-${index}`} name="category" value={item.category} label="Category" onChange={(e) => handleItemChange(index, e)}>
@@ -195,13 +195,13 @@ const BudgetForm = ({ onBudgetSaved, budgetToEdit, onCancelEdit }) => {
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Grid item xs={10} sm={3}>
+                    <Grid size={{ xs: 10, sm: 3 }}>
                       <TextField name="budgetedAmount" label="Budgeted Amount" type="number" value={item.budgetedAmount} onChange={(e) => handleItemChange(index, e)} fullWidth inputProps={{ step: "0.01" }}/>
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
                       <TextField name="notes" label="Item Notes" value={item.notes} onChange={(e) => handleItemChange(index, e)} fullWidth />
                     </Grid>
-                    <Grid item xs={2} sm={1} sx={{textAlign: 'right'}}>
+                    <Grid size={{ xs: 2, sm: 1 }} sx={{textAlign: 'right'}}>
                       <Tooltip title="Remove Item">
                         <span>
                           <IconButton onClick={() => removeItem(index)} color="error" disabled={formData.items.length <= 1}>
@@ -217,13 +217,13 @@ const BudgetForm = ({ onBudgetSaved, budgetToEdit, onCancelEdit }) => {
                 Add Budget Item
               </Button>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <Typography variant="h6" sx={{mt:1}}>Total Budgeted: ₹{calculateTotalBudget().toLocaleString()}</Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField name="notes" label="Overall Budget Notes (Optional)" value={formData.notes} onChange={handleInputChange} fullWidth multiline rows={3} />
             </Grid>
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt:2 }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt:2 }}>
                 {isEditing && <Button variant="outlined" onClick={onCancelEdit || resetForm} disabled={isLoading}>Cancel Edit</Button>}
               <Button type="submit" variant="contained" color="primary" disabled={isLoading} startIcon={isLoading ? <CircularProgress size={20} color="inherit"/> : <SaveIcon />}>
                 {isLoading ? 'Saving...' : (isEditing ? 'Update Budget' : 'Create Budget')}

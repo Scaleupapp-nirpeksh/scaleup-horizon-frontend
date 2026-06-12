@@ -281,17 +281,17 @@ const CohortMetricsEditor = ({
                 Cohort Overview
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <Typography variant="body2" color="text.secondary">
                     Initial Users: <b>{cohort.initialUsers}</b>
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <Typography variant="body2" color="text.secondary">
                     Start Date: <b>{moment(cohort.cohortStartDate).format('MMM D, YYYY')}</b>
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <Typography variant="body2" color="text.secondary">
                     Type: <b>{cohort.cohortType}</b>
                   </Typography>
@@ -450,7 +450,7 @@ const CohortMetricsEditor = ({
                   Add New Period
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={2}>
+                  <Grid size={{ xs: 12, md: 2 }}>
                     <TextField
                       fullWidth
                       label="Period #"
@@ -463,7 +463,7 @@ const CohortMetricsEditor = ({
                       size="small"
                     />
                   </Grid>
-                  <Grid item xs={12} md={2}>
+                  <Grid size={{ xs: 12, md: 2 }}>
                     <TextField
                       fullWidth
                       label="Period Label"
@@ -475,7 +475,7 @@ const CohortMetricsEditor = ({
                       size="small"
                     />
                   </Grid>
-                  <Grid item xs={12} md={2}>
+                  <Grid size={{ xs: 12, md: 2 }}>
                     <TextField
                       fullWidth
                       label="Active Users"
@@ -488,7 +488,7 @@ const CohortMetricsEditor = ({
                       size="small"
                     />
                   </Grid>
-                  <Grid item xs={12} md={2}>
+                  <Grid size={{ xs: 12, md: 2 }}>
                     <TextField
                       fullWidth
                       label="Retention Rate"
@@ -507,7 +507,7 @@ const CohortMetricsEditor = ({
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12} md={2}>
+                  <Grid size={{ xs: 12, md: 2 }}>
                     <TextField
                       fullWidth
                       label="Churned Users"
@@ -520,7 +520,7 @@ const CohortMetricsEditor = ({
                       size="small"
                     />
                   </Grid>
-                  <Grid item xs={12} md={2}>
+                  <Grid size={{ xs: 12, md: 2 }}>
                     <TextField
                       fullWidth
                       label="Revenue"

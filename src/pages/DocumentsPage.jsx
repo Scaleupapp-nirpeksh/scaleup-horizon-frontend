@@ -291,7 +291,7 @@ const DocumentsPage = () => {
       <HeroSection sx={{ py: { xs: 4, md: 6 }, mb: 4 }}>
         <Container maxWidth="xl">
           <Grid container spacing={4} alignItems="center">
-            <Grid item xs={12} md={8}>
+            <Grid size={{ xs: 12, md: 8 }}>
               <Fade in timeout={600}>
                 <Box>
                   <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
@@ -334,7 +334,7 @@ const DocumentsPage = () => {
               </Fade>
             </Grid>
             
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Fade in timeout={800}>
                 <Box sx={{ position: 'relative', display: { xs: 'none', md: 'block' } }}>
                   <AutoAwesomeIcon sx={{ 
@@ -394,7 +394,7 @@ const DocumentsPage = () => {
                 subtitle: 'Most used category'
               }
             ].map((stat, index) => (
-              <Grid item xs={12} sm={6} md={3} key={stat.title}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={stat.title}>
                 <Zoom in timeout={400 + index * 100}>
                   <StatsCard color={stat.color}>
                     <CardContent>
@@ -471,7 +471,7 @@ const DocumentsPage = () => {
         <Collapse in={showFilters}>
           <FilterSection elevation={0} sx={{ mb: 3 }}>
             <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
                   <FilterListIcon color="action" />
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -488,7 +488,7 @@ const DocumentsPage = () => {
                 </Stack>
               </Grid>
               
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Category</InputLabel>
                   <Select 
@@ -516,7 +516,7 @@ const DocumentsPage = () => {
                 </FormControl>
               </Grid>
               
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Round</InputLabel>
                   <Select 
@@ -536,7 +536,7 @@ const DocumentsPage = () => {
                 </FormControl>
               </Grid>
               
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Investor</InputLabel>
                   <Select 
@@ -556,7 +556,7 @@ const DocumentsPage = () => {
                 </FormControl>
               </Grid>
               
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                 <TextField 
                   name="tag" 
                   label="Tag" 
@@ -574,7 +574,7 @@ const DocumentsPage = () => {
                 />
               </Grid>
               
-              <Grid item xs={12} sm={12} md={1}>
+              <Grid size={{ xs: 12, sm: 12, md: 1 }}>
                 <Tooltip title="Clear all filters">
                   <Button 
                     onClick={handleClearFilters} 

@@ -553,7 +553,7 @@ const LiveInvestorDashboardPage = () => {
         <Container maxWidth="lg" sx={{ mt: 4, pb: 6 }}>
           {/* Key Metrics Overview */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <MetricCard>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                   <Box>
@@ -568,7 +568,7 @@ const LiveInvestorDashboardPage = () => {
                 </Stack>
               </MetricCard>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <MetricCard>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                   <Box>
@@ -583,7 +583,7 @@ const LiveInvestorDashboardPage = () => {
                 </Stack>
               </MetricCard>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <MetricCard>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                   <Box>
@@ -598,7 +598,7 @@ const LiveInvestorDashboardPage = () => {
                 </Stack>
               </MetricCard>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <MetricCard>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                   <Box>
@@ -617,7 +617,7 @@ const LiveInvestorDashboardPage = () => {
 
           <Grid container spacing={3}>
             {/* Enhanced Financial Summary */}
-            <Grid item xs={12} lg={8}>
+            <Grid size={{ xs: 12, lg: 8 }}>
               <MagicalDataCard className="magical-card">
                 <Box className="card-glow" />
                 <FloatingIcon index={0} sx={{ top: 20, right: 20 }}>
@@ -635,7 +635,7 @@ const LiveInvestorDashboardPage = () => {
                 </Typography>
                 
                 <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <MagicalKpiItem 
                       label="Bank Balance" 
                       value={financialSummary?.currentTotalBankBalance} 
@@ -646,7 +646,7 @@ const LiveInvestorDashboardPage = () => {
                       tooltip="Total funds across all bank accounts"
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <MagicalKpiItem 
                       label="Monthly Burn" 
                       value={financialSummary?.averageMonthlyBurnRate} 
@@ -657,7 +657,7 @@ const LiveInvestorDashboardPage = () => {
                       secondaryValue={`Last Month: ${formatCurrency(financialSummary?.lastMonthExpenses)}`}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <MagicalKpiItem 
                       label="Runway" 
                       value={financialSummary?.estimatedRunwayMonths?.toFixed(1)} 
@@ -668,10 +668,10 @@ const LiveInvestorDashboardPage = () => {
                       tooltip="Estimated months until funds depleted at current burn rate"
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Divider sx={{ my: 2, opacity: 0.1 }} />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <MagicalKpiItem 
                       label="Last Month Revenue" 
                       value={financialSummary?.lastMonthRevenue} 
@@ -681,7 +681,7 @@ const LiveInvestorDashboardPage = () => {
                       delay={3}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <MagicalKpiItem 
                       label="YTD Revenue" 
                       value={financialSummary?.ytdRevenue} 
@@ -691,7 +691,7 @@ const LiveInvestorDashboardPage = () => {
                       delay={4}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <MagicalKpiItem 
                       label="Last Month Expenses" 
                       value={financialSummary?.lastMonthExpenses} 
@@ -701,7 +701,7 @@ const LiveInvestorDashboardPage = () => {
                       delay={5}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <MagicalKpiItem 
                       label="YTD Expenses" 
                       value={financialSummary?.ytdExpenses} 
@@ -716,7 +716,7 @@ const LiveInvestorDashboardPage = () => {
             </Grid>
 
             {/* Enhanced Fundraising Summary */}
-            <Grid item xs={12} lg={4}>
+            <Grid size={{ xs: 12, lg: 4 }}>
               <MagicalDataCard className="magical-card" sx={{ height: '100%' }}>
                 <Box className="card-glow" />
                 <FloatingIcon index={2} sx={{ top: 20, right: 20 }}>
@@ -792,7 +792,7 @@ const LiveInvestorDashboardPage = () => {
             </Grid>
 
             {/* Enhanced User Metrics */}
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <MagicalDataCard className="magical-card">
                 <Box className="card-glow" />
                 <FloatingIcon index={1} sx={{ top: 20, right: 20 }}>
@@ -820,7 +820,7 @@ const LiveInvestorDashboardPage = () => {
                 />
                 
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <MagicalKpiItem 
                       label="Daily Active Users" 
                       value={kpiSnapshotSummary?.dau} 
@@ -829,7 +829,7 @@ const LiveInvestorDashboardPage = () => {
                       delay={0}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <MagicalKpiItem 
                       label="Monthly Active Users" 
                       value={kpiSnapshotSummary?.mau} 
@@ -838,7 +838,7 @@ const LiveInvestorDashboardPage = () => {
                       delay={1}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <MagicalKpiItem 
                       label="New Users Today" 
                       value={kpiSnapshotSummary?.newUsersToday || 0} 
@@ -847,7 +847,7 @@ const LiveInvestorDashboardPage = () => {
                       delay={2}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <MagicalKpiItem 
                       label="Total Users" 
                       value={kpiSnapshotSummary?.totalRegisteredUsers} 
@@ -857,7 +857,7 @@ const LiveInvestorDashboardPage = () => {
                     />
                   </Grid>
                   {kpiSnapshotSummary?.dauMauRatio && (
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                       <Box sx={{ 
                         mt: 2, 
                         p: 2, 
@@ -879,7 +879,7 @@ const LiveInvestorDashboardPage = () => {
             </Grid>
 
             {/* Team & Headcount */}
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <MagicalDataCard className="magical-card">
                 <Box className="card-glow" />
                 <FloatingIcon index={3} sx={{ top: 20, right: 20 }}>
@@ -897,7 +897,7 @@ const LiveInvestorDashboardPage = () => {
                 </Typography>
                 
                 <Grid container spacing={3}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Box sx={{ 
                       p: 3, 
                       borderRadius: 2, 
@@ -914,7 +914,7 @@ const LiveInvestorDashboardPage = () => {
                       </Typography>
                     </Box>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Box sx={{ 
                       p: 3, 
                       borderRadius: 2, 
@@ -950,7 +950,7 @@ const LiveInvestorDashboardPage = () => {
 
             {/* Enhanced Custom KPIs */}
             {customKpiSummary && customKpiSummary.length > 0 && (
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <MagicalDataCard className="magical-card">
                   <Box className="card-glow" />
                   <Typography variant="h5" gutterBottom sx={{ 
@@ -965,7 +965,7 @@ const LiveInvestorDashboardPage = () => {
                   
                   <Grid container spacing={3}>
                     {customKpiSummary.map((kpi, index) => (
-                      <Grid item xs={12} sm={6} md={4} key={index}>
+                      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                         <MagicalKpiItem 
                           label={kpi.name} 
                           value={formatKpiValue(kpi.value, kpi.displayFormat)} 
@@ -984,7 +984,7 @@ const LiveInvestorDashboardPage = () => {
 
             {/* Product Milestones */}
             {productMilestoneSummary && (productMilestoneSummary.upcoming?.length > 0 || productMilestoneSummary.recentlyCompleted?.length > 0) && (
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <MagicalDataCard className="magical-card">
                   <Box className="card-glow" />
                   <Typography variant="h5" gutterBottom sx={{ 
@@ -1112,7 +1112,7 @@ const LiveInvestorDashboardPage = () => {
 
             {/* Enhanced Fund Utilization */}
             {fundUtilizationSummary && fundUtilizationSummary.topCategories?.length > 0 && (
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <MagicalDataCard className="magical-card">
                   <Box className="card-glow" />
                   <Typography variant="h5" gutterBottom sx={{ 

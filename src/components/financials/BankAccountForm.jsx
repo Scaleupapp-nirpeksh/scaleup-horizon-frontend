@@ -103,7 +103,7 @@ const BankAccountForm = ({ onAccountUpdated, accountToEditProp, onCancelEdit }) 
         <AlertMessage message={message.text} severity={message.type || 'info'} />
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Account Name"
                 value={accountName}
@@ -113,7 +113,7 @@ const BankAccountForm = ({ onAccountUpdated, accountToEditProp, onCancelEdit }) 
                 placeholder="e.g., HDFC Operations"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Bank Name"
                 value={bankName}
@@ -123,7 +123,7 @@ const BankAccountForm = ({ onAccountUpdated, accountToEditProp, onCancelEdit }) 
                 placeholder="e.g., HDFC Bank"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Account Number (Optional)"
                 value={accountNumber}
@@ -132,7 +132,7 @@ const BankAccountForm = ({ onAccountUpdated, accountToEditProp, onCancelEdit }) 
                 placeholder="e.g., 1234567890"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Current Balance"
                 type="number"
@@ -144,7 +144,7 @@ const BankAccountForm = ({ onAccountUpdated, accountToEditProp, onCancelEdit }) 
                 inputProps={{ step: "0.01" }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Currency"
                 value={currency}
@@ -153,7 +153,7 @@ const BankAccountForm = ({ onAccountUpdated, accountToEditProp, onCancelEdit }) 
                 required
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 label="Notes (Optional)"
                 value={notes}
@@ -164,7 +164,7 @@ const BankAccountForm = ({ onAccountUpdated, accountToEditProp, onCancelEdit }) 
                 placeholder="e.g., Main operational account"
               />
             </Grid>
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
               {isEditing && (
                 <Button variant="outlined" onClick={handleInternalCancelEdit} disabled={isLoading}>
                   Cancel Edit

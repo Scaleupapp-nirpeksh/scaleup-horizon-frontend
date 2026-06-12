@@ -57,7 +57,7 @@ const RevenueForm = ({ onRevenueAdded }) => {
         <AlertMessage message={message.text} severity={message.type || 'info'} />
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Date"
                 type="date"
@@ -68,7 +68,7 @@ const RevenueForm = ({ onRevenueAdded }) => {
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Amount (INR)"
                 type="number"
@@ -79,7 +79,7 @@ const RevenueForm = ({ onRevenueAdded }) => {
                 inputProps={{ step: "0.01" }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 label="Description"
                 value={description}
@@ -89,7 +89,7 @@ const RevenueForm = ({ onRevenueAdded }) => {
                 placeholder="e.g., Monthly Subscription - Plan X"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel id="revenue-source-label">Source*</InputLabel>
                 <Select
@@ -103,7 +103,7 @@ const RevenueForm = ({ onRevenueAdded }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel id="revenue-status-label">Status*</InputLabel>
                 <Select
@@ -117,7 +117,7 @@ const RevenueForm = ({ onRevenueAdded }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button type="submit" variant="contained" color="success" disabled={isLoading} startIcon={isLoading ? <CircularProgress size={20} color="inherit"/> : null}>
                 {isLoading ? 'Adding...' : 'Add Revenue'}
               </Button>

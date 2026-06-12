@@ -1016,7 +1016,7 @@ const InvestorMeetingsPage = () => {
           <HeroSection sx={{ py: { xs: 4, md: 5 }, mb: { xs: 3, md: 4 } }}>
             <Container maxWidth="xl">
               <Grid container spacing={3} alignItems="center">
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Fade in timeout={1000}>
                     <Stack spacing={2}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -1049,7 +1049,7 @@ const InvestorMeetingsPage = () => {
                     </Stack>
                   </Fade>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Fade in timeout={1200}>
                     <Stack direction="row" spacing={2} justifyContent={{ xs: 'center', md: 'flex-end' }}>
                       <FloatingActionButton 
@@ -1120,7 +1120,7 @@ const InvestorMeetingsPage = () => {
                       color: 'error' 
                     },
                   ].map((metric, index) => (
-                    <Grid item xs={6} sm={4} md={2.4} key={metric.label}>
+                    <Grid size={{ xs: 6, sm: 4 }} md={2.4} key={metric.label}>
                       <Zoom in timeout={800 + index * 100}>
                         <MagicalMetricCard glowColor={metric.color}>
                           <CardContent sx={{ textAlign: 'center', p: 2.5 }}>
@@ -1215,7 +1215,7 @@ const InvestorMeetingsPage = () => {
 
             <Grid container spacing={4}>
               {/* Meetings List */}
-              <Grid item xs={12} md={5} lg={4}>
+              <Grid size={{ xs: 12, md: 5, lg: 4 }}>
                 <Card sx={{ 
                   borderRadius: theme.spacing(3), 
                   overflow: 'hidden', 
@@ -1468,7 +1468,7 @@ const InvestorMeetingsPage = () => {
               </Grid>
 
               {/* Meeting Details */}
-              <Grid item xs={12} md={7} lg={8}>
+              <Grid size={{ xs: 12, md: 7, lg: 8 }}>
                 {isDetailLoading ? (
                   <Box sx={{ 
                     display: 'flex', 
@@ -1622,7 +1622,7 @@ const InvestorMeetingsPage = () => {
                     }}>
                       <TabPanel value={activeDetailTab} index={0}>
                         <Grid container spacing={3}>
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             <MagicalDetailCard>
                               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                                 Meeting Information
@@ -1669,7 +1669,7 @@ const InvestorMeetingsPage = () => {
                             </MagicalDetailCard>
                           </Grid>
                           
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             <MagicalDetailCard>
                               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                                 Preparation Status
@@ -1701,7 +1701,7 @@ const InvestorMeetingsPage = () => {
                             </MagicalDetailCard>
                           </Grid>
                           
-                          <Grid item xs={12}>
+                          <Grid size={{ xs: 12 }}>
                             <MagicalDetailCard>
                               <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5 }}>
                                 Agenda
@@ -1719,7 +1719,7 @@ const InvestorMeetingsPage = () => {
                           </Grid>
                           
                           {selectedMeeting.notes && (
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                               <MagicalDetailCard>
                                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5 }}>
                                   Meeting Notes
@@ -1732,7 +1732,7 @@ const InvestorMeetingsPage = () => {
                           )}
                           
                           {selectedMeeting.summary && (
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                               <MagicalDetailCard>
                                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5 }}>
                                   Meeting Summary
@@ -1748,7 +1748,7 @@ const InvestorMeetingsPage = () => {
                       
                       <TabPanel value={activeDetailTab} index={1}>
                         <Grid container spacing={3}>
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             <MagicalDetailCard>
                               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                                 Add Talking Point
@@ -1801,7 +1801,7 @@ const InvestorMeetingsPage = () => {
                             </MagicalDetailCard>
                           </Grid>
                           
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             <MagicalDetailCard sx={{ maxHeight: 500, overflowY: 'auto' }}>
                               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                                 Talking Points ({selectedMeeting.talkingPoints?.length || 0})
@@ -1943,7 +1943,7 @@ const InvestorMeetingsPage = () => {
                       
                       <TabPanel value={activeDetailTab} index={3}>
                         <Grid container spacing={3}>
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             <MagicalDetailCard>
                               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                                 Add Follow-up Action
@@ -1994,7 +1994,7 @@ const InvestorMeetingsPage = () => {
                             </MagicalDetailCard>
                           </Grid>
                           
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             <MagicalDetailCard sx={{ maxHeight: 500, overflowY: 'auto' }}>
                               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                                 Follow-up Actions ({selectedMeeting.actionItems?.length || 0})
@@ -2120,37 +2120,37 @@ const InvestorMeetingsPage = () => {
                                 Financial Snapshot
                               </Typography>
                               <Grid container spacing={2}>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Cash Balance:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatCurrency(selectedMeeting.financialSnapshot.cashBalance)}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Monthly Burn:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatCurrency(selectedMeeting.financialSnapshot.monthlyBurn)}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Runway:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.financialSnapshot.runway?.toFixed(1) || 'N/A'} months
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">MRR:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatCurrency(selectedMeeting.financialSnapshot.mrr)}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">ARR:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatCurrency(selectedMeeting.financialSnapshot.arr)}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Total Raised:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatCurrency(selectedMeeting.financialSnapshot.totalFundsRaised)}
@@ -2167,25 +2167,25 @@ const InvestorMeetingsPage = () => {
                                 User Metrics (as of {formatDate(selectedMeeting.userMetricsSnapshot.snapshotDate)})
                               </Typography>
                               <Grid container spacing={2}>
-                                <Grid item xs={6} sm={3}>
+                                <Grid size={{ xs: 6, sm: 3 }}>
                                   <Typography variant="body2" color="text.secondary">DAU:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.userMetricsSnapshot.dau?.toLocaleString() || 'N/A'}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={3}>
+                                <Grid size={{ xs: 6, sm: 3 }}>
                                   <Typography variant="body2" color="text.secondary">MAU:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.userMetricsSnapshot.mau?.toLocaleString() || 'N/A'}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={3}>
+                                <Grid size={{ xs: 6, sm: 3 }}>
                                   <Typography variant="body2" color="text.secondary">DAU/MAU Ratio:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.userMetricsSnapshot.dauMauRatio || 'N/A'}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={3}>
+                                <Grid size={{ xs: 6, sm: 3 }}>
                                   <Typography variant="body2" color="text.secondary">Total Users:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.userMetricsSnapshot.totalRegisteredUsers?.toLocaleString() || 'N/A'}
@@ -2202,19 +2202,19 @@ const InvestorMeetingsPage = () => {
                                 Team Updates
                               </Typography>
                               <Grid container spacing={2}>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Current Headcount:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.teamUpdates.currentHeadcount}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">New Hires (since last):</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.teamUpdates.newHires?.length || 0}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Open Positions:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.teamUpdates.openPositions}
@@ -2276,7 +2276,7 @@ const InvestorMeetingsPage = () => {
                               </Typography>
                               <Grid container spacing={2}>
                                 {selectedMeeting.highlightedKpis.map(kpi => (
-                                  <Grid item xs={12} sm={6} md={4} key={kpi.kpiId}>
+                                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={kpi.kpiId}>
                                     <Typography variant="body2" color="text.secondary">{kpi.kpiName}:</Typography>
                                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                       {kpi.formattedValue || kpi.value || 'N/A'}
@@ -2309,13 +2309,13 @@ const InvestorMeetingsPage = () => {
                                 Runway Scenario: {selectedMeeting.linkedRunwayScenario.name}
                               </Typography>
                               <Grid container spacing={2}>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Total Runway:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.linkedRunwayScenario.totalRunwayMonths?.toFixed(1) || 'N/A'} months
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Cash Out Date:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatDate(selectedMeeting.linkedRunwayScenario.cashOutDate) || 'N/A'}
@@ -2332,19 +2332,19 @@ const InvestorMeetingsPage = () => {
                                 Fundraising: {selectedMeeting.linkedFundraisingPrediction.name}
                               </Typography>
                               <Grid container spacing={2}>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Target Round:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatCurrency(selectedMeeting.linkedFundraisingPrediction.targetRoundSize)}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Predicted Close:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatDate(selectedMeeting.linkedFundraisingPrediction.predictedCloseDate) || 'N/A'}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={4}>
+                                <Grid size={{ xs: 6, sm: 4 }}>
                                   <Typography variant="body2" color="text.secondary">Probability:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {(selectedMeeting.linkedFundraisingPrediction.overallProbability * 100).toFixed(0) || 'N/A'}%
@@ -2361,19 +2361,19 @@ const InvestorMeetingsPage = () => {
                                 Budget: {selectedMeeting.budgetSummary.budgetName}
                               </Typography>
                               <Grid container spacing={2}>
-                                <Grid item xs={6} sm={3}>
+                                <Grid size={{ xs: 6, sm: 3 }}>
                                   <Typography variant="body2" color="text.secondary">Total Budgeted:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatCurrency(selectedMeeting.budgetSummary.totalBudgeted)}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={3}>
+                                <Grid size={{ xs: 6, sm: 3 }}>
                                   <Typography variant="body2" color="text.secondary">Total Actual:</Typography>
                                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     {formatCurrency(selectedMeeting.budgetSummary.totalActualSpent)}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={3}>
+                                <Grid size={{ xs: 6, sm: 3 }}>
                                   <Typography variant="body2" color="text.secondary">Variance:</Typography>
                                   <Typography 
                                     variant="h6" 
@@ -2385,7 +2385,7 @@ const InvestorMeetingsPage = () => {
                                     {formatCurrency(selectedMeeting.budgetSummary.totalVariance)}
                                   </Typography>
                                 </Grid>
-                                <Grid item xs={12} sm={3}>
+                                <Grid size={{ xs: 12, sm: 3 }}>
                                   <Typography variant="body2" color="text.secondary">Period:</Typography>
                                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                                     {selectedMeeting.budgetSummary.period}
@@ -2561,7 +2561,7 @@ const InvestorMeetingsPage = () => {
                   </Stack>
                   
                   <Grid container spacing={2}>
-                    <Grid item xs={12} md={8}>
+                    <Grid size={{ xs: 12, md: 8 }}>
                       <TextField 
                         label="Meeting Title" 
                         fullWidth 
@@ -2580,7 +2580,7 @@ const InvestorMeetingsPage = () => {
                         }}
                       />
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <FormControl fullWidth error={!!formErrors.meetingType} required>
                         <InputLabel>Meeting Type</InputLabel>
                         <Select 
@@ -2601,7 +2601,7 @@ const InvestorMeetingsPage = () => {
                       </FormControl>
                     </Grid>
                     
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                       <DatePicker 
                         label="Meeting Date & Time" 
                         value={formData.meetingDate ? new Date(formData.meetingDate) : null} 
@@ -2623,7 +2623,7 @@ const InvestorMeetingsPage = () => {
                         }} 
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                       <TextField 
                         label="Duration" 
                         fullWidth 
@@ -2640,7 +2640,7 @@ const InvestorMeetingsPage = () => {
                         }} 
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                       <TextField 
                         label="Location" 
                         fullWidth 
@@ -2656,7 +2656,7 @@ const InvestorMeetingsPage = () => {
                         }}
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                       <TextField 
                         label="Meeting Link" 
                         fullWidth 
@@ -2770,7 +2770,7 @@ const InvestorMeetingsPage = () => {
                           </Stack>
                           
                           <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
+                            <Grid size={{ xs: 12, md: 6 }}>
                               <Autocomplete 
                                 fullWidth 
                                 options={availableInvestors} 
@@ -2806,7 +2806,7 @@ const InvestorMeetingsPage = () => {
                                 )}
                               />
                             </Grid>
-                            <Grid item xs={12} md={6}>
+                            <Grid size={{ xs: 12, md: 6 }}>
                               <TextField 
                                 label="Contact Person" 
                                 fullWidth 
@@ -2814,7 +2814,7 @@ const InvestorMeetingsPage = () => {
                                 onChange={(e) => handleFormChange('contactName', e.target.value, index, 'investors')} 
                               />
                             </Grid>
-                            <Grid item xs={12} md={6}>
+                            <Grid size={{ xs: 12, md: 6 }}>
                               <TextField 
                                 label="Email" 
                                 fullWidth 
@@ -2825,7 +2825,7 @@ const InvestorMeetingsPage = () => {
                                 helperText={formErrors[`investors.${index}.contactEmail`]} 
                               />
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                               <TextField 
                                 label="Role/Title" 
                                 fullWidth 
@@ -2833,7 +2833,7 @@ const InvestorMeetingsPage = () => {
                                 onChange={(e) => handleFormChange('role', e.target.value, index, 'investors')} 
                               />
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                               <FormControl fullWidth>
                                 <InputLabel>Investor Type</InputLabel>
                                 <Select 
@@ -2848,7 +2848,7 @@ const InvestorMeetingsPage = () => {
                                 </Select>
                               </FormControl>
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                               <FormControl fullWidth>
                                 <InputLabel>Investment Stage</InputLabel>
                                 <Select 
@@ -2864,7 +2864,7 @@ const InvestorMeetingsPage = () => {
                                 </Select>
                               </FormControl>
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                               <FormControlLabel 
                                 control={
                                   <Checkbox 
@@ -2957,7 +2957,7 @@ const InvestorMeetingsPage = () => {
                           }}
                         >
                           <Grid container spacing={2} alignItems="center">
-                            <Grid item xs={12} sm={7}>
+                            <Grid size={{ xs: 12, sm: 7 }}>
                               <Autocomplete 
                                 fullWidth 
                                 options={availableTeamMembers} 
@@ -2993,7 +2993,7 @@ const InvestorMeetingsPage = () => {
                                 )}
                               />
                             </Grid>
-                            <Grid item xs={12} sm={formData.internalParticipants.length > 1 ? 4 : 5}>
+                            <Grid size={{ xs: 12 }} sm={formData.internalParticipants.length> 1 ? 4 : 5}>
                               <TextField 
                                 label="Role in Meeting" 
                                 fullWidth 
@@ -3003,7 +3003,7 @@ const InvestorMeetingsPage = () => {
                               />
                             </Grid>
                             {formData.internalParticipants.length > 1 && (
-                              <Grid item xs={12} sm={1}>
+                              <Grid size={{ xs: 12, sm: 1 }}>
                                 <IconButton 
                                   onClick={() => removeInternalParticipantFromForm(index)} 
                                   color="error" 

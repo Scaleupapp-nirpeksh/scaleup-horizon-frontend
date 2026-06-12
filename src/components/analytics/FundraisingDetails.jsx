@@ -89,7 +89,7 @@ const FundraisingDetails = ({
       )}
     
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, borderRadius: 2, height: 450 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
               <Typography variant="h6">
@@ -126,7 +126,7 @@ const FundraisingDetails = ({
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Stack spacing={2}>
             <GlassCard>
               <Box sx={{ p: 3 }}>
@@ -200,7 +200,7 @@ const FundraisingDetails = ({
         </Grid>
 
         {selectedPrediction && (
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Paper sx={{ p: 3, mt: 2, borderRadius: 2 }}>
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                 <Typography variant="h6">
@@ -217,7 +217,7 @@ const FundraisingDetails = ({
               </Stack>
               
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Box sx={{ mb: 3 }}>
                     <Typography variant="subtitle2" color="text.secondary">
                       Timeline
@@ -266,7 +266,7 @@ const FundraisingDetails = ({
                   </Box>
                 </Grid>
                 
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="subtitle2" color="text.secondary">
                     Success Probabilities
                   </Typography>
@@ -317,14 +317,14 @@ const FundraisingDetails = ({
                 </Grid>
                 
                 {selectedPrediction.keyMilestones && selectedPrediction.keyMilestones.length > 0 && (
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Divider sx={{ my: 2 }} />
                     <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
                       Key Milestones
                     </Typography>
                     <Grid container spacing={2}>
                       {selectedPrediction.keyMilestones.map((milestone, idx) => (
-                        <Grid item xs={12} sm={6} md={3} key={idx}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }} key={idx}>
                           <Paper 
                             sx={{ 
                               p: 2, 

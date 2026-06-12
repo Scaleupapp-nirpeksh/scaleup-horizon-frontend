@@ -1276,7 +1276,7 @@ const ProductMilestonesPage = () => {
           <HeroSection sx={{ py: { xs: 4, md: 5 }, mb: { xs: 3, md: 4 } }}>
             <Container maxWidth="xl">
               <Grid container spacing={3} alignItems="center">
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Fade in timeout={1000}>
                     <Stack spacing={2}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -1309,7 +1309,7 @@ const ProductMilestonesPage = () => {
                     </Stack>
                   </Fade>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Fade in timeout={1200}>
                     <Stack direction="row" spacing={2} justifyContent={{ xs: 'center', md: 'flex-end' }}>
                       <FloatingActionButton 
@@ -1382,7 +1382,7 @@ const ProductMilestonesPage = () => {
                       decimals: 0
                     },
                   ].map((metric, index) => (
-                    <Grid item xs={6} sm={4} md={2.4} key={metric.label}>
+                    <Grid size={{ xs: 6, sm: 4 }} md={2.4} key={metric.label}>
                       <Zoom in timeout={800 + index * 100}>
                         <MagicalMetricCard glowColor={metric.color}>
                           <CardContent sx={{ textAlign: 'center', p: 2.5 }}>
@@ -1490,7 +1490,7 @@ const ProductMilestonesPage = () => {
               }}
             >
               <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} md={3}>
+                <Grid size={{ xs: 12, md: 3 }}>
                   <TextField
                     fullWidth
                     placeholder="Search milestones..."
@@ -1505,7 +1505,7 @@ const ProductMilestonesPage = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={4} md={2}>
+                <Grid size={{ xs: 12, sm: 4, md: 2 }}>
                   <FormControl fullWidth>
                     <InputLabel>Status</InputLabel>
                     <Select
@@ -1522,7 +1522,7 @@ const ProductMilestonesPage = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4} md={2}>
+                <Grid size={{ xs: 12, sm: 4, md: 2 }}>
                   <FormControl fullWidth>
                     <InputLabel>Type</InputLabel>
                     <Select
@@ -1540,7 +1540,7 @@ const ProductMilestonesPage = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4} md={2}>
+                <Grid size={{ xs: 12, sm: 4, md: 2 }}>
                   <FormControl fullWidth>
                     <InputLabel>Quarter</InputLabel>
                     <Select
@@ -1557,7 +1557,7 @@ const ProductMilestonesPage = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} md={3}>
+                <Grid size={{ xs: 12, md: 3 }}>
                   <Stack direction="row" spacing={1} justifyContent={{ xs: 'center', md: 'flex-end' }}>
                     <ToggleButtonGroup
                       value={viewMode}
@@ -1653,7 +1653,7 @@ const ProductMilestonesPage = () => {
                               }}
                             >
                               <Grid container spacing={2} alignItems="center">
-                                <Grid item xs={12} md={4}>
+                                <Grid size={{ xs: 12, md: 4 }}>
                                   <Stack spacing={1}>
                                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                       {milestone.name}
@@ -1667,7 +1667,7 @@ const ProductMilestonesPage = () => {
                                     </Stack>
                                   </Stack>
                                 </Grid>
-                                <Grid item xs={12} md={3}>
+                                <Grid size={{ xs: 12, md: 3 }}>
                                   <Stack spacing={1}>
                                     <Typography variant="caption" color="text.secondary">
                                       Progress
@@ -1681,7 +1681,7 @@ const ProductMilestonesPage = () => {
                                     </Typography>
                                   </Stack>
                                 </Grid>
-                                <Grid item xs={12} md={3}>
+                                <Grid size={{ xs: 12, md: 3 }}>
                                   <Stack spacing={0.5}>
                                     <Typography variant="caption" color="text.secondary">
                                       Timeline
@@ -1708,7 +1708,7 @@ const ProductMilestonesPage = () => {
                                     })()}
                                   </Stack>
                                 </Grid>
-                                <Grid item xs={12} md={2}>
+                                <Grid size={{ xs: 12, md: 2 }}>
                                   <Stack direction="row" spacing={1} alignItems="center">
                                     <PriorityChip priority={milestone.priority} />
                                     <IconButton
@@ -1904,7 +1904,7 @@ const ProductMilestonesPage = () => {
 
                   <TabPanel value={activeTab} index={0}>
                     <Grid container spacing={3}>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
                           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                             Details
@@ -1940,7 +1940,7 @@ const ProductMilestonesPage = () => {
                           </Stack>
                         </Paper>
                       </Grid>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
                           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                             Timeline
@@ -1990,7 +1990,7 @@ const ProductMilestonesPage = () => {
                         </Paper>
                       </Grid>
                       {selectedMilestone.investorSummary && (
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                           <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
                             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                               Investor Summary
@@ -2020,7 +2020,7 @@ const ProductMilestonesPage = () => {
                             }}
                           >
                             <Grid container spacing={2} alignItems="center">
-                              <Grid item xs={12} md={6}>
+                              <Grid size={{ xs: 12, md: 6 }}>
                                 <Stack spacing={0.5}>
                                   <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                                     {task.taskName}
@@ -2032,7 +2032,7 @@ const ProductMilestonesPage = () => {
                                   )}
                                 </Stack>
                               </Grid>
-                              <Grid item xs={12} md={3}>
+                              <Grid size={{ xs: 12, md: 3 }}>
                                 <Stack spacing={0.5}>
                                   <Typography variant="caption" color="text.secondary">
                                     Assignee
@@ -2047,7 +2047,7 @@ const ProductMilestonesPage = () => {
                                   </Stack>
                                 </Stack>
                               </Grid>
-                              <Grid item xs={12} md={3}>
+                              <Grid size={{ xs: 12, md: 3 }}>
                                 <FormControl fullWidth size="small">
                                   <Select
                                     value={task.status}
@@ -2081,7 +2081,7 @@ const ProductMilestonesPage = () => {
 
                   <TabPanel value={activeTab} index={2}>
                     <Grid container spacing={3}>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
                           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                             Product Owner
@@ -2105,7 +2105,7 @@ const ProductMilestonesPage = () => {
                           )}
                         </Paper>
                       </Grid>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
                           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                             Team Members ({selectedMilestone.teamMembers?.length || 0})
@@ -2141,7 +2141,7 @@ const ProductMilestonesPage = () => {
                           Business Impact Assessment
                         </Typography>
                         <Grid container spacing={2}>
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             <Stack spacing={2}>
                               <Box>
                                 <Typography variant="caption" color="text.secondary">Impact Type</Typography>
@@ -2165,7 +2165,7 @@ const ProductMilestonesPage = () => {
                               </Box>
                             </Stack>
                           </Grid>
-                          <Grid item xs={12} md={6}>
+                          <Grid size={{ xs: 12, md: 6 }}>
                             {selectedMilestone.businessImpact.targetValue && (
                               <Stack spacing={2}>
                                 <Box>
@@ -2236,7 +2236,7 @@ const ProductMilestonesPage = () => {
                       Basic Information
                     </Typography>
                     <Grid container spacing={2}>
-                      <Grid item xs={12}>
+                      <Grid size={{ xs: 12 }}>
                         <TextField
                           fullWidth
                           label="Milestone Name"
@@ -2247,7 +2247,7 @@ const ProductMilestonesPage = () => {
                           required
                         />
                       </Grid>
-                      <Grid item xs={12}>
+                      <Grid size={{ xs: 12 }}>
                         <TextField
                           fullWidth
                           label="Description"
@@ -2257,7 +2257,7 @@ const ProductMilestonesPage = () => {
                           rows={3}
                         />
                       </Grid>
-                      <Grid item xs={12} md={4}>
+                      <Grid size={{ xs: 12, md: 4 }}>
                         <FormControl fullWidth>
                           <InputLabel>Type</InputLabel>
                           <Select
@@ -2277,7 +2277,7 @@ const ProductMilestonesPage = () => {
                           </Select>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={12} md={4}>
+                      <Grid size={{ xs: 12, md: 4 }}>
                         <FormControl fullWidth>
                           <InputLabel>Priority</InputLabel>
                           <Select
@@ -2292,7 +2292,7 @@ const ProductMilestonesPage = () => {
                           </Select>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={12} md={4}>
+                      <Grid size={{ xs: 12, md: 4 }}>
                         <FormControl fullWidth>
                           <InputLabel>Status</InputLabel>
                           <Select
@@ -2319,7 +2319,7 @@ const ProductMilestonesPage = () => {
                       Timeline
                     </Typography>
                     <Grid container spacing={2}>
-                      <Grid item xs={12} md={3}>
+                      <Grid size={{ xs: 12, md: 3 }}>
                         <DatePicker
                           label="Planned Start Date"
                           value={formData.plannedStartDate}
@@ -2334,7 +2334,7 @@ const ProductMilestonesPage = () => {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid size={{ xs: 12, md: 3 }}>
                         <DatePicker
                           label="Planned End Date"
                           value={formData.plannedEndDate}
@@ -2349,7 +2349,7 @@ const ProductMilestonesPage = () => {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid size={{ xs: 12, md: 3 }}>
                         <TextField
                           fullWidth
                           label="Quarter"
@@ -2359,7 +2359,7 @@ const ProductMilestonesPage = () => {
                           helperText="Format: YYYY-QN"
                         />
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid size={{ xs: 12, md: 3 }}>
                         <TextField
                           fullWidth
                           label="Completion %"
@@ -2380,7 +2380,7 @@ const ProductMilestonesPage = () => {
                       Team Assignment
                     </Typography>
                     <Grid container spacing={2}>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <Autocomplete
                           options={availableTeamMembers}
                           getOptionLabel={(option) => option.name || ''}
@@ -2391,7 +2391,7 @@ const ProductMilestonesPage = () => {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <Autocomplete
                           multiple
                           options={availableTeamMembers}
@@ -2412,7 +2412,7 @@ const ProductMilestonesPage = () => {
                       Business Impact
                     </Typography>
                     <Grid container spacing={2}>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <FormControl fullWidth>
                           <InputLabel>Impact Type</InputLabel>
                           <Select
@@ -2431,7 +2431,7 @@ const ProductMilestonesPage = () => {
                           </Select>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <FormControl fullWidth>
                           <InputLabel>Confidence Level</InputLabel>
                           <Select
@@ -2447,7 +2447,7 @@ const ProductMilestonesPage = () => {
                           </Select>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={12}>
+                      <Grid size={{ xs: 12 }}>
                         <TextField
                           fullWidth
                           label="Projected Impact"
@@ -2550,7 +2550,7 @@ const ProductMilestonesPage = () => {
                     )}
                   />
                   <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <FormControl fullWidth>
                         <InputLabel>Priority</InputLabel>
                         <Select
@@ -2565,7 +2565,7 @@ const ProductMilestonesPage = () => {
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <DatePicker
                         label="Due Date"
                         value={taskFormData.dueDate}

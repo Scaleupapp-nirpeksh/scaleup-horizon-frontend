@@ -110,10 +110,10 @@ const RecurringTransactionForm = ({ onTransactionAdded }) => {
         <AlertMessage message={message.text} severity={message.type || 'info'} />
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField name="name" label="Name / Description" value={formData.name} onChange={handleInputChange} fullWidth required placeholder="e.g., Monthly Office Rent"/>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth required>
                 <InputLabel id="recurring-type-label">Type</InputLabel>
                 <Select labelId="recurring-type-label" name="type" value={formData.type} label="Type" onChange={handleTypeChange}>
@@ -121,10 +121,10 @@ const RecurringTransactionForm = ({ onTransactionAdded }) => {
                 </Select>
               </FormControl>
             </Grid>
-             <Grid item xs={12} sm={6}>
+             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField name="amount" label="Amount (INR)" type="number" value={formData.amount} onChange={handleInputChange} fullWidth required inputProps={{ step: "0.01" }} />
             </Grid>
-             <Grid item xs={12} sm={6}>
+             <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth required>
                 <InputLabel id="recurring-category-label">{formData.type === 'expense' ? 'Category' : 'Source'}</InputLabel>
                 <Select
@@ -139,11 +139,11 @@ const RecurringTransactionForm = ({ onTransactionAdded }) => {
               </FormControl>
             </Grid>
             {formData.type === 'expense' && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField name="vendor" label="Vendor (Optional)" value={formData.vendor} onChange={handleInputChange} fullWidth />
               </Grid>
             )}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth required>
                 <InputLabel id="recurring-frequency-label">Frequency</InputLabel>
                 <Select labelId="recurring-frequency-label" name="frequency" value={formData.frequency} label="Frequency" onChange={handleInputChange}>
@@ -151,25 +151,25 @@ const RecurringTransactionForm = ({ onTransactionAdded }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField name="startDate" label="Start Date" type="date" value={formData.startDate} onChange={handleInputChange} InputLabelProps={{ shrink: true }} fullWidth required />
             </Grid>
             {formData.frequency === 'monthly' && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField name="dayOfMonth" label="Day of Month (1-31)" type="number" value={formData.dayOfMonth} onChange={handleInputChange} fullWidth inputProps={{ min: 1, max: 31 }}/>
               </Grid>
             )}
             {/* Add more conditional fields for other frequencies (dayOfWeek, monthOfYear) as needed */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField name="notes" label="Notes (Optional)" value={formData.notes} onChange={handleInputChange} fullWidth multiline rows={2} />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControlLabel
                 control={<Switch checked={formData.autoCreate} onChange={handleInputChange} name="autoCreate" />}
                 label="Auto-create transaction when due"
               />
             </Grid>
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button type="submit" variant="contained" disabled={isLoading} startIcon={isLoading ? <CircularProgress size={20} color="inherit"/> : null}>
                 {isLoading ? 'Adding...' : 'Add Recurring Transaction'}
               </Button>

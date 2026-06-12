@@ -170,7 +170,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
           <Grid container spacing={2}>
             {/* Basic Information */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="name" 
                 label="Round Name (e.g., Pre-Seed FFF)" 
@@ -180,7 +180,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
                 required 
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel id="round-type-label">Round Type</InputLabel>
                 <Select 
@@ -195,7 +195,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="targetAmount" 
                 label="Target Amount (INR)" 
@@ -209,7 +209,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* Calculation Mode Toggle */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Divider sx={{ my: 2 }} />
               <FormControlLabel
                 control={
@@ -242,7 +242,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
             {/* AUTO-CALCULATION MODE */}
             {useAutoCalculation && (
               <>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="equityPercentageOffered" 
                     label="Equity Percentage Offered (%)" 
@@ -255,7 +255,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
                     helperText="% of company you're giving away to investors"
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="existingSharesPreRound" 
                     label="Existing Shares Before Round" 
@@ -270,7 +270,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
 
                 {/* CALCULATION PREVIEW */}
                 {calculatedValues && (
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Alert 
                       severity="info" 
                       icon={<CalculateIcon />}
@@ -313,7 +313,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
             {/* MANUAL MODE */}
             {!useAutoCalculation && (
               <>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="currentValuationPreMoney" 
                     label="Pre-Money Valuation (INR)" 
@@ -324,7 +324,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
                     helperText="Company value before investment"
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="currentValuationPostMoney" 
                     label="Post-Money Valuation (INR)" 
@@ -339,7 +339,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
             )}
 
             {/* Dates and Status */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="openDate" 
                 label="Open Date" 
@@ -350,7 +350,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
                 fullWidth 
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="targetCloseDate" 
                 label="Target Close Date" 
@@ -361,7 +361,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
                 fullWidth 
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel id="round-status-label">Status</InputLabel>
                 <Select 
@@ -376,7 +376,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField 
                 name="notes" 
                 label="Notes (Optional)" 
@@ -390,7 +390,7 @@ const RoundForm = ({ onRoundSaved, roundToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* Action Buttons */}
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
               {isEditing && (
                 <Button 
                   variant="outlined" 

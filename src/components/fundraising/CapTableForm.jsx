@@ -322,7 +322,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <Grid container spacing={2.5}>
             {/* SHAREHOLDER DETAILS */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="shareholderName" 
                 label="Shareholder Name" 
@@ -343,7 +343,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
               />
             </Grid>
             
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth required>
                 <InputLabel id="shareholder-type-label">Shareholder Type</InputLabel>
                 <Select 
@@ -366,7 +366,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
 
             {/* INVESTOR LINKING */}
             {formData.shareholderType === 'Investor' && (
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Autocomplete
                   options={investors}
                   getOptionLabel={(option) => option.name || ''}
@@ -403,7 +403,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
             )}
 
             {/* ROUND INTEGRATION */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
                 <FormControlLabel
                   control={
@@ -452,7 +452,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* SHARES AND INVESTMENT */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="numberOfShares" 
                 label="Number of Shares/Units" 
@@ -473,7 +473,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
               />
             </Grid>
             
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="investmentAmount" 
                 label="Investment Amount (INR)" 
@@ -491,7 +491,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* SECURITY DETAILS */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth required>
                 <InputLabel id="security-type-label">Security Type</InputLabel>
                 <Select 
@@ -506,7 +506,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
               </FormControl>
             </Grid>
             
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="grantDate" 
                 label="Grant/Issue Date" 
@@ -519,7 +519,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* NOTES */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField 
                 name="notes" 
                 label="Notes (Optional)" 
@@ -533,7 +533,7 @@ const CapTableForm = ({ onEntrySaved, entryToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* SUBMIT BUTTONS */}
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt:2 }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt:2 }}>
               {isEditing && (
                 <Button 
                   variant="outlined" 

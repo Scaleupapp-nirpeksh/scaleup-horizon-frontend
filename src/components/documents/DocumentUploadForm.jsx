@@ -114,7 +114,7 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
       <AlertMessage message={message.text} severity={message.type || 'info'} />
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Button
               variant="outlined"
               component="label"
@@ -125,7 +125,7 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
               <input type="file" hidden onChange={handleFileChange} required />
             </Button>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField 
               name="description" 
               label="Description" 
@@ -137,7 +137,7 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
               rows={2}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth required>
               <InputLabel>Category</InputLabel>
               <Select 
@@ -152,7 +152,7 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <Autocomplete
               multiple
               id="tags-filled"
@@ -175,7 +175,7 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
               )}
             />
           </Grid>
-           <Grid item xs={12} sm={6}>
+           <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
               <InputLabel>Associate with Round (Optional)</InputLabel>
               <Select 
@@ -190,7 +190,7 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
              <FormControl fullWidth>
               <InputLabel>Associate with Investor (Optional)</InputLabel>
               <Select 
@@ -205,7 +205,7 @@ const DocumentUploadForm = ({ onDocumentUploaded, onCancel }) => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+          <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
             {onCancel && (
               <Button variant="text" onClick={onCancel} disabled={isLoading}>
                 Cancel

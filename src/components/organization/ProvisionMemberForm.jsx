@@ -189,7 +189,7 @@ const ProvisionMemberForm = () => {
         
         <Box component="form" onSubmit={handleSubmit}>
           <Grid container spacing={2.5}>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <StyledTextField
                 fullWidth
                 id="member-name"
@@ -202,7 +202,7 @@ const ProvisionMemberForm = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <StyledTextField
                 fullWidth
                 id="member-email"
@@ -216,7 +216,7 @@ const ProvisionMemberForm = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControl fullWidth sx={{mb: 2.5}}>
                 <InputLabel id="member-role-label">Role</InputLabel>
                 <Select

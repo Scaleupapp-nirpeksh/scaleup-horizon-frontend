@@ -370,7 +370,7 @@ const BudgetPage = () => {
 
         {/* Overview Metrics - ALL FROM REAL DATA */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={500}>
               <Box>
                 <BudgetOverviewCard
@@ -383,7 +383,7 @@ const BudgetPage = () => {
               </Box>
             </Grow>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={700}>
               <Box>
                 <BudgetOverviewCard
@@ -396,7 +396,7 @@ const BudgetPage = () => {
               </Box>
             </Grow>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={900}>
               <Box>
                 <BudgetOverviewCard
@@ -409,7 +409,7 @@ const BudgetPage = () => {
               </Box>
             </Grow>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Grow in timeout={1100}>
               <Box>
                 <BudgetOverviewCard
@@ -457,7 +457,7 @@ const BudgetPage = () => {
                   {loading ? (
                     <Grid container spacing={3}>
                       {[...Array(4)].map((_, i) => (
-                        <Grid item xs={12} sm={6} md={4} key={i}>
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
                           <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2 }} />
                         </Grid>
                       ))}
@@ -486,7 +486,7 @@ const BudgetPage = () => {
                         const spentPercentage = (budget.totalActualSpent || 0) / budget.totalBudgetedAmount * 100;
                         
                         return (
-                          <Grid item xs={12} sm={6} md={viewMode === 'grid' ? 4 : 12} key={budget._id}>
+                          <Grid size={{ xs: 12, sm: 6 }} md={viewMode === 'grid' ? 4 : 12} key={budget._id}>
                             <Grow in timeout={index * 100}>
                               <BudgetCard onClick={() => handleViewBudgetVsActuals(budget)}>
                                 <Stack spacing={2}>
@@ -605,7 +605,7 @@ const BudgetPage = () => {
 
                   {/* Summary Cards */}
                   <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
                         <Typography variant="h5" color="primary" sx={{ fontWeight: 700 }}>
                           ₹{budgetReport.totals.totalBudgeted.toLocaleString()}
@@ -615,7 +615,7 @@ const BudgetPage = () => {
                         </Typography>
                       </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2, bgcolor: alpha(theme.palette.info.main, 0.05) }}>
                         <Typography variant="h5" color="info.main" sx={{ fontWeight: 700 }}>
                           ₹{budgetReport.totals.totalActualSpent.toLocaleString()}
@@ -625,7 +625,7 @@ const BudgetPage = () => {
                         </Typography>
                       </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2, bgcolor: alpha(
                         budgetReport.totals.totalVariance < 0 ? theme.palette.error.main : theme.palette.success.main, 
                         0.05
@@ -642,7 +642,7 @@ const BudgetPage = () => {
                         </Typography>
                       </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
                         <Typography variant="h5" sx={{ fontWeight: 700 }}>
                           {((budgetReport.totals.totalActualSpent / budgetReport.totals.totalBudgeted) * 100).toFixed(1)}%
@@ -656,7 +656,7 @@ const BudgetPage = () => {
 
                   {/* Charts */}
                   <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} lg={8}>
+                    <Grid size={{ xs: 12, lg: 8 }}>
                       <Paper sx={{ p: 3, borderRadius: 2 }}>
                         <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                           Budget vs Actual by Category
@@ -685,7 +685,7 @@ const BudgetPage = () => {
                         )}
                       </Paper>
                     </Grid>
-                    <Grid item xs={12} lg={4}>
+                    <Grid size={{ xs: 12, lg: 4 }}>
                       <Paper sx={{ p: 3, borderRadius: 2 }}>
                         <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
                           Spending Distribution

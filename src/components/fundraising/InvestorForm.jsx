@@ -496,7 +496,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <Grid container spacing={2.5}>
             {/* BASIC INVESTOR INFO */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="name" 
                 label="Investor Name / Fund Name" 
@@ -508,7 +508,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                 helperText={!formData.name.trim() ? "Investor name is required" : ""}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth required error={!formData.roundId}>
                 <InputLabel id="investor-round-label">Funding Round</InputLabel>
                 <Select 
@@ -541,7 +541,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* CONTACT INFO */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="contactPerson" 
                 label="Contact Person" 
@@ -550,7 +550,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                 fullWidth 
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="email" 
                 label="Email" 
@@ -560,7 +560,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                 fullWidth 
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="phone" 
                 label="Phone" 
@@ -569,7 +569,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                 fullWidth 
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField 
                 name="entityName" 
                 label="Investing Entity (if different)" 
@@ -580,7 +580,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* INVESTMENT DETAILS */}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel id="investor-vehicle-label">Investment Vehicle</InputLabel>
                 <Select 
@@ -594,7 +594,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel id="investor-status-label">Status</InputLabel>
                 <Select 
@@ -612,7 +612,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
             {/* CONDITIONAL FIELDS FOR SAFE/NOTE */}
             {(formData.investmentVehicle === 'SAFE' || formData.investmentVehicle === 'Convertible Note') && (
               <>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="safeValuationCap" 
                     label="Valuation Cap (INR)" 
@@ -623,7 +623,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                     helperText="Maximum valuation for conversion"
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="safeDiscountRate" 
                     label="Discount Rate (e.g., 0.2 for 20%)" 
@@ -640,7 +640,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
             
             {formData.investmentVehicle === 'Convertible Note' && (
               <>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="noteInterestRate" 
                     label="Interest Rate (%)" 
@@ -652,7 +652,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                     helperText="Annual interest rate"
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField 
                     name="noteMaturityDate" 
                     label="Maturity Date" 
@@ -668,7 +668,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
             )}
             
             {/* ✅ FIX: ENHANCED TRANCHES SECTION */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <Typography variant="subtitle1" sx={{mt:2, mb:1, fontWeight: 500}}>
                   Investment Tranches
                   <Tooltip title="Split the total investment into multiple payments with different timelines">
@@ -681,7 +681,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                           Tranche {tranche.trancheNumber || index + 1}
                         </Typography>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                               <TextField 
                                 name="agreedAmount" 
                                 label="Agreed Amount *" 
@@ -695,7 +695,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                                 error={!tranche.agreedAmount || parseFloat(tranche.agreedAmount) <= 0}
                               />
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                               <TextField 
                                 name="receivedAmount" 
                                 label="Received Amount" 
@@ -710,7 +710,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                                 helperText="Actually received"
                               />
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                               <TextField 
                                 name="dateAgreed" 
                                 label="Date Agreed" 
@@ -721,7 +721,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                                 fullWidth 
                               />
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                               <TextField 
                                 name="dateReceived" 
                                 label="Date Received" 
@@ -732,7 +732,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                                 fullWidth 
                               />
                             </Grid>
-                            <Grid item xs={12} sm={4}>
+                            <Grid size={{ xs: 12, sm: 4 }}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel>Status</InputLabel>
                                     <Select 
@@ -747,7 +747,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={12} sm={4}>
+                            <Grid size={{ xs: 12, sm: 4 }}>
                               <TextField 
                                 name="triggerCondition" 
                                 label="Trigger Condition" 
@@ -759,7 +759,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                                 helperText="When this tranche should be paid"
                               />
                             </Grid>
-                            <Grid item xs={12} sm={4}>
+                            <Grid size={{ xs: 12, sm: 4 }}>
                               <TextField 
                                 name="paymentMethod" 
                                 label="Payment Method" 
@@ -770,7 +770,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                                 placeholder="e.g., Wire Transfer, Check..."
                               />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                               <TextField 
                                 name="transactionReference" 
                                 label="Transaction Reference" 
@@ -781,7 +781,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                                 placeholder="Bank reference or check number"
                               />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                               <TextField 
                                 name="notes" 
                                 label="Tranche Notes" 
@@ -792,7 +792,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
                                 placeholder="Additional notes for this tranche"
                               />
                             </Grid>
-                            <Grid item xs={12} sx={{display: 'flex', justifyContent: 'flex-end'}}>
+                            <Grid size={{ xs: 12 }} sx={{display: 'flex', justifyContent: 'flex-end'}}>
                                 <Tooltip title={formData.tranches.length <= 1 ? "At least one tranche required" : "Remove Tranche"}>
                                     <span>
                                     <IconButton 
@@ -820,7 +820,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* TOTAL COMMITTED AMOUNT */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField 
                 name="totalCommittedAmount" 
                 label="Total Committed Amount (INR) *" 
@@ -844,7 +844,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* NOTES */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField 
                 name="notes" 
                 label="General Notes (Optional)" 
@@ -858,7 +858,7 @@ const InvestorForm = ({ onInvestorSaved, investorToEdit, onCancelEdit }) => {
             </Grid>
 
             {/* SUBMIT BUTTONS */}
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt:2 }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt:2 }}>
               {isEditing && (
                 <Button 
                   variant="outlined" 

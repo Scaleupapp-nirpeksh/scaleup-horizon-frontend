@@ -114,7 +114,7 @@ const ExpenseForm = ({ onExpenseAdded }) => {
         <AlertMessage message={message.text} severity={message.type || 'info'} />
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Date"
                 type="date"
@@ -125,7 +125,7 @@ const ExpenseForm = ({ onExpenseAdded }) => {
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Amount (INR)"
                 type="number"
@@ -136,7 +136,7 @@ const ExpenseForm = ({ onExpenseAdded }) => {
                 inputProps={{ step: "0.01" }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 label="Description"
                 value={description}
@@ -146,7 +146,7 @@ const ExpenseForm = ({ onExpenseAdded }) => {
                 placeholder="e.g., AWS Server Costs for May"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Vendor (Optional)"
                 value={vendor}
@@ -155,7 +155,7 @@ const ExpenseForm = ({ onExpenseAdded }) => {
                 placeholder="e.g., Amazon Web Services"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel id="expense-category-label">Category*</InputLabel>
                 <Select
@@ -191,7 +191,7 @@ const ExpenseForm = ({ onExpenseAdded }) => {
                 )}
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel id="payment-method-label">Payment Method*</InputLabel>
                 <Select
@@ -205,7 +205,7 @@ const ExpenseForm = ({ onExpenseAdded }) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button type="submit" variant="contained" disabled={isLoading} startIcon={isLoading ? <CircularProgress size={20} color="inherit"/> : null}>
                 {isLoading ? 'Adding...' : 'Add Expense'}
               </Button>
