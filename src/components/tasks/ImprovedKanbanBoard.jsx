@@ -334,7 +334,11 @@ const formatTaskDate = (dateString) => {
 
 // FIXED: Individual Task Card Component with proper drag handling
 const TaskItem = React.memo(({ task, index, onClick, onMenuClick }) => {
-  const dueDate = formatTaskDate(task.dueDate);
+  // Closed tasks never show an urgency countdown — a finished task isn't "overdue".
+  const isClosed = ['completed', 'cancelled'].includes(task.status);
+  const dueDate = isClosed
+    ? (task.dueDate ? { text: new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), color: 'default', urgent: false } : null)
+    : formatTaskDate(task.dueDate);
   
   const handleClick = useCallback((e) => {
     // Only handle click if not in a drag operation

@@ -127,6 +127,8 @@ const EnhancedTaskDialog = ({
           taskType: 'task',
           assignee: null,
           dueDate: defaultDueDate ? new Date(defaultDueDate) : null,
+          // New tasks start today by default — gives an immediate working window.
+          startDate: new Date(),
           parentTask: null,
           blockedBy: []
         });

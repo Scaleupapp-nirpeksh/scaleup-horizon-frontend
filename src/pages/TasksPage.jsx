@@ -868,7 +868,7 @@ const TasksPage = () => {
                 {safeFormatDate(task.dueDate, 'MMM dd, yyyy') ? (
                   <Typography
                     variant="body2"
-                    color={new Date(task.dueDate) < new Date() ? 'error' : 'text.primary'}
+                    color={(!['completed', 'cancelled'].includes(task.status) && new Date(task.dueDate) < new Date()) ? 'error' : 'text.primary'}
                   >
                     {safeFormatDate(task.dueDate, 'MMM dd, yyyy')}
                   </Typography>
