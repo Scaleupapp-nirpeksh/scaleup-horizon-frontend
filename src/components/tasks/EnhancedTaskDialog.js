@@ -79,6 +79,7 @@ const EnhancedTaskDialog = ({
     taskType: 'task',
     assignee: null,
     dueDate: null,
+    startDate: null,
     parentTask: null,
     blockedBy: []
   });
@@ -639,12 +640,20 @@ const EnhancedTaskDialog = ({
                   </Stack>
 
                   <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DatePicker
-                      label="Select Due Date"
-                      value={taskForm.dueDate}
-                      onChange={(newValue) => setTaskForm({ ...taskForm, dueDate: newValue })}
-                      slotProps={{ textField: { fullWidth: true } }}
-                    />
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                      <DatePicker
+                        label="Start Date"
+                        value={taskForm.startDate || null}
+                        onChange={(newValue) => setTaskForm({ ...taskForm, startDate: newValue })}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
+                      <DatePicker
+                        label="Select Due Date"
+                        value={taskForm.dueDate}
+                        onChange={(newValue) => setTaskForm({ ...taskForm, dueDate: newValue })}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
+                    </Stack>
                   </LocalizationProvider>
                 </Box>
 

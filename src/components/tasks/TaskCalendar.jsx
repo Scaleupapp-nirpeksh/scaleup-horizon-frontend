@@ -6,15 +6,17 @@
 import React, { useState, useMemo } from 'react';
 import {
   Box, Paper, Typography, Stack, IconButton, Tooltip, useTheme,
-  alpha, Dialog, DialogTitle, DialogContent, DialogActions, Button, Divider
+  alpha, Dialog, DialogTitle, DialogContent, DialogActions, Button, Divider, Chip
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TodayIcon from '@mui/icons-material/Today';
 import AddTaskIcon from '@mui/icons-material/AddTask';
+import BoltIcon from '@mui/icons-material/Bolt';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import {
   startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths,
-  format, isSameMonth, isToday, isBefore, startOfDay
+  format, isSameMonth, isToday, isBefore, startOfDay, differenceInCalendarDays
 } from 'date-fns';
 
 const PRIORITY_COLORS = {
@@ -22,6 +24,22 @@ const PRIORITY_COLORS = {
   high: '#ff9800',
   medium: '#2196f3',
   low: '#4caf50',
+};
+
+// Days-left treatment shared with the board/detail panels: color-coded by how
+// soon a task is due so the user knows what to accelerate.
+const daysLeft = (dueValue, theme) => {
+  if (!dueValue) return null;
+  const due = new Date(dueValue);
+  if (isNaN(due.getTime())) return null;
+  const n = differenceInCalendarDays(startOfDay(due), startOfDay(new Date()));
+  const C = theme.palette;
+  if (n < 0) return { n, label: `${Math.abs(n)}d overdue`, color: C.error.main, urgent: true };
+  if (n === 0) return { n, label: 'Due today', color: C.error.main, urgent: true };
+  if (n === 1) return { n, label: 'Due tomorrow', color: C.warning.main, urgent: true };
+  if (n <= 3) return { n, label: `${n}d left`, color: C.warning.main, urgent: true };
+  if (n <= 7) return { n, label: `${n}d left`, color: C.text.secondary, urgent: false };
+  return { n, label: `${n}d left`, color: C.success.main, urgent: false };
 };
 
 // Equal columns no matter how wide the content is — minmax(0, 1fr) stops
@@ -53,6 +71,37 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
     return map;
   }, [tasks]);
 
+  // Index start dates so the calendar shows each task's working window, not
+  // just its deadline. A day a task *starts* gets a hollow marker.
+  const startsByDay = useMemo(() => {
+    const map = {};
+    tasks.forEach(t => {
+      if (!t.startDate || ['completed', 'cancelled'].includes(t.status)) return;
+      const d = new Date(t.startDate);
+      if (isNaN(d.getTime())) return;
+      const key = format(d, 'yyyy-MM-dd');
+      (map[key] = map[key] || []).push(t);
+    });
+    return map;
+  }, [tasks]);
+
+  // The single most-urgent open deadline + an overdue count — the "what should
+  // I accelerate right now" strip above the grid.
+  const deadlineSummary = useMemo(() => {
+    const open = tasks.filter(t => t.dueDate && !['completed', 'cancelled'].includes(t.status));
+    if (!open.length) return null;
+    const today = startOfDay(new Date());
+    let overdue = 0;
+    let next = null;
+    open.forEach(t => {
+      const due = startOfDay(new Date(t.dueDate));
+      if (isNaN(due.getTime())) return;
+      if (isBefore(due, today)) overdue += 1;
+      if (!isBefore(due, today) && (!next || due < startOfDay(new Date(next.dueDate)))) next = t;
+    });
+    return { overdue, next };
+  }, [tasks]);
+
   // Build the visible grid (Monday-first weeks)
   const weeks = useMemo(() => {
     const gridStart = startOfWeek(startOfMonth(cursor), { weekStartsOn: 1 });
@@ -75,46 +124,60 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
   const isOverdue = (t) => !isClosed(t) && t.dueDate && isBefore(new Date(t.dueDate), today);
 
   // Full task row — used inside the day popup only
-  const renderTaskRow = (task) => (
-    <Box
-      key={task._id}
-      onClick={() => { setDayDialog(null); onTaskClick(task); }}
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
-        px: 1.25,
-        py: 0.75,
-        borderRadius: 1.5,
-        cursor: 'pointer',
-        bgcolor: isOverdue(task) ? alpha(theme.palette.error.main, 0.06) : 'transparent',
-        '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08) },
-      }}
-    >
-      <Box sx={{
-        width: 8, height: 8, flexShrink: 0, borderRadius: '50%',
-        bgcolor: isClosed(task) ? theme.palette.grey[400] : (PRIORITY_COLORS[task.priority] || theme.palette.grey[400]),
-      }} />
-      <Typography
-        variant="caption"
-        sx={{ fontFamily: 'ui-monospace, Menlo, monospace', fontWeight: 700, color: 'text.secondary', flexShrink: 0 }}
-      >
-        {task.taskKey}
-      </Typography>
-      <Typography
-        variant="body2"
-        noWrap
+  const renderTaskRow = (task) => {
+    const dl = isClosed(task) ? null : daysLeft(task.dueDate, theme);
+    return (
+      <Box
+        key={task._id}
+        onClick={() => { setDayDialog(null); onTaskClick(task); }}
         sx={{
-          minWidth: 0,
-          color: isOverdue(task) ? 'error.main' : 'text.primary',
-          textDecoration: isClosed(task) ? 'line-through' : 'none',
-          opacity: isClosed(task) ? 0.6 : 1,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          px: 1.25,
+          py: 0.75,
+          borderRadius: 1.5,
+          cursor: 'pointer',
+          bgcolor: isOverdue(task) ? alpha(theme.palette.error.main, 0.06) : 'transparent',
+          '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08) },
         }}
       >
-        {task.title}
-      </Typography>
-    </Box>
-  );
+        <Box sx={{
+          width: 8, height: 8, flexShrink: 0, borderRadius: '50%',
+          bgcolor: isClosed(task) ? theme.palette.grey[400] : (PRIORITY_COLORS[task.priority] || theme.palette.grey[400]),
+        }} />
+        <Typography
+          variant="caption"
+          sx={{ fontFamily: 'ui-monospace, Menlo, monospace', fontWeight: 700, color: 'text.secondary', flexShrink: 0 }}
+        >
+          {task.taskKey}
+        </Typography>
+        <Typography
+          variant="body2"
+          noWrap
+          sx={{
+            flexGrow: 1,
+            minWidth: 0,
+            color: isOverdue(task) ? 'error.main' : 'text.primary',
+            textDecoration: isClosed(task) ? 'line-through' : 'none',
+            opacity: isClosed(task) ? 0.6 : 1,
+          }}
+        >
+          {task.title}
+        </Typography>
+        {dl && (
+          <Chip
+            size="small"
+            label={dl.label}
+            sx={{
+              flexShrink: 0, fontWeight: 700, height: 20, fontSize: '0.66rem',
+              bgcolor: alpha(dl.color, 0.15), color: dl.color,
+            }}
+          />
+        )}
+      </Box>
+    );
+  };
 
   return (
     <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
@@ -136,6 +199,77 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
         </Stack>
       </Stack>
 
+      {/* Deadline pressure strip — overdue count + the next thing to accelerate */}
+      {deadlineSummary && (deadlineSummary.overdue > 0 || deadlineSummary.next) && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1.5}
+          useFlexGap
+          flexWrap="wrap"
+          sx={{
+            px: 2, py: 1.25, mx: 2, mb: 0.5,
+            borderRadius: 2,
+            bgcolor: deadlineSummary.overdue > 0
+              ? alpha(theme.palette.error.main, 0.06)
+              : alpha(theme.palette.primary.main, 0.05),
+            border: `1px solid ${deadlineSummary.overdue > 0
+              ? alpha(theme.palette.error.main, 0.2)
+              : alpha(theme.palette.primary.main, 0.12)}`,
+          }}
+        >
+          {deadlineSummary.overdue > 0 && (
+            <Chip
+              size="small"
+              icon={<WarningAmberIcon sx={{ fontSize: '0.95rem !important' }} />}
+              label={`${deadlineSummary.overdue} overdue`}
+              sx={{
+                fontWeight: 700, height: 24,
+                bgcolor: alpha(theme.palette.error.main, 0.14),
+                color: theme.palette.error.main,
+                '& .MuiChip-icon': { color: theme.palette.error.main },
+              }}
+            />
+          )}
+          {deadlineSummary.next && (() => {
+            const dl = daysLeft(deadlineSummary.next.dueDate, theme);
+            return (
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={1}
+                onClick={() => onTaskClick(deadlineSummary.next)}
+                sx={{ cursor: 'pointer', minWidth: 0 }}
+              >
+                <BoltIcon sx={{ fontSize: '1rem', color: 'primary.main' }} />
+                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', flexShrink: 0 }}>
+                  Up next
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ fontFamily: 'ui-monospace, Menlo, monospace', fontWeight: 700, color: 'text.secondary', flexShrink: 0 }}
+                >
+                  {deadlineSummary.next.taskKey}
+                </Typography>
+                <Typography variant="body2" noWrap sx={{ minWidth: 0, color: 'text.primary' }}>
+                  {deadlineSummary.next.title}
+                </Typography>
+                {dl && (
+                  <Chip
+                    size="small"
+                    label={dl.label}
+                    sx={{
+                      flexShrink: 0, fontWeight: 700, height: 22, fontSize: '0.7rem',
+                      bgcolor: alpha(dl.color, 0.15), color: dl.color,
+                    }}
+                  />
+                )}
+              </Stack>
+            );
+          })()}
+        </Stack>
+      )}
+
       {/* Weekday header */}
       <Box sx={{ ...GRID_7, borderTop: 1, borderColor: 'divider' }}>
         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
@@ -155,6 +289,7 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
           {week.map(day => {
             const key = format(day, 'yyyy-MM-dd');
             const dayTasks = tasksByDay[key] || [];
+            const dayStarts = startsByDay[key] || [];
             const inMonth = isSameMonth(day, cursor);
             const compact = dayTasks.slice(0, MAX_COMPACT_ROWS);
             const hiddenCount = dayTasks.length - compact.length;
@@ -180,7 +315,7 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                   '&:nth-of-type(7n)': { borderRight: 0 },
                 }}
               >
-                <Stack direction="row" justifyContent="flex-start" sx={{ mb: 0.5 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
                   <Typography
                     variant="caption"
                     sx={{
@@ -200,6 +335,23 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                   >
                     {format(day, 'd')}
                   </Typography>
+                  {dayStarts.length > 0 && (
+                    <Tooltip title={`${dayStarts.length} task${dayStarts.length === 1 ? '' : 's'} start${dayStarts.length === 1 ? 's' : ''} today`}>
+                      <Stack
+                        direction="row"
+                        spacing={0.25}
+                        alignItems="center"
+                        sx={{ color: 'success.main' }}
+                      >
+                        <Box sx={{ fontSize: '0.6rem', lineHeight: 1, fontWeight: 700 }}>▶</Box>
+                        {dayStarts.length > 1 && (
+                          <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 700 }}>
+                            {dayStarts.length}
+                          </Typography>
+                        )}
+                      </Stack>
+                    </Tooltip>
+                  )}
                 </Stack>
 
                 {/* Collapsed task summary — click opens the day popup */}

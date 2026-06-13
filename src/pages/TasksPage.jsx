@@ -217,6 +217,24 @@ const safeFormatDate = (value, fmt) => {
   return format(d, fmt);
 };
 
+// Whole calendar-days between today and a due date → a labelled, colour-coded
+// countdown. Returns null for done/cancelled tasks or invalid dates.
+const dueCountdown = (dueValue, status) => {
+  if (!dueValue || ['completed', 'cancelled'].includes(status)) return null;
+  const due = new Date(dueValue);
+  if (isNaN(due.getTime())) return null;
+  const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
+  const startOfDue = new Date(due); startOfDue.setHours(0, 0, 0, 0);
+  const days = Math.round((startOfDue - startOfToday) / 86400000);
+  const red = '#DC2626', amber = '#D97706', green = '#059669', slate = '#475569';
+  if (days < 0) return { days, label: `${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'} overdue`, color: red, urgent: true };
+  if (days === 0) return { days, label: 'Due today', color: red, urgent: true };
+  if (days === 1) return { days, label: 'Due tomorrow', color: amber, urgent: true };
+  if (days <= 3) return { days, label: `${days} days left`, color: amber, urgent: true };
+  if (days <= 7) return { days, label: `${days} days left`, color: slate, urgent: false };
+  return { days, label: `${days} days left`, color: green, urgent: false };
+};
+
 const getPriorityIcon = (priority) => {
   switch (priority) {
     case 'critical': return <LocalFireDepartmentIcon color="error" />;
@@ -1106,37 +1124,43 @@ const TasksPage = () => {
 
                   {/* Linked Tasks */}
                   <Paper sx={{ p: 2, borderRadius: 2 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1.5 }}>
                       Linked Tasks ({taskDetail?.links?.length || 0})
                     </Typography>
                     <Stack spacing={1}>
+                      {/* Each existing link: chip + remove on top row, task title full-width below */}
                       {(taskDetail?.links || []).map((link) => (
-                        <Stack key={link._id} direction="row" spacing={1} alignItems="center">
-                          <Chip
-                            label={link.linkType.replace(/_/g, ' ')}
-                            size="small"
-                            color={link.linkType.includes('block') ? 'error' : 'default'}
-                            sx={{ fontSize: '0.65rem', minWidth: 92 }}
-                          />
+                        <Box
+                          key={link._id}
+                          sx={{ p: 1, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}
+                        >
+                          <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
+                            <Chip
+                              label={link.linkType.replace(/_/g, ' ')}
+                              size="small"
+                              color={link.linkType.includes('block') ? 'error' : 'default'}
+                              sx={{ fontSize: '0.65rem' }}
+                            />
+                            <IconButton size="small" onClick={() => handleRemoveLink(link._id)} sx={{ ml: 'auto' }}>
+                              <CloseIcon sx={{ fontSize: '0.9rem' }} />
+                            </IconButton>
+                          </Stack>
                           <Typography
                             variant="body2"
-                            noWrap
                             onClick={() => handleTaskClick(link.task)}
-                            sx={{ flex: 1, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                            sx={{ mt: 0.5, cursor: 'pointer', fontWeight: 500, '&:hover': { textDecoration: 'underline' } }}
                           >
                             {link.task.taskKey ? `${link.task.taskKey} — ` : ''}{link.task.title}
                           </Typography>
-                          <IconButton size="small" onClick={() => handleRemoveLink(link._id)}>
-                            <CloseIcon sx={{ fontSize: '0.9rem' }} />
-                          </IconButton>
-                        </Stack>
+                        </Box>
                       ))}
-                      <Stack direction="row" spacing={1} alignItems="center">
+                      {/* Add-link controls — stacked full-width so nothing truncates */}
+                      <Stack spacing={1} sx={{ pt: (taskDetail?.links || []).length ? 1 : 0 }}>
                         <Select
                           size="small"
                           value={linkType}
                           onChange={(e) => setLinkType(e.target.value)}
-                          sx={{ fontSize: '0.75rem', minWidth: 104 }}
+                          fullWidth
                         >
                           <MenuItem value="relates_to">relates to</MenuItem>
                           <MenuItem value="blocks">blocks</MenuItem>
@@ -1148,17 +1172,19 @@ const TasksPage = () => {
                           value={linkTarget}
                           onChange={(e, v) => setLinkTarget(v)}
                           size="small"
-                          sx={{ flex: 1 }}
-                          renderInput={(params) => <TextField {...params} placeholder="Find task…" />}
+                          fullWidth
+                          renderInput={(params) => <TextField {...params} placeholder="Find task to link…" />}
                         />
-                        <IconButton
+                        <Button
                           size="small"
-                          color="primary"
+                          variant="outlined"
+                          startIcon={<AddIcon />}
                           disabled={!linkTarget || linkSaving}
                           onClick={handleAddLink}
+                          fullWidth
                         >
-                          <AddIcon />
-                        </IconButton>
+                          Add link
+                        </Button>
                       </Stack>
                     </Stack>
                   </Paper>
@@ -1205,15 +1231,34 @@ const TasksPage = () => {
                           </Typography>
                         </Box>
                       )}
+                      {safeFormatDate(selectedTask.startDate, 'MMM dd, yyyy') && (
+                        <Box>
+                          <Typography variant="caption" color="text.secondary">Start Date</Typography>
+                          <Typography variant="body2">
+                            {safeFormatDate(selectedTask.startDate, 'MMM dd, yyyy')}
+                          </Typography>
+                        </Box>
+                      )}
                       {safeFormatDate(selectedTask.dueDate, 'MMM dd, yyyy') && (
                         <Box>
                           <Typography variant="caption" color="text.secondary">Due Date</Typography>
-                          <Typography
-                            variant="body2"
-                            color={new Date(selectedTask.dueDate) < new Date() ? 'error' : 'text.primary'}
-                          >
+                          <Typography variant="body2">
                             {safeFormatDate(selectedTask.dueDate, 'MMM dd, yyyy')}
                           </Typography>
+                          {(() => {
+                            const c = dueCountdown(selectedTask.dueDate, selectedTask.status);
+                            return c ? (
+                              <Chip
+                                label={c.label}
+                                size="small"
+                                sx={{
+                                  mt: 0.75, fontWeight: 700,
+                                  bgcolor: alpha(c.color, 0.15), color: c.color,
+                                  '& .MuiChip-label': { px: 1.25 },
+                                }}
+                              />
+                            ) : null;
+                          })()}
                         </Box>
                       )}
                     </Stack>

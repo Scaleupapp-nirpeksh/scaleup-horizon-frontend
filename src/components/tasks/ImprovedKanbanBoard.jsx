@@ -323,12 +323,13 @@ const formatTaskDate = (dateString) => {
   const diffTime = date - now;
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
-  if (diffDays < 0) return { text: `${Math.abs(diffDays)}d overdue`, color: 'error' };
-  if (diffDays === 0) return { text: 'Due today', color: 'warning' };
-  if (diffDays === 1) return { text: 'Due tomorrow', color: 'info' };
-  if (diffDays <= 7) return { text: `${diffDays}d left`, color: 'default' };
-  
-  return { text: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), color: 'default' };
+  if (diffDays < 0) return { text: `${Math.abs(diffDays)}d overdue`, color: 'error', urgent: true };
+  if (diffDays === 0) return { text: 'Due today', color: 'error', urgent: true };
+  if (diffDays === 1) return { text: 'Due tomorrow', color: 'warning', urgent: true };
+  if (diffDays <= 3) return { text: `${diffDays}d left`, color: 'warning', urgent: true };
+  if (diffDays <= 7) return { text: `${diffDays}d left`, color: 'default', urgent: false };
+
+  return { text: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), color: 'default', urgent: false };
 };
 
 // FIXED: Individual Task Card Component with proper drag handling
@@ -501,9 +502,11 @@ const TaskItem = React.memo(({ task, index, onClick, onMenuClick }) => {
                           label={dueDate.text}
                           size="small"
                           color={dueDate.color}
-                          sx={{ 
+                          variant={dueDate.urgent ? 'filled' : 'outlined'}
+                          sx={{
                             fontSize: '0.7rem',
                             height: 22,
+                            fontWeight: dueDate.urgent ? 700 : 500,
                             '& .MuiChip-icon': { fontSize: '0.7rem' }
                           }}
                         />
