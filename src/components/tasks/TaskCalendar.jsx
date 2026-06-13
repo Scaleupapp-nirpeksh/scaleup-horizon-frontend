@@ -6,7 +6,8 @@
 import React, { useState, useMemo } from 'react';
 import {
   Box, Paper, Typography, Stack, IconButton, Tooltip, useTheme,
-  alpha, Dialog, DialogTitle, DialogContent, DialogActions, Button, Divider, Chip
+  alpha, Dialog, DialogTitle, DialogContent, DialogActions, Button, Divider, Chip,
+  ToggleButton, ToggleButtonGroup
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -14,6 +15,8 @@ import TodayIcon from '@mui/icons-material/Today';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import BoltIcon from '@mui/icons-material/Bolt';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import {
   startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths,
   format, isSameMonth, isToday, isBefore, startOfDay, differenceInCalendarDays
@@ -50,7 +53,11 @@ const MAX_COMPACT_ROWS = 3;
 const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
   const theme = useTheme();
   const [cursor, setCursor] = useState(new Date());
-  const [dayDialog, setDayDialog] = useState(null); // { date, tasks }
+  const [dayDialog, setDayDialog] = useState(null); // { date, tasks, mode }
+  // What each day cell plots: 'due' (deadlines), 'start' (start dates), or
+  // 'both' (deadlines in the cell + a ▶ marker on days work starts).
+  const [viewMode, setViewMode] = useState('both');
+  const START_COLOR = theme.palette.success.main;
 
   // Index tasks by due date (yyyy-MM-dd)
   const tasksByDay = useMemo(() => {
@@ -123,9 +130,13 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
   const isClosed = (t) => ['completed', 'cancelled'].includes(t.status);
   const isOverdue = (t) => !isClosed(t) && t.dueDate && isBefore(new Date(t.dueDate), today);
 
-  // Full task row — used inside the day popup only
-  const renderTaskRow = (task) => {
+  // Full task row — used inside the day popup only. In 'start' mode it shows
+  // a green "Starts <date>" chip; otherwise the due-date countdown.
+  const renderTaskRow = (task, mode = 'due') => {
     const dl = isClosed(task) ? null : daysLeft(task.dueDate, theme);
+    const startChip = mode === 'start' && task.startDate
+      ? { label: `Starts ${format(new Date(task.startDate), 'MMM d')}`, color: START_COLOR }
+      : null;
     return (
       <Box
         key={task._id}
@@ -165,7 +176,16 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
         >
           {task.title}
         </Typography>
-        {dl && (
+        {startChip ? (
+          <Chip
+            size="small"
+            label={startChip.label}
+            sx={{
+              flexShrink: 0, fontWeight: 700, height: 20, fontSize: '0.66rem',
+              bgcolor: alpha(startChip.color, 0.15), color: startChip.color,
+            }}
+          />
+        ) : dl && (
           <Chip
             size="small"
             label={dl.label}
@@ -199,8 +219,57 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
         </Stack>
       </Stack>
 
+      {/* View toggle (due / start / both) + legend */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        useFlexGap
+        flexWrap="wrap"
+        spacing={1}
+        sx={{ px: 2, pb: 1.5 }}
+      >
+        <ToggleButtonGroup
+          size="small"
+          exclusive
+          value={viewMode}
+          onChange={(e, v) => { if (v) setViewMode(v); }}
+          sx={{ '& .MuiToggleButton-root': { textTransform: 'none', px: 1.5, py: 0.4, fontWeight: 700, fontSize: '0.75rem' } }}
+        >
+          <ToggleButton value="due">
+            <EventAvailableIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Due dates
+          </ToggleButton>
+          <ToggleButton value="start">
+            <PlayCircleOutlineIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Start dates
+          </ToggleButton>
+          <ToggleButton value="both">Both</ToggleButton>
+        </ToggleButtonGroup>
+
+        {/* Legend */}
+        <Stack direction="row" spacing={1.5} alignItems="center" useFlexGap flexWrap="wrap">
+          {viewMode !== 'start' && (
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: theme.palette.primary.main }} />
+              <Typography variant="caption" color="text.secondary">Due date</Typography>
+            </Stack>
+          )}
+          {viewMode !== 'due' && (
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <Box sx={{ color: START_COLOR, fontSize: '0.7rem', fontWeight: 700, lineHeight: 1 }}>▶</Box>
+              <Typography variant="caption" color="text.secondary">Start date</Typography>
+            </Stack>
+          )}
+          {viewMode !== 'start' && (
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: theme.palette.error.main }} />
+              <Typography variant="caption" color="text.secondary">Overdue</Typography>
+            </Stack>
+          )}
+        </Stack>
+      </Stack>
+
       {/* Deadline pressure strip — overdue count + the next thing to accelerate */}
-      {deadlineSummary && (deadlineSummary.overdue > 0 || deadlineSummary.next) && (
+      {viewMode !== 'start' && deadlineSummary && (deadlineSummary.overdue > 0 || deadlineSummary.next) && (
         <Stack
           direction="row"
           alignItems="center"
@@ -291,9 +360,13 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
             const dayTasks = tasksByDay[key] || [];
             const dayStarts = startsByDay[key] || [];
             const inMonth = isSameMonth(day, cursor);
-            const compact = dayTasks.slice(0, MAX_COMPACT_ROWS);
-            const hiddenCount = dayTasks.length - compact.length;
-            const anyOverdue = dayTasks.some(isOverdue);
+            // What this cell plots in its body, and whether to show the ▶ marker.
+            const startView = viewMode === 'start';
+            const bodyTasks = startView ? dayStarts : dayTasks;
+            const showStartMarker = viewMode === 'both' && dayStarts.length > 0;
+            const compact = bodyTasks.slice(0, MAX_COMPACT_ROWS);
+            const hiddenCount = bodyTasks.length - compact.length;
+            const anyOverdue = !startView && dayTasks.some(isOverdue);
             return (
               <Box
                 key={key}
@@ -335,8 +408,8 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                   >
                     {format(day, 'd')}
                   </Typography>
-                  {dayStarts.length > 0 && (
-                    <Tooltip title={`${dayStarts.length} task${dayStarts.length === 1 ? '' : 's'} start${dayStarts.length === 1 ? 's' : ''} today`}>
+                  {showStartMarker && (
+                    <Tooltip title={`${dayStarts.length} task${dayStarts.length === 1 ? '' : 's'} start${dayStarts.length === 1 ? 's' : ''} this day`}>
                       <Stack
                         direction="row"
                         spacing={0.25}
@@ -355,23 +428,29 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                 </Stack>
 
                 {/* Collapsed task summary — click opens the day popup */}
-                {dayTasks.length > 0 && (
-                  <Tooltip title={`${dayTasks.length} task${dayTasks.length === 1 ? '' : 's'} — click to view`}>
+                {bodyTasks.length > 0 && (
+                  <Tooltip title={`${bodyTasks.length} task${bodyTasks.length === 1 ? '' : 's'} ${startView ? 'starting' : 'due'} — click to view`}>
                     <Box
-                      onClick={(e) => { e.stopPropagation(); setDayDialog({ date: day, tasks: dayTasks }); }}
+                      onClick={(e) => { e.stopPropagation(); setDayDialog({ date: day, tasks: bodyTasks, mode: startView ? 'start' : 'due' }); }}
                       sx={{
                         borderRadius: 1,
                         p: 0.5,
-                        bgcolor: anyOverdue
-                          ? alpha(theme.palette.error.main, 0.07)
-                          : alpha(theme.palette.primary.main, 0.06),
-                        border: `1px solid ${anyOverdue
-                          ? alpha(theme.palette.error.main, 0.2)
-                          : alpha(theme.palette.primary.main, 0.12)}`,
+                        bgcolor: startView
+                          ? alpha(START_COLOR, 0.07)
+                          : anyOverdue
+                            ? alpha(theme.palette.error.main, 0.07)
+                            : alpha(theme.palette.primary.main, 0.06),
+                        border: `1px solid ${startView
+                          ? alpha(START_COLOR, 0.25)
+                          : anyOverdue
+                            ? alpha(theme.palette.error.main, 0.2)
+                            : alpha(theme.palette.primary.main, 0.12)}`,
                         '&:hover': {
-                          bgcolor: anyOverdue
-                            ? alpha(theme.palette.error.main, 0.12)
-                            : alpha(theme.palette.primary.main, 0.12),
+                          bgcolor: startView
+                            ? alpha(START_COLOR, 0.13)
+                            : anyOverdue
+                              ? alpha(theme.palette.error.main, 0.12)
+                              : alpha(theme.palette.primary.main, 0.12),
                         },
                       }}
                     >
@@ -379,7 +458,7 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                         <Stack key={t._id} direction="row" spacing={0.5} alignItems="center" sx={{ minWidth: 0, py: 0.1 }}>
                           <Box sx={{
                             width: 6, height: 6, flexShrink: 0, borderRadius: '50%',
-                            bgcolor: isClosed(t) ? theme.palette.grey[400] : (PRIORITY_COLORS[t.priority] || theme.palette.grey[400]),
+                            bgcolor: startView ? START_COLOR : (isClosed(t) ? theme.palette.grey[400] : (PRIORITY_COLORS[t.priority] || theme.palette.grey[400])),
                           }} />
                           <Typography
                             variant="caption"
@@ -389,7 +468,7 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                               fontSize: '0.66rem',
                               fontFamily: 'ui-monospace, Menlo, monospace',
                               fontWeight: 700,
-                              color: isOverdue(t) ? 'error.main' : 'text.secondary',
+                              color: (!startView && isOverdue(t)) ? 'error.main' : 'text.secondary',
                               textDecoration: isClosed(t) ? 'line-through' : 'none',
                             }}
                           >
@@ -419,12 +498,12 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
             <DialogTitle sx={{ fontWeight: 700 }}>
               {format(dayDialog.date, 'EEEE, MMM d')}
               <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                {dayDialog.tasks.length} task{dayDialog.tasks.length === 1 ? '' : 's'}
+                {dayDialog.tasks.length} {dayDialog.mode === 'start' ? 'starting' : 'due'}
               </Typography>
             </DialogTitle>
             <DialogContent dividers sx={{ p: 1.5 }}>
               <Stack spacing={0.25}>
-                {dayDialog.tasks.map(renderTaskRow)}
+                {dayDialog.tasks.map(t => renderTaskRow(t, dayDialog.mode))}
               </Stack>
               <Divider sx={{ my: 1.5 }} />
               <Button
