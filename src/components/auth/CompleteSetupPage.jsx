@@ -417,7 +417,7 @@ const CompleteSetupPage = () => {
               Complete Your Account Setup
             </Typography>
             <Typography variant="subtitle1" sx={{ color: 'text.secondary', mb: 3, fontWeight: 500, textAlign: 'center' }}>
-              Set your password to activate your ScaleUp Horizon account.
+              Set your password to activate your Horizon account.
             </Typography>
 
             {error && (

@@ -191,7 +191,7 @@ const OnboardingExperience = ({ onComplete }) => {
                 lineHeight: 1.1,
                 letterSpacing: '-0.02em',
               }}>
-                Welcome to ScaleUp Horizon
+                Welcome to Horizon
               </h1>
               <p style={{
                 fontSize: 'clamp(16px, 2vw, 20px)',

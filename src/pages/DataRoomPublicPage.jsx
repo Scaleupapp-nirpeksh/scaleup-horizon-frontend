@@ -208,7 +208,7 @@ const DataRoomPublicPage = () => {
 
             <Divider sx={{ my: 2 }} />
             <Typography variant="caption" color="text.secondary">
-              Shared securely via ScaleUp Horizon. Downloads are logged for the room owner.
+              Shared securely via Horizon. Downloads are logged for the room owner.
             </Typography>
           </Paper>
         )}

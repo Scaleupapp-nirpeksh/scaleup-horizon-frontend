@@ -767,7 +767,7 @@ const CustomKpiSection = ({ embedded = false }) => {
             <Stack spacing={2}>
               <Typography variant="body2" color="text.secondary">
                 Start from a ready-made KPI — every value is computed live from your
-                ScaleUp Horizon data — or build your own formula from scratch.
+                Horizon data — or build your own formula from scratch.
               </Typography>
               <Grid container spacing={2}>
                 {KPI_TEMPLATES.map(template => (

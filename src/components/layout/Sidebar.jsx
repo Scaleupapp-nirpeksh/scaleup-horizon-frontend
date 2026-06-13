@@ -225,7 +225,7 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
             fontSize: '1rem',
           }}
         >
-          {activeOrganization?.name || 'ScaleUp Horizon'}
+          {activeOrganization?.name || 'Horizon'}
         </Typography>
       </OrganizationHeader>
       

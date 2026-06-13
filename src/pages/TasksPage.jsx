@@ -689,7 +689,7 @@ const TasksPage = () => {
             <InputLabel>Set status</InputLabel>
             <Select label="Set status" value="" disabled={bulkBusy}
               onChange={(e) => e.target.value && handleBulk('update', { status: e.target.value })}>
-              {['todo', 'in_progress', 'in_review', 'blocked', 'completed', 'cancelled'].map(s => (
+              {['todo', 'in_progress', 'completed'].map(s => (
                 <MenuItem key={s} value={s}>{s.replace('_', ' ')}</MenuItem>
               ))}
             </Select>
@@ -1523,10 +1523,7 @@ const TasksPage = () => {
                     <MenuItem value="all">All Status</MenuItem>
                     <MenuItem value="todo">To Do</MenuItem>
                     <MenuItem value="in_progress">In Progress</MenuItem>
-                    <MenuItem value="in_review">In Review</MenuItem>
-                    <MenuItem value="blocked">Blocked</MenuItem>
                     <MenuItem value="completed">Completed</MenuItem>
-                    <MenuItem value="cancelled">Cancelled</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>

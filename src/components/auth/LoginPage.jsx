@@ -328,7 +328,7 @@ const LoginPage = () => {
             <Typography variant="h4" component="h1" sx={{ fontWeight: 800, letterSpacing: '-0.02em',
                 background: `linear-gradient(135deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 70%)`,
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 0.5, textAlign: 'center' }}>
-              ScaleUp Horizon
+              Horizon
             </Typography>
             <Typography variant="subtitle1" sx={{ color: 'text.secondary', mb: 3, fontWeight: 500, textAlign: 'center', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <StarOutlineIcon fontSize="small" sx={{ color: theme.palette.warning.main }} />

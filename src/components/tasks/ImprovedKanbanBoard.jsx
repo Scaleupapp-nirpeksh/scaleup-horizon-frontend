@@ -292,29 +292,11 @@ const STATUS_CONFIG = {
     color: 'primary',
     bgColor: '#e3f2fd'
   },
-  in_review: {
-    label: 'In Review',
-    icon: <VisibilityIcon />,
-    color: 'secondary',
-    bgColor: '#f3e5f5'
-  },
-  blocked: {
-    label: 'Blocked',
-    icon: <BlockIcon />,
-    color: 'error',
-    bgColor: '#ffebee'
-  },
   completed: {
     label: 'Completed',
     icon: <CheckCircleIcon />,
     color: 'success',
     bgColor: '#e8f5e8'
-  },
-  cancelled: {
-    label: 'Cancelled',
-    icon: <DoDisturbIcon />,
-    color: 'default',
-    bgColor: '#eeeeee'
   }
 };
 
