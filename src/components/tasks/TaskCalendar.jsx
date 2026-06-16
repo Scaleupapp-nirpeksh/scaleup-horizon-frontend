@@ -29,6 +29,23 @@ const PRIORITY_COLORS = {
   low: '#4caf50',
 };
 
+// Stable per-epic accent so the 3-char prefix is colour-coded and scannable.
+const EPIC_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#ef4444'];
+const epicColor = (id) => {
+  const s = String(id || '');
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return EPIC_COLORS[h % EPIC_COLORS.length];
+};
+// First 3 letters of the parent epic's name (strips a leading key like "SLT-50 ").
+const epicPrefix = (task) => {
+  const t = task.parentTask;
+  if (!t) return null;
+  const name = (t.title || t.taskKey || '').replace(/^[A-Z]+-\d+\s*/, '').trim();
+  const letters = name.replace(/[^A-Za-z0-9]/g, '');
+  return letters ? letters.slice(0, 3).toUpperCase() : null;
+};
+
 // Days-left treatment shared with the board/detail panels: color-coded by how
 // soon a task is due so the user knows what to accelerate.
 const daysLeft = (dueValue, theme) => {
@@ -50,7 +67,7 @@ const daysLeft = (dueValue, theme) => {
 const GRID_7 = { display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))' };
 const MAX_COMPACT_ROWS = 3;
 
-const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
+const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay, showEpicPrefix = false }) => {
   const theme = useTheme();
   const [cursor, setCursor] = useState(new Date());
   const [dayDialog, setDayDialog] = useState(null); // { date, tasks, mode }
@@ -157,6 +174,17 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
           width: 8, height: 8, flexShrink: 0, borderRadius: '50%',
           bgcolor: isClosed(task) ? theme.palette.grey[400] : (PRIORITY_COLORS[task.priority] || theme.palette.grey[400]),
         }} />
+        {showEpicPrefix && epicPrefix(task) && (
+          <Tooltip title={task.parentTask?.title || ''}>
+            <Box sx={{
+              flexShrink: 0, fontSize: '0.6rem', fontWeight: 800, lineHeight: 1.6,
+              px: 0.5, borderRadius: 0.5, letterSpacing: 0.3, color: '#fff',
+              bgcolor: epicColor(task.parentTask?._id),
+            }}>
+              {epicPrefix(task)}
+            </Box>
+          </Tooltip>
+        )}
         <Typography
           variant="caption"
           sx={{ fontFamily: 'ui-monospace, Menlo, monospace', fontWeight: 700, color: 'text.secondary', flexShrink: 0 }}
@@ -454,12 +482,27 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                         },
                       }}
                     >
-                      {compact.map(t => (
+                      {compact.map(t => {
+                        const prefix = showEpicPrefix ? epicPrefix(t) : null;
+                        return (
                         <Stack key={t._id} direction="row" spacing={0.5} alignItems="center" sx={{ minWidth: 0, py: 0.1 }}>
-                          <Box sx={{
-                            width: 6, height: 6, flexShrink: 0, borderRadius: '50%',
-                            bgcolor: startView ? START_COLOR : (isClosed(t) ? theme.palette.grey[400] : (PRIORITY_COLORS[t.priority] || theme.palette.grey[400])),
-                          }} />
+                          {prefix ? (
+                            <Tooltip title={t.parentTask?.title || ''}>
+                              <Box sx={{
+                                flexShrink: 0, fontSize: '0.58rem', fontWeight: 800, lineHeight: 1.5,
+                                px: 0.4, borderRadius: 0.5, letterSpacing: 0.3, color: '#fff',
+                                bgcolor: epicColor(t.parentTask?._id),
+                                opacity: isClosed(t) ? 0.5 : 1,
+                              }}>
+                                {prefix}
+                              </Box>
+                            </Tooltip>
+                          ) : (
+                            <Box sx={{
+                              width: 6, height: 6, flexShrink: 0, borderRadius: '50%',
+                              bgcolor: startView ? START_COLOR : (isClosed(t) ? theme.palette.grey[400] : (PRIORITY_COLORS[t.priority] || theme.palette.grey[400])),
+                            }} />
+                          )}
                           <Typography
                             variant="caption"
                             noWrap
@@ -475,7 +518,8 @@ const TaskCalendar = ({ tasks = [], onTaskClick, onCreateForDay }) => {
                             {t.taskKey || t.title}
                           </Typography>
                         </Stack>
-                      ))}
+                        );
+                      })}
                       {hiddenCount > 0 && (
                         <Typography variant="caption" sx={{ fontSize: '0.64rem', fontWeight: 700, color: 'primary.main', pl: 1 }}>
                           +{hiddenCount} more

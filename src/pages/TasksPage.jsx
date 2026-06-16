@@ -1721,6 +1721,7 @@ const TasksPage = () => {
             tasks={tasks}
             onTaskClick={handleTaskClick}
             onCreateForDay={(day) => setDayPrompt(day)}
+            showEpicPrefix={!filters.parentTask}
           />
         )}
 
