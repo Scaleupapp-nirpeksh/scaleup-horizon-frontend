@@ -23,7 +23,6 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SpeedIcon from '@mui/icons-material/Speed';
@@ -33,6 +32,7 @@ import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 
 import { getCommandCenter, sendBriefingNow } from '../services/api';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import { epicShortName } from '../utils/epicTag';
 
 // ---------- styled ----------
 const Page = styled(Box)(({ theme }) => ({
@@ -79,9 +79,6 @@ const dueLabel = (dueDate) => {
   if (isTomorrow(d)) return 'tomorrow';
   return format(d, 'EEE, MMM d');
 };
-
-// Trim the import suffix for compact business cards
-const epicShortName = (title) => String(title).replace(/\s*[—-]\s*5-Month Plan.*$/i, '');
 
 const DashboardPage = () => {
   const theme = useTheme();
@@ -131,7 +128,9 @@ const DashboardPage = () => {
   const openTask = (task) => navigate(`/tasks?task=${task._id || task}`);
   const openEpic = (epicId) => navigate(`/tasks?epic=${epicId}`);
 
-  // ---------- attention list (notifications + overdue + alerts) ----------
+  // ---------- attention list (alerts + overdue + due-soon tasks only) ----------
+  // Deliberately excludes notification-feed items (briefing/reminder bells) —
+  // those live in the notification centre, not the actionable attention list.
   const attentionItems = [];
   if (data) {
     data.attention.forEach(a => attentionItems.push({
@@ -156,13 +155,6 @@ const DashboardPage = () => {
       secondary: `due ${dueLabel(t.dueDate)}`
         + (t.parentTask ? ` · ${epicShortName(t.parentTask.title)}` : ''),
       onClick: () => openTask(t),
-    }));
-    data.notifications.recent.forEach(n => attentionItems.push({
-      key: `notif-${n._id}`,
-      icon: <NotificationsActiveIcon color="primary" />,
-      primary: n.title,
-      secondary: formatDistanceToNow(new Date(n.createdAt), { addSuffix: true }),
-      onClick: () => n.relatedTask ? openTask(n.relatedTask._id || n.relatedTask) : navigate('/tasks'),
     }));
   }
 

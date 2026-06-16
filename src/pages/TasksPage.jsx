@@ -19,6 +19,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 
 // Icons
 import TaskIcon from '@mui/icons-material/Task';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AddIcon from '@mui/icons-material/Add';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
@@ -51,6 +52,7 @@ import ImprovedKanbanBoard from '../components/tasks/ImprovedKanbanBoard';
 import TaskAnalytics from '../components/tasks/TaskAnalytics';
 import ImportTasksDialog from '../components/tasks/ImportTasksDialog';
 import TaskCalendar from '../components/tasks/TaskCalendar';
+import { epicColor, epicShortName } from '../utils/epicTag';
 
 // API imports
 import {
@@ -807,18 +809,24 @@ const TasksPage = () => {
                     <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                       {task.title}
                     </Typography>
-                    {task.parentTask && (
-                      <Tooltip title={`Part of: ${task.parentTask.title || 'parent task'}`}>
-                        <Chip
-                          label={task.parentTask.taskKey || task.parentTask.title}
-                          size="small"
-                          sx={{
-                            height: 18, fontSize: '0.6rem', fontWeight: 700,
-                            bgcolor: 'rgba(156,39,176,0.1)', color: '#9c27b0', maxWidth: 140
-                          }}
-                        />
-                      </Tooltip>
-                    )}
+                    {task.parentTask && (() => {
+                      const ec = epicColor(task.parentTask._id);
+                      const label = epicShortName(task.parentTask.title) || task.parentTask.taskKey;
+                      return (
+                        <Tooltip title={`Part of: ${task.parentTask.title || 'parent task'}`}>
+                          <Chip
+                            icon={<AccountTreeIcon sx={{ fontSize: '0.7rem' }} />}
+                            label={label}
+                            size="small"
+                            sx={{
+                              height: 18, fontSize: '0.6rem', fontWeight: 700,
+                              bgcolor: alpha(ec, 0.12), color: ec, maxWidth: 160,
+                              '& .MuiChip-icon': { color: ec }
+                            }}
+                          />
+                        </Tooltip>
+                      );
+                    })()}
                   </Stack>
                   {task.description && (
                     <Typography variant="caption" color="text.secondary" noWrap>

@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { epicColor, epicShortName } from '../../utils/epicTag';
 
 // Icons
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -388,24 +389,28 @@ const TaskItem = React.memo(({ task, index, onClick, onMenuClick }) => {
                     {task.taskType === 'epic' && (
                       <Chip label="EPIC" size="small" sx={{ bgcolor: '#9c27b0', color: 'white', fontWeight: 700, height: 18, fontSize: '0.6rem' }} />
                     )}
-                    {task.parentTask && (
-                      <Tooltip title={`Part of: ${task.parentTask.title || 'parent task'}`}>
-                        <Chip
-                          icon={<AccountTreeIcon sx={{ fontSize: '0.7rem' }} />}
-                          label={task.parentTask.taskKey || task.parentTask.title || 'parent'}
-                          size="small"
-                          sx={{
-                            height: 18,
-                            fontSize: '0.6rem',
-                            fontWeight: 700,
-                            bgcolor: 'rgba(156,39,176,0.1)',
-                            color: '#9c27b0',
-                            maxWidth: 140,
-                            '& .MuiChip-icon': { color: '#9c27b0' }
-                          }}
-                        />
-                      </Tooltip>
-                    )}
+                    {task.parentTask && (() => {
+                      const ec = epicColor(task.parentTask._id);
+                      const label = epicShortName(task.parentTask.title) || task.parentTask.taskKey || 'parent';
+                      return (
+                        <Tooltip title={`Part of: ${task.parentTask.title || 'parent task'}`}>
+                          <Chip
+                            icon={<AccountTreeIcon sx={{ fontSize: '0.7rem' }} />}
+                            label={label}
+                            size="small"
+                            sx={{
+                              height: 18,
+                              fontSize: '0.6rem',
+                              fontWeight: 700,
+                              bgcolor: alpha(ec, 0.12),
+                              color: ec,
+                              maxWidth: 160,
+                              '& .MuiChip-icon': { color: ec }
+                            }}
+                          />
+                        </Tooltip>
+                      );
+                    })()}
                   </Stack>
                 )}
                 {/* Task Header */}

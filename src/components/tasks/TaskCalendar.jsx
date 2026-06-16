@@ -21,6 +21,7 @@ import {
   startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths,
   format, isSameMonth, isToday, isBefore, startOfDay, differenceInCalendarDays
 } from 'date-fns';
+import { epicColor, epicPrefix } from '../../utils/epicTag';
 
 const PRIORITY_COLORS = {
   critical: '#f44336',
@@ -29,22 +30,6 @@ const PRIORITY_COLORS = {
   low: '#4caf50',
 };
 
-// Stable per-epic accent so the 3-char prefix is colour-coded and scannable.
-const EPIC_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#ef4444'];
-const epicColor = (id) => {
-  const s = String(id || '');
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return EPIC_COLORS[h % EPIC_COLORS.length];
-};
-// First 3 letters of the parent epic's name (strips a leading key like "SLT-50 ").
-const epicPrefix = (task) => {
-  const t = task.parentTask;
-  if (!t) return null;
-  const name = (t.title || t.taskKey || '').replace(/^[A-Z]+-\d+\s*/, '').trim();
-  const letters = name.replace(/[^A-Za-z0-9]/g, '');
-  return letters ? letters.slice(0, 3).toUpperCase() : null;
-};
 
 // Days-left treatment shared with the board/detail panels: color-coded by how
 // soon a task is due so the user knows what to accelerate.
