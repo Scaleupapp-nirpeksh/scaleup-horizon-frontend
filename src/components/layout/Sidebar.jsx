@@ -59,6 +59,9 @@ const OrganizationHeader = styled(Box)(({ theme }) => ({
   // CRITICAL: Add top margin to push below header
   marginTop: theme.spacing(9), // 64px header + some spacing
   borderRadius: theme.spacing(2),
+  // Never let the flex column squeeze this box — it must always fit the full
+  // (possibly multi-line) organization name.
+  flexShrink: 0,
   textAlign: 'center',
   background: `linear-gradient(135deg, 
     ${theme.palette.primary.main} 0%, 
@@ -221,14 +224,13 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
             mb: 0.5,
             px: 1,
             fontSize: '1rem',
-            lineHeight: 1.25,
+            lineHeight: 1.3,
             textAlign: 'center',
-            // Wrap up to two lines instead of clipping the name to "ScaleUp Learning T…"
-            overflow: 'hidden',
-            wordBreak: 'break-word',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
+            // Wrap the full name onto as many lines as it needs. Avoid
+            // -webkit-line-clamp here: it clips the last line's descenders at
+            // some zoom/DPI levels, which is what was cutting "Technologies".
+            whiteSpace: 'normal',
+            overflowWrap: 'anywhere',
           }}
         >
           {activeOrganization?.name || 'Horizon'}
