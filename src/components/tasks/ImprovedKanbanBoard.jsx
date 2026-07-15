@@ -9,6 +9,7 @@ import {
 import { styled, keyframes } from '@mui/material/styles';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { epicColor, epicShortName } from '../../utils/epicTag';
+import { formatDistanceToNow } from 'date-fns';
 
 // Icons
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -17,6 +18,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import HistoryIcon from '@mui/icons-material/History';
 import CommentIcon from '@mui/icons-material/Comment';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -378,14 +380,10 @@ const TaskItem = React.memo(({ task, index, onClick, onMenuClick }) => {
           >
             <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
               <Stack spacing={1.5}>
-                {/* Key + type + parent-epic row */}
-                {(task.taskKey || task.taskType === 'epic' || task.parentTask) && (
+                {/* Type + parent-epic row (the SLT-NN key is intentionally hidden
+                    on cards — it's shown on the task detail) */}
+                {(task.taskType === 'epic' || task.parentTask) && (
                   <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" sx={{ rowGap: 0.5 }}>
-                    {task.taskKey && (
-                      <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: 'text.secondary' }}>
-                        {task.taskKey}
-                      </Typography>
-                    )}
                     {task.taskType === 'epic' && (
                       <Chip label="EPIC" size="small" sx={{ bgcolor: '#9c27b0', color: 'white', fontWeight: 700, height: 18, fontSize: '0.6rem' }} />
                     )}
@@ -443,22 +441,14 @@ const TaskItem = React.memo(({ task, index, onClick, onMenuClick }) => {
                   </IconButton>
                 </Stack>
                 
-                {/* Task Description */}
-                {task.description && (
-                  <Typography 
-                    variant="caption" 
-                    color="text.secondary"
-                    sx={{
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      lineHeight: 1.4
-                    }}
-                  >
-                    {task.description}
-                  </Typography>
+                {/* Last-updated — more useful on a card than the raw description */}
+                {(task.lastActivityAt || task.updatedAt) && (
+                  <Stack direction="row" spacing={0.5} alignItems="center" sx={{ color: 'text.secondary' }}>
+                    <HistoryIcon sx={{ fontSize: '0.85rem' }} />
+                    <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
+                      Updated {formatDistanceToNow(new Date(task.lastActivityAt || task.updatedAt), { addSuffix: true })}
+                    </Typography>
+                  </Stack>
                 )}
                 
                 {/* Task Tags */}

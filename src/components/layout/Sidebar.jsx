@@ -212,17 +212,23 @@ const Sidebar = ({ open, onClose, drawerWidth }) => {
           <BusinessIcon sx={{ fontSize: 24, color: 'inherit' }} />
         </LogoContainer>
         
-        <Typography 
-          variant="subtitle1" 
-          component="h2" 
-          sx={{ 
+        <Typography
+          variant="subtitle1"
+          component="h2"
+          title={activeOrganization?.name || 'Horizon'}
+          sx={{
             fontWeight: 700,
             mb: 0.5,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
             px: 1,
             fontSize: '1rem',
+            lineHeight: 1.25,
+            textAlign: 'center',
+            // Wrap up to two lines instead of clipping the name to "ScaleUp Learning T…"
+            overflow: 'hidden',
+            wordBreak: 'break-word',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
           }}
         >
           {activeOrganization?.name || 'Horizon'}
