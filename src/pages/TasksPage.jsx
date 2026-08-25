@@ -83,6 +83,13 @@ const attachmentTypeIcon = (mimeType) => {
   return <InsertDriveFileIcon color="action" />;
 };
 
+// Friendly upload error — a 413 arrives as an nginx HTML page, not a JSON msg
+const uploadErrorMessage = (err, fallback) => {
+  if (err?.response?.status === 413) return 'File is too large to upload — the limit is 15MB per file.';
+  const msg = err?.response?.data?.msg;
+  return typeof msg === 'string' ? msg : fallback;
+};
+
 // The kanban board has no pagination UI, so it needs the full task set
 const KANBAN_FETCH_LIMIT = 500;
 // Analytics are computed from the full (capped) dataset, not the current page
@@ -501,7 +508,20 @@ const TasksPage = () => {
         taskData.assignee = formData.assignee;
       }
 
-      await createTask(taskData);
+      const res = await createTask(taskData);
+
+      // Upload any files picked in the dialog against the new task
+      const files = formData._attachmentFiles || [];
+      const newTaskId = res.data?.task?._id;
+      if (files.length && newTaskId) {
+        try {
+          await uploadTaskAttachments(newTaskId, files);
+        } catch (uploadErr) {
+          console.error('Error uploading attachments for new task:', uploadErr);
+          setError(uploadErrorMessage(uploadErr, 'Task created, but the attachments failed to upload — open the task to retry.'));
+        }
+      }
+
       setSuccess('Task created successfully!');
       setCreateTaskOpen(false);
       setCreateDefaultDueDate(null);
@@ -536,6 +556,18 @@ const TasksPage = () => {
 
       const editedTaskId = editingTask._id;
       await updateTask(editedTaskId, updates);
+
+      // Upload any files picked in the edit dialog
+      const editFiles = formData._attachmentFiles || [];
+      if (editFiles.length) {
+        try {
+          await uploadTaskAttachments(editedTaskId, editFiles);
+        } catch (uploadErr) {
+          console.error('Error uploading attachments on edit:', uploadErr);
+          setError(uploadErrorMessage(uploadErr, 'Task updated, but the attachments failed to upload.'));
+        }
+      }
+
       setSuccess('Task updated successfully!');
       setEditingTask(null);
       setEditDialogOpen(false);
@@ -611,7 +643,7 @@ const TasksPage = () => {
       setSuccess(res.data.msg || 'Attachment added!');
     } catch (err) {
       console.error('Error uploading attachments:', err);
-      setError(err.response?.data?.msg || 'Failed to upload attachment');
+      setError(uploadErrorMessage(err, 'Failed to upload attachment'));
     } finally {
       setAttachmentBusy(false);
       if (attachmentInputRef.current) attachmentInputRef.current.value = '';

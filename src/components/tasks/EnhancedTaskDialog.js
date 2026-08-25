@@ -1,5 +1,5 @@
 // EnhancedTaskDialog.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select,
   FormControl, InputLabel, MenuItem, Button, Stack, Chip, IconButton,
@@ -31,6 +31,10 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import CategoryIcon from '@mui/icons-material/Category';
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupIcon from '@mui/icons-material/Group';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+
+// Mirrors the backend attachment allowlist (15MB per file, 5 per upload request)
+const ATTACHMENT_ACCEPT = '.jpg,.jpeg,.png,.gif,.webp,.heic,.heif,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt';
 
 const priorityConfig = {
   critical: { icon: <LocalFireDepartmentIcon />, color: '#f44336', label: 'Critical' },
@@ -87,6 +91,10 @@ const EnhancedTaskDialog = ({
   const [errors, setErrors] = useState({});
   const [tagInput, setTagInput] = useState('');
 
+  // Files picked in the dialog — uploaded by the parent right after create/update
+  const [pendingFiles, setPendingFiles] = useState([]);
+  const fileInputRef = useRef(null);
+
   useEffect(() => {
     if (open) {
       if (existingTask) {
@@ -137,6 +145,7 @@ const EnhancedTaskDialog = ({
       }
       setErrors({});
       setActiveTab(0);
+      setPendingFiles([]);
     }
   }, [open, existingTask, defaultDueDate]);
 
@@ -159,9 +168,17 @@ const EnhancedTaskDialog = ({
       const submitData = {
         ...taskForm,
         subcategory: showCustomSubcategory ? (customSubcategory.trim() || null) : (taskForm.subcategory || null),
+        _attachmentFiles: pendingFiles,
       };
       onSubmit(submitData);
     }
+  };
+
+  const handlePickFiles = (fileList) => {
+    const picked = Array.from(fileList || []);
+    if (!picked.length) return;
+    setPendingFiles(prev => [...prev, ...picked].slice(0, 5));
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
   const handleQuickDate = (option) => {
     const today = new Date();
@@ -482,6 +499,46 @@ const EnhancedTaskDialog = ({
                           size="small"
                           onDelete={() => handleRemoveTag(tag)}
                           sx={{ mt: 1 }}
+                        />
+                      ))}
+                    </Stack>
+                  )}
+                </Box>
+
+                {/* Attachments */}
+                <Box>
+                  <Stack direction="row" alignItems="center" spacing={2}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<AttachFileIcon />}
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={pendingFiles.length >= 5}
+                    >
+                      Attach files
+                    </Button>
+                    <Typography variant="caption" color="text.secondary">
+                      Images, PDF, Word, Excel, PowerPoint, CSV, TXT — up to 5 files, 15MB each
+                    </Typography>
+                    <input
+                      type="file"
+                      hidden
+                      multiple
+                      ref={fileInputRef}
+                      accept={ATTACHMENT_ACCEPT}
+                      onChange={(e) => handlePickFiles(e.target.files)}
+                    />
+                  </Stack>
+                  {pendingFiles.length > 0 && (
+                    <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 1 }}>
+                      {pendingFiles.map((file, idx) => (
+                        <Chip
+                          key={`${file.name}-${idx}`}
+                          icon={<AttachFileIcon />}
+                          label={`${file.name} (${file.size < 1024 * 1024 ? Math.round(file.size / 1024) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB'})`}
+                          size="small"
+                          onDelete={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+                          sx={{ mt: 1, maxWidth: 320 }}
                         />
                       ))}
                     </Stack>
