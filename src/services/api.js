@@ -687,6 +687,19 @@ export const updateTaskWatchers = (id, data) => api.post(`/tasks/${id}/watchers`
 export const addTaskLink = (taskId, data) => api.post(`/tasks/${taskId}/links`, data); // { targetTaskId, linkType }
 export const deleteTaskLink = (taskId, linkId) => api.delete(`/tasks/${taskId}/links/${linkId}`);
 
+// Task Attachments
+export const uploadTaskAttachments = (taskId, files) => {
+  const formData = new FormData();
+  Array.from(files).forEach((file) => formData.append('files', file));
+  return api.post(`/tasks/${taskId}/attachments`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
+export const getTaskAttachmentDownloadUrl = (taskId, attachmentId) =>
+  api.get(`/tasks/${taskId}/attachments/${attachmentId}/download`);
+export const deleteTaskAttachment = (taskId, attachmentId) =>
+  api.delete(`/tasks/${taskId}/attachments/${attachmentId}`);
+
 // Task Comments
 export const getTaskComments = (taskId) => api.get(`/tasks/${taskId}/comments`);
 export const addTaskComment = (taskId, commentData) => api.post(`/tasks/${taskId}/comments`, commentData);

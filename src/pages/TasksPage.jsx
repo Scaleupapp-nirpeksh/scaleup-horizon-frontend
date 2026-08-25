@@ -1,5 +1,5 @@
 // UpdatedTasksPage.jsx - Integration with improved Kanban board and Analytics
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -45,6 +45,10 @@ import SendIcon from '@mui/icons-material/Send';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ImageIcon from '@mui/icons-material/Image';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
 // Component imports
 import EnhancedTaskDialog from '../components/tasks/EnhancedTaskDialog';
@@ -59,8 +63,25 @@ import {
   getTasks, getTaskById, createTask, updateTask, archiveTask,
   getTaskComments, addTaskComment, addTaskLink, deleteTaskLink,
   getTaskStats, formatTaskFilters, listOrganizationMembers,
-  bulkUpdateTasks
+  bulkUpdateTasks,
+  uploadTaskAttachments, getTaskAttachmentDownloadUrl, deleteTaskAttachment
 } from '../services/api';
+
+// Attachment helpers
+const ATTACHMENT_ACCEPT = '.jpg,.jpeg,.png,.gif,.webp,.heic,.heif,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt';
+
+const formatFileSize = (bytes) => {
+  if (bytes === null || bytes === undefined) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const attachmentTypeIcon = (mimeType) => {
+  if ((mimeType || '').startsWith('image/')) return <ImageIcon color="action" />;
+  if (mimeType === 'application/pdf') return <PictureAsPdfIcon color="action" />;
+  return <InsertDriveFileIcon color="action" />;
+};
 
 // The kanban board has no pagination UI, so it needs the full task set
 const KANBAN_FETCH_LIMIT = 500;
@@ -325,6 +346,10 @@ const TasksPage = () => {
   const [commentText, setCommentText] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
 
+  // Attachment State
+  const [attachmentBusy, setAttachmentBusy] = useState(false);
+  const attachmentInputRef = useRef(null);
+
   // Analytics dataset (full org task list, independent of pagination)
   const [analyticsTasks, setAnalyticsTasks] = useState([]);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
@@ -569,6 +594,54 @@ const TasksPage = () => {
     }
   };
   
+  // --- Attachments ---
+
+  // Keep the detail dialog and the board/list badges in sync after add/delete
+  const applyAttachments = (taskId, attachments) => {
+    setSelectedTask(prev => (prev && prev._id === taskId ? { ...prev, attachments } : prev));
+    setTasks(prev => prev.map(t => (t._id === taskId ? { ...t, attachments } : t)));
+  };
+
+  const handleAttachmentFiles = async (fileList) => {
+    if (!selectedTask || !fileList || fileList.length === 0) return;
+    setAttachmentBusy(true);
+    try {
+      const res = await uploadTaskAttachments(selectedTask._id, fileList);
+      applyAttachments(selectedTask._id, res.data.attachments || []);
+      setSuccess(res.data.msg || 'Attachment added!');
+    } catch (err) {
+      console.error('Error uploading attachments:', err);
+      setError(err.response?.data?.msg || 'Failed to upload attachment');
+    } finally {
+      setAttachmentBusy(false);
+      if (attachmentInputRef.current) attachmentInputRef.current.value = '';
+    }
+  };
+
+  const handleViewAttachment = async (attachment) => {
+    if (!selectedTask) return;
+    try {
+      const res = await getTaskAttachmentDownloadUrl(selectedTask._id, attachment._id);
+      if (res.data.downloadUrl) window.open(res.data.downloadUrl, '_blank', 'noopener');
+    } catch (err) {
+      console.error('Error opening attachment:', err);
+      setError(err.response?.data?.msg || 'Failed to open attachment');
+    }
+  };
+
+  const handleDeleteAttachment = async (attachment) => {
+    if (!selectedTask) return;
+    if (!window.confirm(`Delete "${attachment.filename}"? This cannot be undone.`)) return;
+    try {
+      const res = await deleteTaskAttachment(selectedTask._id, attachment._id);
+      applyAttachments(selectedTask._id, res.data.attachments || []);
+      setSuccess('Attachment removed');
+    } catch (err) {
+      console.error('Error deleting attachment:', err);
+      setError(err.response?.data?.msg || 'Failed to delete attachment');
+    }
+  };
+
   // Drag and Drop Handler for Kanban
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -982,7 +1055,81 @@ const TasksPage = () => {
                   </Box>
                   
                   <Divider />
-                  
+
+                  {/* Attachments Section */}
+                  <Box>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        Attachments ({selectedTask.attachments?.length || 0})
+                      </Typography>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<AttachFileIcon />}
+                        disabled={attachmentBusy}
+                        onClick={() => attachmentInputRef.current?.click()}
+                      >
+                        {attachmentBusy ? 'Uploading…' : 'Add files'}
+                      </Button>
+                      <input
+                        type="file"
+                        hidden
+                        multiple
+                        ref={attachmentInputRef}
+                        accept={ATTACHMENT_ACCEPT}
+                        onChange={(e) => handleAttachmentFiles(e.target.files)}
+                      />
+                    </Stack>
+                    {(selectedTask.attachments?.length || 0) > 0 ? (
+                      <Stack spacing={1}>
+                        {selectedTask.attachments.map((att) => (
+                          <Stack
+                            key={att._id}
+                            direction="row"
+                            spacing={1.5}
+                            alignItems="center"
+                            sx={{ p: 1, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}
+                          >
+                            {attachmentTypeIcon(att.mimeType)}
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Typography
+                                variant="body2"
+                                noWrap
+                                onClick={() => handleViewAttachment(att)}
+                                sx={{ fontWeight: 500, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                              >
+                                {att.filename}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
+                                {[
+                                  formatFileSize(att.size),
+                                  att.uploadedBy?.name,
+                                  att.uploadedAt ? formatDistanceToNow(new Date(att.uploadedAt), { addSuffix: true }) : ''
+                                ].filter(Boolean).join(' · ')}
+                              </Typography>
+                            </Box>
+                            <Tooltip title="View / download">
+                              <IconButton size="small" onClick={() => handleViewAttachment(att)}>
+                                <VisibilityIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete attachment">
+                              <IconButton size="small" onClick={() => handleDeleteAttachment(att)}>
+                                <CloseIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        ))}
+                      </Stack>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        No attachments yet — add images, PDFs, or documents up to 15MB each.
+                      </Typography>
+                    )}
+                  </Box>
+
+                  <Divider />
+
                   {/* Comments Section */}
                   <Box>
                     <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
